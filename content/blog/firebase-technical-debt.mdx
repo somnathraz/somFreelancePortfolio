@@ -1,0 +1,51 @@
+---
+title: "The 'Hidden Technical Debt' of Using Firebase Too Long"
+date: "2024-05-15"
+readTime: "6 min read"
+tags: ["Architecture", "SaaS Scaling"]
+intro: "This article is based on patterns I’ve seen repeatedly while helping SaaS teams scale beyond MVP. Firebase is a great tool — but only when used in the right phase."
+description: "Why I migrate most SaaS MVPs off Firebase once they hit specialized data requirements, and what I use instead."
+---
+
+---
+
+![Technical Debt Analysis](/images/project-3.png)
+
+When building an MVP, Firebase is often the default choice. It's fast, real-time, and handles authentication out of the box. For 0 to 1, it's hard to beat.
+
+But for 1 to 10? It can become a silent killer of velocity.
+
+***
+
+## The "Schema-less" Trap
+
+The biggest selling point of NoSQL stores like Firestore—"flexible schema"—is often its biggest long-term liability. In the early days, dumping JSON objects is liberating. But as your application logic grows, you inevitably need relationships.
+
+You start writing code like this:
+
+```typescript
+// The "N+1" nightmare in client-side code
+const user = await getUser(userId);
+const posts = await getPostsForUser(user.id);
+const comments = await Promise.all(posts.map(p => getComments(p.id)));
+```
+
+Suddenly, a simple dashboard load triggers 50+ network requests. You try to fix it with denormalization (duplicating data), and now you have a consistency problem.
+
+***
+
+## When to Switch?
+
+I recommend evaluating a migration to a relational database (like PostgreSQL via Supabase or Neon) when:
+
+1.  **Relational Complexity**: Your data model has more than 3 levels of nested relationships.
+2.  **Reporting Needs**: You need to run aggregations (SUM, AVG) that Firestore doesn't support natively without cloud functions.
+3.  **Type Safety**: You want your database schema to drive your TypeScript types, not the other way around.
+
+***
+
+## The Migration Path
+
+It doesn't have to be a rewrite. I often use **PostgreSQL** for the core data and keep **Firebase Auth** for identity management. This "hybrid" approach gives you the best of SQL querying power with the ease of Firebase's auth SDKs.
+
+The "technical debt" isn't Firebase itself—it's using a document store for relational problems. Recognizing that mismatch is the first step to scaling.
