@@ -79,7 +79,8 @@ export async function GET(request: NextRequest) {
                 const isPast = currentSlot <= now;
 
                 // Check if slot overlaps with any busy time
-                const isBusy = busySlots.some((busy: { start: string; end: string }) => {
+                const isBusy = busySlots.some((busy) => {
+                    if (!busy.start || !busy.end) return false;
                     const busyStart = new Date(busy.start);
                     const busyEnd = new Date(busy.end);
                     return currentSlot < busyEnd && slotEnd > busyStart;
