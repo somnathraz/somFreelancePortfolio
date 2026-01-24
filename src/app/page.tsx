@@ -1,19 +1,41 @@
+import { Suspense } from "react"
+import dynamic from "next/dynamic"
 import { Navbar } from "@/components/Navbar"
-import { Logo } from "@/components/Logo"
 import { Hero } from "@/components/Hero"
-import { BentoServices } from "@/components/BentoServices"
-import { SelectedWork } from "@/components/SelectedWork"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Code2, Database, LayoutTemplate, Server, Box, Github } from "lucide-react"
-import Link from "next/link"
+import { ArrowRight, Code2, Database, LayoutTemplate, Server, Box } from "lucide-react"
 import Marquee from "@/components/magicui/marquee"
-import { Testimonials } from "@/components/Testimonials"
-import { Cta } from "@/components/Cta"
-import { Process } from "@/components/Process"
 
-import { ClientFit } from "@/components/ClientFit"
-import { MobileNav } from "@/components/MobileNav"
-import { Footer } from "@/components/Footer"
+// Lazy load below-the-fold components
+const BentoServices = dynamic(() => import("@/components/BentoServices").then(mod => ({ default: mod.BentoServices })), {
+  loading: () => <div className="h-96 flex items-center justify-center"><div className="animate-pulse text-zinc-500">Loading services...</div></div>,
+})
+
+const ClientFit = dynamic(() => import("@/components/ClientFit").then(mod => ({ default: mod.ClientFit })), {
+  loading: () => <div className="h-64" />,
+})
+
+const SelectedWork = dynamic(() => import("@/components/SelectedWork").then(mod => ({ default: mod.SelectedWork })), {
+  loading: () => <div className="h-96 flex items-center justify-center"><div className="animate-pulse text-zinc-500">Loading work...</div></div>,
+})
+
+const Process = dynamic(() => import("@/components/Process").then(mod => ({ default: mod.Process })), {
+  loading: () => <div className="h-64" />,
+})
+
+const Testimonials = dynamic(() => import("@/components/Testimonials").then(mod => ({ default: mod.Testimonials })), {
+  loading: () => <div className="h-96 flex items-center justify-center"><div className="animate-pulse text-zinc-500">Loading testimonials...</div></div>,
+})
+
+const Cta = dynamic(() => import("@/components/Cta").then(mod => ({ default: mod.Cta })), {
+  loading: () => <div className="h-96" />,
+})
+
+const Footer = dynamic(() => import("@/components/Footer").then(mod => ({ default: mod.Footer })), {
+  loading: () => <div className="h-32" />,
+})
+
+const MobileNav = dynamic(() => import("@/components/MobileNav").then(mod => ({ default: mod.MobileNav })), {})
 
 export default function Home() {
   return (
@@ -41,30 +63,44 @@ export default function Home() {
 
       {/* Services Section (Bento Grid) */}
       <section id="services" className="relative z-10">
-        <BentoServices />
+        <Suspense fallback={<div className="h-96 flex items-center justify-center"><div className="animate-pulse text-zinc-500">Loading services...</div></div>}>
+          <BentoServices />
+        </Suspense>
       </section>
 
       {/* Client Fit Section */}
-      <ClientFit />
+      <Suspense fallback={<div className="h-64" />}>
+        <ClientFit />
+      </Suspense>
 
       {/* Selected Work Section */}
       <section id="work" className="relative z-10 bg-black">
-        <SelectedWork />
+        <Suspense fallback={<div className="h-96 flex items-center justify-center"><div className="animate-pulse text-zinc-500">Loading work...</div></div>}>
+          <SelectedWork />
+        </Suspense>
       </section>
 
       {/* Process Section */}
-      <Process />
+      <Suspense fallback={<div className="h-64" />}>
+        <Process />
+      </Suspense>
 
       {/* Testimonials Section */}
       <section className="relative z-10 bg-black">
-        <Testimonials />
+        <Suspense fallback={<div className="h-96 flex items-center justify-center"><div className="animate-pulse text-zinc-500">Loading testimonials...</div></div>}>
+          <Testimonials />
+        </Suspense>
       </section>
 
       {/* CTA Section */}
-      <Cta />
+      <Suspense fallback={<div className="h-96" />}>
+        <Cta />
+      </Suspense>
 
       {/* Footer */}
-      <Footer />
+      <Suspense fallback={<div className="h-32" />}>
+        <Footer />
+      </Suspense>
       <MobileNav />
     </main>
   )

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { forwardRef, useRef } from "react";
+import React, { forwardRef, useRef, Suspense } from "react";
+import dynamic from "next/dynamic";
 import { BentoGrid, BentoCard } from "@/components/ui/bento-grid";
 import { AnimatedBeam } from "@/components/ui/animated-beam";
 import { BorderBeam } from "@/components/magicui/border-beam";
@@ -10,8 +11,12 @@ import { FlickeringGrid } from "@/components/ui/flickering-grid";
 import { RetroGrid } from "@/components/ui/retro-grid";
 import { Rocket, Cloud, Gauge, Code2, Terminal, User, Server, Database, Globe as GlobeIcon, ShieldCheck, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Globe } from "./ui/globe";
 import { FollowerPointerCard } from "@/components/ui/following-pointer";
+
+// Lazy load the heavy Globe component
+const Globe = dynamic(() => import("./ui/globe").then(mod => ({ default: mod.Globe })), {
+  loading: () => <div className="w-[400px] h-[400px] flex items-center justify-center"><div className="animate-pulse text-zinc-500">Loading globe...</div></div>,
+});
 
 // Circle component for AnimatedBeam nodes
 const Circle = forwardRef<
@@ -131,7 +136,9 @@ export function BentoServices() {
         <FollowerPointerCard title={<PointerTitle title="High Performance" />} className="h-full w-full">
             <div className="flex flex-1 w-full h-full rounded-xl bg-zinc-950 border-none items-center justify-center overflow-hidden relative group">
                 <div className="relative w-full h-full flex items-center justify-center">
-                    <Globe className="!relative !w-[400px] !h-[400px]" />
+                    <Suspense fallback={<div className="w-[400px] h-[400px] flex items-center justify-center"><div className="animate-pulse text-zinc-500">Loading globe...</div></div>}>
+                        <Globe className="!relative !w-[400px] !h-[400px]" />
+                    </Suspense>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent pointer-events-none"></div>
             </div>

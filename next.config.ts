@@ -11,6 +11,18 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Performance optimizations
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'framer-motion', 'motion'],
+  },
+  // Enable compression
+  compress: true,
+  // Reduce JavaScript bundle size
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
 };
 
 export default nextConfig;
