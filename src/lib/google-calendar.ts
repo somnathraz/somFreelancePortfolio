@@ -2,10 +2,19 @@ import { google } from 'googleapis';
 
 // Initialize Google Calendar client
 export function getCalendarClient() {
+    const errorMessage = 'Missing GOOGLE_PRIVATE_KEY or GOOGLE_CLIENT_EMAIL';
+    if (!process.env.GOOGLE_PRIVATE_KEY || !process.env.GOOGLE_CLIENT_EMAIL) {
+        throw new Error(errorMessage);
+    }
+
+    const privateKey = process.env.GOOGLE_PRIVATE_KEY
+        .replace(/\\n/g, '\n') // Replace literal \n with actual newlines
+        .replace(/^"|"$/g, ''); // Remove surrounding quotes if they exist
+
     const auth = new google.auth.GoogleAuth({
         credentials: {
             client_email: process.env.GOOGLE_CLIENT_EMAIL,
-            private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+            private_key: privateKey,
         },
         scopes: ['https://www.googleapis.com/auth/calendar'],
     });
