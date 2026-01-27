@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://somanathstudio.com"),
+  metadataBase: new URL("https://www.somanathkhadanga.com"),
   title: "Somanath Studio — High-Performance SaaS Engineering & Development",
   description: "Senior freelance engineer specializing in building and scaling production SaaS systems, performance optimization, and AI-powered applications. 4+ years of industry experience.",
   keywords: ["saas development", "high performance web applications", "freelance saas engineer", "scalable software architecture", "ai powered applications", "next.js node.js mongodb"],
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     description: "Technical partner for founders building production-grade SaaS systems. Performance-focused, scalable, and built to last.",
     type: "website",
     locale: "en_US",
-    url: "https://somanathstudio.com",
+    url: "https://www.somanathkhadanga.com",
     siteName: "Somanath Studio",
     images: [
       {
@@ -52,7 +52,7 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Somanath Studio",
-  "url": "https://somanathstudio.com",
+  "url": "https://www.somanathkhadanga.com",
   "description": "High-performance SaaS engineering studio specializing in scalable, production-grade software.",
   "founder": {
     "@type": "Person",
