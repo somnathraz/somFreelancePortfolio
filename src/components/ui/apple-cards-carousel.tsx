@@ -275,6 +275,7 @@ export const BlurImage = ({
   src,
   className,
   alt,
+  fill,
   ...rest
 }: ImageProps & { blurDataURL?: string }) => {
 

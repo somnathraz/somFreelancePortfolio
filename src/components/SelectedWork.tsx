@@ -58,6 +58,72 @@ export function SelectedWork() {
 
 const data = [
     {
+        category: "E-Commerce Engine • Scalability",
+        title: "Local Boy Nani Seafoods",
+        src: "/images/project-7.png",
+        alt: "Local Boy Nani Seafoods - E-Commerce Platform Interface",
+        content: <ProjectDetail
+            image="/images/project-7.png"
+            title="Local Boy Nani Seafoods."
+            description="A complete digital commerce system streamlining online seafood delivery operations. Features real-time order tracking, admin operational control, and a frictionless shopping experience."
+            stack={["Next.js", "Tailwind CSS", "Secure Payments", "Admin Interface"]}
+        >
+            <div className="mt-8 space-y-8 text-neutral-600 dark:text-neutral-400">
+                <section>
+                    <h4 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">Executive Summary</h4>
+                    <p>
+                        The challenge wasn’t just building a storefront. It was designing a performance-driven, operationally efficient e-commerce platform capable of supporting real-world logistics and order management.
+                    </p>
+                </section>
+
+                <section>
+                    <h4 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">Strategic Objectives</h4>
+                    <ul className="list-disc pl-5 space-y-1">
+                        <li>Deliver frictionless shopping experience</li>
+                        <li>Integrate secure payment processing</li>
+                        <li>Build real-time order tracking capability</li>
+                        <li>Provide admin-level operational control</li>
+                        <li>Maintain mobile-first performance under load</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h4 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">Engineering Approach</h4>
+                    <div className="space-y-4">
+                        <div>
+                            <strong className="block text-neutral-900 dark:text-neutral-200">1️⃣ Complete Commerce Workflow</strong>
+                            <p>Implemented category-based browsing, dynamic product management, cart/checkout flow, and order lifecycle tracking.</p>
+                        </div>
+                        <div>
+                            <strong className="block text-neutral-900 dark:text-neutral-200">2️⃣ Admin & Operations Control</strong>
+                            <p>Developed a backend dashboard for inventory adjustments, real-time order visibility, and status management.</p>
+                        </div>
+                        <div>
+                            <strong className="block text-neutral-900 dark:text-neutral-200">3️⃣ Performance Optimization</strong>
+                            <p>Leveraged Next.js for optimized rendering and SEO-friendly page structure to ensure fast load performance across devices.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h4 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">Outcomes</h4>
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <li className="flex items-center gap-2"><span className="text-emerald-500">✔</span> Production-ready commerce platform</li>
+                        <li className="flex items-center gap-2"><span className="text-emerald-500">✔</span> Structured backend control</li>
+                        <li className="flex items-center gap-2"><span className="text-emerald-500">✔</span> Secure transaction handling</li>
+                        <li className="flex items-center gap-2"><span className="text-emerald-500">✔</span> Mobile-first user experience</li>
+                    </ul>
+                </section>
+
+                <div className="pt-4">
+                    <a href="https://localboynaniseafoods.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-medium hover:underline">
+                        Visit Live Platform →
+                    </a>
+                </div>
+            </div>
+        </ProjectDetail>,
+    },
+    {
         category: "Client: Fintech Automation • Role: AI Engineer",
         title: "Smart Invoice Agent",
         src: "/images/Project-1.png",

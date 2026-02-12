@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 
 export const mdxComponents = {
     h1: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
@@ -41,6 +42,7 @@ export const mdxComponents = {
         // eslint-disable-next-line @next/next/no-img-element
         <img className={`rounded-xl border border-white/10 my-8 w-full ${className || ''}`} alt={alt} {...props} />
     ),
+    Image: (props: React.ComponentProps<typeof Image>) => <Image {...props} />,
 };
 
 export default function MdxContent({ children }: { children: React.ReactNode }) {

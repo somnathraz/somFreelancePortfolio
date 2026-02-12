@@ -19,9 +19,33 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
     const post = getPostBySlug(slug);
+
+    const ogImage = `https://www.somanathkhadanga.com/og?title=${encodeURIComponent(post.frontmatter.title)}`;
+
     return {
         title: `${post.frontmatter.title} — Somanath Studio`,
         description: post.frontmatter.description,
+        alternates: {
+            canonical: `/blog/${post.slug}`,
+        },
+        openGraph: {
+            title: post.frontmatter.title,
+            description: post.frontmatter.description,
+            type: 'article',
+            publishedTime: post.frontmatter.date,
+            url: `https://www.somanathkhadanga.com/blog/${post.slug}`,
+            images: [
+                {
+                    url: ogImage,
+                },
+            ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: post.frontmatter.title,
+            description: post.frontmatter.description,
+            images: [ogImage],
+        },
     };
 }
 
@@ -33,6 +57,26 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
     return (
         <main className="min-h-screen bg-black text-foreground selection:bg-white/20">
             <Navbar />
+
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        '@context': 'https://schema.org',
+                        '@type': 'BlogPosting',
+                        headline: post.frontmatter.title,
+                        datePublished: post.frontmatter.date,
+                        dateModified: post.frontmatter.date,
+                        description: post.frontmatter.description,
+                        image: `https://www.somanathkhadanga.com/og?title=${encodeURIComponent(post.frontmatter.title)}`,
+                        url: `https://www.somanathkhadanga.com/blog/${post.slug}`,
+                        author: {
+                            '@type': 'Person',
+                            name: 'Somanath Khadanga',
+                        },
+                    }),
+                }}
+            />
 
             <article className="pt-32 pb-20 px-4 md:px-0">
                 <div className="container mx-auto max-w-[700px]">
