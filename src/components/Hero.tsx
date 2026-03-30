@@ -21,7 +21,7 @@ export function Hero() {
                 <header className="space-y-4">
                     <div className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900/50 px-3 py-1 text-sm text-zinc-400 backdrop-blur-sm">
                         <span className="flex h-2 w-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
-                        Accepting New Projects for Q2
+                        Accepting New SaaS Projects
                     </div>
 
                     <h1 className="text-6xl font-bold tracking-tighter text-white sm:text-7xl xl:text-8xl">
@@ -33,7 +33,7 @@ export function Hero() {
                     </h1>
 
                     <p className="mx-auto max-w-3xl text-lg text-zinc-400 sm:text-xl">
-                        From early architecture to launch, performance, and scale - I build and optimize
+                        From early architecture to launch, performance, and scale — I build and optimize
                         Next.js, Node.js, and AI-powered SaaS products for founders who need more than a basic freelance developer.
                     </p>
                 </header>
@@ -51,10 +51,34 @@ export function Hero() {
                         </Button>
                     </Link>
                 </div>
+
+                {/* Above-the-fold proof (compact) */}
+                <div className="mx-auto mt-10 w-full max-w-4xl border-y border-white/10 bg-white/[0.02] px-4 py-6 backdrop-blur-sm">
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-4">
+                        <div className="text-center sm:border-r sm:border-white/10 sm:pr-4">
+                            <p className="text-2xl font-bold tabular-nums text-white">4+ years</p>
+                            <p className="mt-1 text-xs font-medium uppercase tracking-widest text-zinc-500">
+                                SaaS experience
+                            </p>
+                        </div>
+                        <div className="text-center sm:border-r sm:border-white/10 sm:px-4">
+                            <p className="text-2xl font-bold tabular-nums text-white">60%</p>
+                            <p className="mt-1 text-xs font-medium uppercase tracking-widest text-zinc-500">
+                                Latency reduced
+                            </p>
+                        </div>
+                        <div className="text-center sm:pl-4">
+                            <p className="text-2xl font-bold tabular-nums text-white">21 days</p>
+                            <p className="mt-1 text-xs font-medium uppercase tracking-widest text-zinc-500">
+                                MVP shipped
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Floating Code Window Visual */}
-            <div className="relative z-10 mt-20 w-full max-w-4xl px-4 perspective-[2000px]">
+            <div className="relative z-10 mt-12 w-full max-w-4xl px-4 perspective-[2000px]">
                 <div className="group relative  rounded-xl border border-white/10 bg-black/50 shadow-2xl backdrop-blur-sm transition-transform duration-700 hover:rotate-x-2">
                     <div className="flex h-10 items-center gap-2 border-b border-white/5 bg-zinc-900/50 px-4">
                         <div className="h-3 w-3 rounded-full bg-red-500/20"></div>

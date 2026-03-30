@@ -51,7 +51,7 @@ export function Cta() {
 
                     <div className="flex flex-col items-center gap-2">
                         <p className="text-sm font-medium text-emerald-400 animate-pulse">
-                            ● Currently accepting 1-2 new projects for Q2
+                            ● Currently accepting 1-2 select SaaS engagements
                         </p>
                         <p className="text-xs text-zinc-500 max-w-xl">
                             Best for founders and teams who need real product engineering, not just another generic freelancer.
