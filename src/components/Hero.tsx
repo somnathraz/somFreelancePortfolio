@@ -31,23 +31,22 @@ export function Hero() {
                         </span>
                     </h1>
 
-                    <p className="mx-auto max-w-2xl text-lg text-zinc-400 sm:text-xl">
-                        4+ years building and scaling production SaaS systems.
-                        <br />
-                        Somanath Studio is the technical partner for founders building the next generation of SaaS.
+                    <p className="mx-auto max-w-3xl text-lg text-zinc-400 sm:text-xl">
+                        From early architecture to launch, performance, and scale - I build and optimize
+                        Next.js, Node.js, and AI-powered SaaS products for founders who need more than a basic freelance developer.
                     </p>
                 </header>
 
                 <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                     <ContactSheet>
-                        <Button size="lg" className="h-12 min-w-[200px] text-base bg-white text-black hover:bg-zinc-200">
-                            Hire Me
+                        <Button size="lg" className="h-12 min-w-[220px] text-base bg-white text-black hover:bg-zinc-200">
+                            Book a 20-minute strategy call
                             <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                     </ContactSheet>
-                    <Link href="#process">
-                        <Button variant="outline" size="lg" className="h-12 min-w-[200px] text-base border-white/10 hover:bg-white/5 hover:text-white">
-                            View Methodology
+                    <Link href="#work">
+                        <Button variant="outline" size="lg" className="h-12 min-w-[220px] text-base border-white/10 hover:bg-white/5 hover:text-white">
+                            See case studies
                         </Button>
                     </Link>
                 </div>

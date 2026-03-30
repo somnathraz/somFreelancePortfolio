@@ -47,7 +47,7 @@ export default function Home() {
       <section className="relative z-10 mt-32 border-b border-white/5 bg-black/50 py-12 backdrop-blur-sm">
         <div className="container mx-auto px-4 mb-8 text-center">
           <span className="text-sm font-medium uppercase tracking-widest text-muted-foreground/50">
-            Powering next-gen applications with
+            Trusted stack for shipping modern SaaS products fast
           </span>
         </div>
         <Marquee pauseOnHover className="[--duration:20s]">

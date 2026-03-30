@@ -3,20 +3,20 @@ import React from "react";
 export function Process() {
     const steps = [
         {
-            title: "1. Discover",
-            description: "We align on goals, constraints, and success metrics.",
+            title: "1. Discovery",
+            description: "Understand product goals, users, constraints, and timeline.",
         },
         {
-            title: "2. Architect",
-            description: "I design a scalable, production-ready solution.",
+            title: "2. Scoping & Architecture",
+            description: "Define the build plan, stack decisions, and milestones.",
         },
         {
             title: "3. Build & Iterate",
-            description: "Fast execution with continuous feedback.",
+            description: "Ship in small iterations with regular updates and feedback.",
         },
         {
-            title: "4. Launch & Support",
-            description: "Deployment, monitoring, and post-launch support.",
+            title: "4. Launch & Improve",
+            description: "Deploy, monitor, fix issues, and support next priorities.",
         },
     ];
 
@@ -25,10 +25,10 @@ export function Process() {
             <div className="container mx-auto max-w-7xl px-4 md:px-0">
                 <div className="mb-16 text-left">
                     <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">
-                        How We Work
+                        How I work
                     </h2>
                     <p className="mt-4 text-zinc-500 max-w-xl text-lg">
-                        A structured, high-trust process designed to move from vision to production-grade software.
+                        You always know what is being built, why it matters, and what comes next.
                     </p>
                 </div>
 

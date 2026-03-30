@@ -4,15 +4,15 @@ import { CheckCircle2, XCircle } from "lucide-react";
 
 export function ClientFit() {
     const idealClients = [
-        "SaaS founders & startups building MVPs",
-        "Teams needing critical performance fixes",
-        "Companies scaling beyond their first version",
+        "SaaS founders building an MVP",
+        "Startups with a live product that feels slow or unstable",
+        "Teams that need a senior freelance engineer to move faster",
     ];
 
     const notIdealClients = [
-        "Simple one-page brochure sites",
+        "Brochure websites",
         "Cheap template modifications",
-        "projects without clear requirements",
+        "Projects without clear business goals or ownership",
     ];
 
     return (

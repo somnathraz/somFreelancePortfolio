@@ -7,8 +7,9 @@ import { Footer } from '@/components/Footer';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: "Engineering Insights on SaaS, Performance & Scale | Somanath Studio",
-    description: "Practical insights from 4+ years of building and scaling production SaaS systems — covering architecture, performance, and real-world engineering decisions.",
+    title: "Blog — SaaS MVPs, Next.js, Performance & Hiring a Developer | Somanath Studio",
+    description:
+        "Practical articles for SaaS founders: MVP scope, Next.js choices, why products feel slow after launch, and what to prepare before hiring a product engineer.",
 };
 
 export default async function BlogIndex(props: {
@@ -34,20 +35,28 @@ export default async function BlogIndex(props: {
             <section className="pt-32 pb-20 px-4 md:px-0">
                 <div className="container mx-auto max-w-2xl">
                     <header className="mb-16">
+                        <p className="text-xs font-mono uppercase tracking-widest text-zinc-500 mb-4">
+                            Blog
+                        </p>
                         <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-6">
-                            Writing
+                            Insights for SaaS founders
                         </h1>
                         <p className="text-zinc-400 text-lg mb-6 leading-relaxed">
-                            Thoughts on software architecture, building for scale, and the business of engineering.
-                            Written from real client work and production systems built over 4+ years.
+                            Buyer-intent and technical writing on shipping MVPs, improving performance,
+                            and production-ready architecture — grounded in real client work on Next.js,
+                            Node, and AI-powered SaaS.
                         </p>
-                        <div className="flex gap-4 text-sm font-medium">
+                        <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm font-medium">
                             <Link href="/#process" className="text-blue-400 hover:text-blue-300 transition-colors">
-                                How I Work
+                                How I work
                             </Link>
-                            <span className="text-zinc-700">•</span>
-                            <Link href="/#work" className="text-blue-400 hover:text-blue-300 transition-colors">
-                                Selected Case Studies
+                            <span className="text-zinc-700 hidden sm:inline">•</span>
+                            <Link href="/case-studies" className="text-blue-400 hover:text-blue-300 transition-colors">
+                                Case studies
+                            </Link>
+                            <span className="text-zinc-700 hidden sm:inline">•</span>
+                            <Link href="/book" className="text-blue-400 hover:text-blue-300 transition-colors">
+                                Book intro call
                             </Link>
                         </div>
                     </header>

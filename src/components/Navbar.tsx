@@ -29,7 +29,7 @@ export function Navbar() {
             </nav>
 
             <ContactSheet>
-                <Button size="sm">Hire Me</Button>
+                <Button size="sm">Book Intro Call</Button>
             </ContactSheet>
         </header>
     )

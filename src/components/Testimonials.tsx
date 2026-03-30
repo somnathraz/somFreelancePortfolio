@@ -1,10 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Marquee from "@/components/magicui/marquee";
 import { Star } from "lucide-react";
 import { FollowerPointerCard } from "@/components/ui/following-pointer";
 import Image from "next/image";
+import Link from "next/link";
 
 const reviews = [
     {
@@ -16,16 +16,6 @@ const reviews = [
         role: "CTO @ FintechStart",
         source: "LinkedIn",
         date: "Jan 10, 2025",
-    },
-    {
-        name: "Sarah Chen",
-        username: "@schen_dev",
-        body: "Migrated our entire legacy database to MongoDB without a single minute of downtime. The execution was flawless and the communication top-tier.",
-        img: "https://avatar.vercel.sh/schen",
-        rating: 5,
-        role: "VP Engineering",
-        source: "Upwork",
-        date: "Apr 20, 2024",
     },
     {
         name: "Marcus J.",
@@ -46,27 +36,6 @@ const reviews = [
         role: "DevOps Lead",
         source: "LinkedIn",
         date: "Aug 10, 2024",
-    },
-    {
-        name: "Lisa Pat.",
-        username: "@lisa_p",
-        body: "Redesigned our e-commerce checkout flow. Conversion rates went up by 15% in the first week. The data-driven approach is real.",
-        img: "https://avatar.vercel.sh/lisa",
-        rating: 5,
-        role: "Product Manager",
-        source: "Upwork",
-        date: "Oct 01, 2024",
-    },
-    // Adding one more to make it 6 items for better marquee flow
-    {
-        name: "James Wilson",
-        username: "@jwilson_design",
-        body: "Implemented complex animations that felt silky smooth on all devices. A rare combination of design sensibility and technical depth.",
-        img: "https://avatar.vercel.sh/james",
-        rating: 5,
-        role: "Creative Director",
-        source: "LinkedIn",
-        date: "Dec 15, 2024",
     },
 ];
 
@@ -97,7 +66,7 @@ const ReviewCard = ({
         >
             <div
                 className={cn(
-                    "relative h-full w-80 overflow-hidden rounded-xl border p-6",
+                    "relative h-full w-full overflow-hidden rounded-xl border p-6",
                     // light styles
                     "border-zinc-950/[.1] bg-gray-950/[.01] hover:bg-gray-950/[.05]",
                     // dark styles
@@ -185,19 +154,20 @@ export function Testimonials() {
             <div className="absolute inset-0 bg-grid-white/[0.02] pointer-events-none"></div>
 
             <h2 className="relative z-10 text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-16 text-white max-w-2xl mx-auto">
-                Trusted by founders <br /> <span className="text-zinc-500">worldwide.</span>
+                Trusted by founders
+                <br />
+                <span className="text-zinc-500">for results that move key metrics.</span>
             </h2>
 
-            <div className="relative z-10 w-full max-w-7xl mx-auto">
-                <Marquee pauseOnHover className="[--duration:40s]">
-                    {reviews.map((review, i) => (
-                        <ReviewCard key={i} {...review} />
-                    ))}
-                </Marquee>
+            <div className="relative z-10 w-full max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-6">
+                {reviews.map((review, i) => (
+                    <ReviewCard key={i} {...review} />
+                ))}
             </div>
 
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-black to-transparent z-20"></div>
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-black to-transparent z-20"></div>
+            <Link href="/case-studies" className="relative z-10 mt-10 text-zinc-300 underline underline-offset-4 hover:text-white">
+                See more client feedback
+            </Link>
         </div>
     );
 }

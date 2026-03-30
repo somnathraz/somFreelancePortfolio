@@ -54,7 +54,7 @@ export function BentoServices() {
     );
 
     const mvpBackground = (
-        <FollowerPointerCard title={<PointerTitle title="MVP Launchpad" />} className="h-full w-full">
+        <FollowerPointerCard title={<PointerTitle title="SaaS MVP Build" />} className="h-full w-full">
             <div className="relative flex h-full w-full items-start justify-center overflow-hidden rounded-xl bg-zinc-950 border-none p-4 pt-8">
                 {/* Central Network Hub with Ripple */}
                 <div className="relative z-10 flex flex-col items-center gap-3">
@@ -133,7 +133,7 @@ export function BentoServices() {
     );
 
     const performanceBackground = (
-        <FollowerPointerCard title={<PointerTitle title="High Performance" />} className="h-full w-full">
+        <FollowerPointerCard title={<PointerTitle title="Performance Optimization" />} className="h-full w-full">
             <div className="flex flex-1 w-full h-full rounded-xl bg-zinc-950 border-none items-center justify-center overflow-hidden relative group">
                 <div className="relative w-full h-full flex items-center justify-center">
                     <Suspense fallback={<div className="w-[400px] h-[400px] flex items-center justify-center"><div className="animate-pulse text-zinc-500">Loading globe...</div></div>}>
@@ -146,7 +146,7 @@ export function BentoServices() {
     );
 
     const scalabilityBackground = (
-        <FollowerPointerCard title={<PointerTitle title="Scalable Architecture" />} className="h-full w-full">
+        <FollowerPointerCard title={<PointerTitle title="Production Readiness" />} className="h-full w-full">
             <div className="relative flex h-full w-full items-start justify-center overflow-hidden rounded-xl bg-background border-none p-4 pt-8 shadow-xl" ref={containerRef}>
                 <div className="flex h-48 w-full flex-col items-stretch justify-between gap-10">
                     <div className="flex flex-row justify-between">
@@ -207,7 +207,7 @@ export function BentoServices() {
     );
 
     const securityBackground = (
-        <FollowerPointerCard title={<PointerTitle title="Enterprise Security" className="bg-green-500/10 border-green-500/30 text-green-100" dotColor="bg-green-500" />} className="h-full w-full">
+        <FollowerPointerCard title={<PointerTitle title="Architecture & Security" className="bg-green-500/10 border-green-500/30 text-green-100" dotColor="bg-green-500" />} className="h-full w-full">
             <div className="flex flex-1 w-full h-full rounded-xl bg-zinc-950 border-none items-center justify-center relative overflow-hidden group">
                 <BorderBeam size={250} duration={12} delay={9} borderWidth={2} colorFrom="#10b981" colorTo="#059669" />
 
@@ -251,7 +251,7 @@ export function BentoServices() {
     );
 
     const supportBackground = (
-        <FollowerPointerCard title={<PointerTitle title="24/7 Support" className="bg-cyan-500/10 border-cyan-500/30 text-cyan-100" dotColor="bg-cyan-500" />} className="h-full w-full">
+        <FollowerPointerCard title={<PointerTitle title="Ongoing Technical Partner" className="bg-cyan-500/10 border-cyan-500/30 text-cyan-100" dotColor="bg-cyan-500" />} className="h-full w-full">
             <div className="flex flex-1 w-full h-full rounded-xl bg-zinc-950 border-none items-start justify-center relative overflow-hidden group p-4 pt-12">
                 {/* Meteors effect */}
                 <div className="absolute inset-0">
@@ -301,17 +301,17 @@ export function BentoServices() {
     const features = [
         {
             Icon: Rocket,
-            name: "Ship in Days",
-            description: "From concept to production in 7 days. Rapid prototyping with your complete tech stack.",
+            name: "SaaS MVP Build",
+            description: "Build your first usable SaaS version fast with solid architecture, clean UI, and launch-ready foundations.",
             href: "#",
-            cta: "Start Building",
+            cta: "Get MVP scope",
             background: mvpBackground,
             className: "col-span-3 lg:col-span-1",
         },
         {
             Icon: Gauge,
-            name: "Performance",
-            description: "We optimize for sub-100ms latency. Core Web Vitals and backend tuning.",
+            name: "Performance Optimization",
+            description: "Fix slow pages, weak Core Web Vitals, long API times, and frontend bottlenecks before they hurt conversions.",
             href: "#",
             cta: "Learn more",
             background: performanceBackground,
@@ -319,8 +319,8 @@ export function BentoServices() {
         },
         {
             Icon: Cloud,
-            name: "Scalability",
-            description: "Kubernetes-ready architecture. Designed for high concurrency.",
+            name: "Production Readiness Upgrade",
+            description: "Turn a fragile MVP into a stable product with stronger architecture, security practices, monitoring, and deployment workflows.",
             href: "#",
             cta: "Learn more",
             background: scalabilityBackground,
@@ -328,8 +328,8 @@ export function BentoServices() {
         },
         {
             Icon: ShieldCheck,
-            name: "Security First",
-            description: "Enterprise-grade security practices standard in every deployment.",
+            name: "Architecture & Security Hardening",
+            description: "Stabilize product behavior with resilient infrastructure, secure defaults, and observability for confident launches.",
             href: "#",
             cta: "Learn more",
             background: securityBackground,
@@ -337,10 +337,10 @@ export function BentoServices() {
         },
         {
             Icon: Zap,
-            name: "24/7 Support",
-            description: "Round-the-clock monitoring and rapid response. We're always here when you need us.",
+            name: "Ongoing Technical Partner",
+            description: "Get senior engineering support for shipping features, removing bottlenecks, and scaling product decisions over time.",
             href: "#",
-            cta: "Contact Us",
+            cta: "Book intro call",
             background: supportBackground,
             className: "col-span-3 lg:col-span-1",
         },
