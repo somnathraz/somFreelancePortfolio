@@ -302,7 +302,8 @@ export function BentoServices() {
         {
             Icon: Rocket,
             name: "SaaS MVP Build",
-            description: "Build your first usable SaaS version fast with solid architecture, clean UI, and launch-ready foundations.",
+            description:
+                "Launch your first usable product fast with solid architecture, clean UX, and the right technical foundation from day one.",
             href: "#",
             cta: "Get MVP scope",
             background: mvpBackground,
@@ -311,7 +312,8 @@ export function BentoServices() {
         {
             Icon: Gauge,
             name: "Performance Optimization",
-            description: "Fix slow pages, weak Core Web Vitals, long API times, and frontend bottlenecks before they hurt conversions.",
+            description:
+                "Fix slow pages, poor Core Web Vitals, long API times, and frontend bottlenecks before they start hurting growth.",
             href: "#",
             cta: "Learn more",
             background: performanceBackground,
@@ -320,7 +322,8 @@ export function BentoServices() {
         {
             Icon: Cloud,
             name: "Production Readiness Upgrade",
-            description: "Turn a fragile MVP into a stable product with stronger architecture, security practices, monitoring, and deployment workflows.",
+            description:
+                "Turn an early MVP into a stable, maintainable product with better architecture, deployment flow, monitoring, and security practices.",
             href: "#",
             cta: "Learn more",
             background: scalabilityBackground,
@@ -329,7 +332,8 @@ export function BentoServices() {
         {
             Icon: ShieldCheck,
             name: "Architecture & Security Hardening",
-            description: "Stabilize product behavior with resilient infrastructure, secure defaults, and observability for confident launches.",
+            description:
+                "Reduce technical risk with stronger system design, secure defaults, observability, and launch confidence.",
             href: "#",
             cta: "Learn more",
             background: securityBackground,
@@ -338,7 +342,8 @@ export function BentoServices() {
         {
             Icon: Zap,
             name: "Ongoing Technical Partner",
-            description: "Get senior engineering support for shipping features, removing bottlenecks, and scaling product decisions over time.",
+            description:
+                "Get senior engineering support for shipping features faster, solving bottlenecks, and making smarter product decisions over time.",
             href: "#",
             cta: "Book intro call",
             background: supportBackground,
@@ -347,10 +352,17 @@ export function BentoServices() {
     ];
 
     return (
-        <BentoGrid className="max-w-6xl mx-auto px-4 py-24">
-            {features.map((feature) => (
-                <BentoCard key={feature.name} {...feature} />
-            ))}
-        </BentoGrid>
+        <div className="w-full">
+            <div className="mx-auto max-w-3xl px-4 pt-24 pb-10 text-center">
+                <p className="text-lg leading-relaxed text-zinc-400 md:text-xl">
+                    Services built for SaaS founders who need speed now and clean scale later.
+                </p>
+            </div>
+            <BentoGrid className="max-w-6xl mx-auto px-4 pb-24 pt-0">
+                {features.map((feature) => (
+                    <BentoCard key={feature.name} {...feature} />
+                ))}
+            </BentoGrid>
+        </div>
     );
 }

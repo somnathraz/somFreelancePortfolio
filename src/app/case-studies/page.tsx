@@ -26,9 +26,9 @@ export default function CaseStudiesPage() {
                         Selected client work
                     </h1>
                     <p className="text-zinc-400 text-lg leading-relaxed mb-8">
-                        A few examples of the product and engineering work I do most: SaaS MVP builds,
-                        performance fixes, and production-grade system improvements. Most client work is
-                        under NDA; full details are shared during calls.
+                        A few examples of the work I do most: SaaS MVP builds, performance fixes, and
+                        production-grade product improvements. Most client work is under NDA, so I share
+                        deeper details during calls.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Button asChild className="bg-white text-black hover:bg-zinc-200">
