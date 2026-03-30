@@ -25,9 +25,10 @@ export function Hero() {
                     </div>
 
                     <h1 className="text-6xl font-bold tracking-tighter text-white sm:text-7xl xl:text-8xl">
-                        Your Vision. <br className="hidden md:block" />
+                    Build your SaaS MVP fast.
+                    <br className="hidden md:block" />
                         <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40">
-                            Engineered for Scale.
+                        Then scale it the right way.
                         </span>
                     </h1>
 
