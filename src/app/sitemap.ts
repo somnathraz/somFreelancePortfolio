@@ -20,6 +20,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/about',
         '/case-studies',
         '/services/saas-mvp-development',
+        '/services/nextjs-performance-optimization',
+        '/services/production-readiness-upgrade',
+        '/services/ai-saas-development',
     ].map((route) => ({
         url: `${BASE_URL}${route}`,
         lastModified: new Date(),
