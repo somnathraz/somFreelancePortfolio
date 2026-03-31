@@ -1,173 +1,195 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { Star } from "lucide-react";
-import { FollowerPointerCard } from "@/components/ui/following-pointer";
-import Image from "next/image";
 import Link from "next/link";
+import { ArrowUpRight, ExternalLink } from "lucide-react";
+import { motion } from "framer-motion";
 
-const reviews = [
+const proofProjects = [
     {
-        name: "Alex Rivera",
-        username: "@arivera",
-        body: "Reduced our backend API latency by 60%. The optimization work on the Node.js clusters was phenomenal. Highly recommended for high-scale systems.",
-        img: "https://avatar.vercel.sh/arivera",
-        rating: 5,
-        role: "CTO @ FintechStart",
-        source: "LinkedIn",
-        date: "Jan 10, 2025",
+        index: "01",
+        label: "Live Production App",
+        project: "LocalBoyNani Seafoods",
+        tagline: "Premium seafood delivery — shore to door in 120 mins",
+        description:
+            "Full-stack e-commerce platform for a real business. Chemical-free seafood sourced directly from coastal fishermen, delivered across Bangalore, Hyderabad & Chennai. Built solo — storefront, admin dashboard, order lifecycle, secure payments, B2B bulk ordering.",
+        stack: ["Next.js", "Tailwind CSS", "Cloudflare R2", "Node.js"],
+        metric: "Live & taking orders",
+        metricColor: "text-emerald-400",
+        borderAccent: "before:bg-emerald-500",
+        link: "https://localboynaniseafoods.com",
+        linkLabel: "localboynaniseafoods.com",
+        external: true,
     },
     {
-        name: "Marcus J.",
-        username: "@marcus_builds",
-        body: "Built our MVP from scratch in just 3 weeks. The attention to detail in the UI/UX while keeping the code clean was impressive.",
-        img: "https://avatar.vercel.sh/marcus",
-        rating: 5,
-        role: "Founder @ SaaSify",
-        source: "Product Hunt",
-        date: "Nov 28, 2024",
-    },
-    {
-        name: "David Kim",
-        username: "@dkim_tech",
-        body: "Optimized our Next.js build times from 15 mins to 3 mins. The CI/CD pipeline improvements have saved our team hundreds of hours.",
-        img: "https://avatar.vercel.sh/david",
-        rating: 5,
-        role: "DevOps Lead",
-        source: "LinkedIn",
-        date: "Aug 10, 2024",
+        index: "02",
+        label: "Personal SaaS — Full Case Study",
+        project: "PaperChai",
+        tagline: "Invoice & payment tracking for freelancers",
+        description:
+            "Invoicing SaaS built to solve a real pain: scattered invoices, no cash-flow visibility, manual follow-ups. Dashboard with financial metrics, client management, invoice creation, payment status (paid / pending / overdue). Built solo in 11 days with production-grade architecture.",
+        stack: ["Next.js App Router", "TypeScript", "PostgreSQL"],
+        metric: "Shipped in 11 days",
+        metricColor: "text-blue-400",
+        borderAccent: "before:bg-blue-500",
+        link: "/blog/paperchai-from-idea-to-running-saas",
+        linkLabel: "Read the full build story",
+        external: false,
     },
 ];
 
-const ReviewCard = ({
-    img,
-    name,
-    username,
-    body,
-    rating,
-    role,
-    source,
-    date,
-}: {
-    img: string;
-    name: string;
-    username: string;
-    body: string;
-    rating: number;
-    role: string;
-    source: string;
-    date: string;
-}) => {
-    return (
-        <FollowerPointerCard
-            title={
-                <TitleComponent title={name} avatar={img} />
-            }
-        >
-            <div
-                className={cn(
-                    "relative h-full w-full overflow-hidden rounded-xl border p-6",
-                    // light styles
-                    "border-zinc-950/[.1] bg-gray-950/[.01] hover:bg-gray-950/[.05]",
-                    // dark styles
-                    "dark:border-white/[.1] dark:bg-zinc-900/50 dark:hover:bg-zinc-800 transition-colors",
-                )}
-            >
-                <div className="flex flex-col gap-4 select-none">
-                    <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-3 mb-2">
-                            <img src={img} alt={name} className="h-8 w-8 rounded-full" />
-                            <div>
-                                <h3 className="text-sm font-bold text-white leading-none">
-                                    {name}
-                                </h3>
-                                <p className="text-xs text-zinc-500">{username}</p>
-                            </div>
-                        </div>
-                        <h3 className="text-xs font-medium text-green-400 uppercase tracking-wide">
-                            {role}
-                        </h3>
-                        <div className="flex items-center gap-2 mt-1">
-                            <div className="flex gap-0.5">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star
-                                        key={i}
-                                        className={cn(
-                                            "h-3 w-3 fill-orange-500 text-orange-500",
-                                            i >= Math.floor(rating) && "opacity-30"
-                                        )}
-                                    />
-                                ))}
-                            </div>
-                            <span className="text-xs text-zinc-500 ml-auto">
-                                {date}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="relative">
-                        <blockquote className="mt-1 text-sm text-zinc-300 leading-relaxed italic">
-                            "{body}"
-                        </blockquote>
-                    </div>
-
-                    <div className="mt-auto pt-4 flex items-center justify-between border-t border-white/5">
-                        <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
-                                Source: <span className={cn(
-                                    "text-zinc-300",
-                                    source === "Upwork" && "text-[#14a800]",
-                                    source === "LinkedIn" && "text-[#0a66c2]",
-                                    source === "Product Hunt" && "text-[#da552f]"
-                                )}>{source}</span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </FollowerPointerCard>
-    );
+const fadeUp = {
+    hidden: { opacity: 0, y: 28 },
+    show: (i: number) => ({
+        opacity: 1,
+        y: 0,
+        transition: { delay: i * 0.12, duration: 0.55, ease: "easeOut" as const },
+    }),
 };
-
-const TitleComponent = ({
-    title,
-    avatar,
-}: {
-    title: string;
-    avatar: string;
-}) => (
-    <div className="flex space-x-2 items-center">
-        <Image
-            src={avatar}
-            height="20"
-            width="20"
-            alt={`${title} - Client Profile`}
-            className="rounded-full border-2 border-white"
-        />
-        <p>{title}</p>
-    </div>
-);
 
 export function Testimonials() {
     return (
-        <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden py-24 bg-black">
-            <div className="absolute inset-0 bg-grid-white/[0.02] pointer-events-none"></div>
+        <div className="relative w-full py-28 bg-black overflow-hidden">
+            {/* Subtle dot grid */}
+            <div
+                className="pointer-events-none absolute inset-0 opacity-30"
+                style={{
+                    backgroundImage:
+                        "radial-gradient(circle, #ffffff12 1px, transparent 1px)",
+                    backgroundSize: "40px 40px",
+                }}
+            />
+            {/* Vignette */}
+            <div className="pointer-events-none absolute inset-0 [background:radial-gradient(ellipse_80%_60%_at_50%_50%,transparent_40%,black_100%)]" />
 
-            <h2 className="relative z-10 text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-16 text-white max-w-2xl mx-auto">
-                Trusted by founders
-                <br />
-                <span className="text-zinc-500">for results that move key metrics.</span>
-            </h2>
+            <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
 
-            <div className="relative z-10 w-full max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-6">
-                {reviews.map((review, i) => (
-                    <ReviewCard key={i} {...review} />
-                ))}
+                {/* ── Header ── */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    className="mb-20"
+                >
+                    <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500 mb-5">
+                        — proof of work
+                    </p>
+                    <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
+                        <h2 className="text-5xl md:text-7xl font-bold text-white leading-[0.95] tracking-tight">
+                            Real projects.<br />
+                            <span className="text-zinc-600">Real URLs.</span>
+                        </h2>
+                        <p className="text-zinc-500 text-sm leading-relaxed max-w-xs md:text-right">
+                            I don&apos;t have 50 reviews from placeholder avatars.
+                            I have live products you can open in a new tab right now.
+                        </p>
+                    </div>
+                </motion.div>
+
+                {/* ── Project Proof Cards ── */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-20">
+                    {proofProjects.map((item, i) => (
+                        <motion.div
+                            key={item.project}
+                            custom={i}
+                            variants={fadeUp}
+                            initial="hidden"
+                            whileInView="show"
+                            viewport={{ once: true }}
+                            className="group relative flex flex-col rounded-2xl border border-white/[0.07] bg-white/[0.02] p-8 overflow-hidden transition-all duration-500 hover:border-white/[0.14] hover:bg-white/[0.04]"
+                        >
+                            {/* Top accent line */}
+                            <div
+                                className={`absolute top-0 left-8 right-8 h-px ${
+                                    i === 0
+                                        ? "bg-gradient-to-r from-transparent via-emerald-500/60 to-transparent"
+                                        : "bg-gradient-to-r from-transparent via-blue-500/60 to-transparent"
+                                }`}
+                            />
+
+                            {/* Index + Label row */}
+                            <div className="flex items-center justify-between mb-8">
+                                <span className="font-mono text-[11px] text-zinc-600 border border-white/[0.07] px-2.5 py-1 rounded-md">
+                                    {item.label}
+                                </span>
+                                <span
+                                    className={`font-mono text-[11px] font-bold uppercase tracking-widest ${item.metricColor}`}
+                                >
+                                    {item.metric}
+                                </span>
+                            </div>
+
+                            {/* Project name */}
+                            <p className="font-mono text-[11px] uppercase tracking-widest text-zinc-600 mb-2">
+                                {item.index}
+                            </p>
+                            <h3 className="text-2xl font-bold text-white mb-1 tracking-tight">
+                                {item.project}
+                            </h3>
+                            <p className="text-sm text-zinc-500 italic mb-5">{item.tagline}</p>
+
+                            {/* Description */}
+                            <p className="text-sm text-zinc-400 leading-relaxed mb-7 flex-1">
+                                {item.description}
+                            </p>
+
+                            {/* Stack pills */}
+                            <div className="flex flex-wrap gap-2 mb-8">
+                                {item.stack.map((s) => (
+                                    <span
+                                        key={s}
+                                        className="font-mono text-[10px] text-zinc-500 bg-white/[0.04] border border-white/[0.07] px-2.5 py-0.5 rounded-full"
+                                    >
+                                        {s}
+                                    </span>
+                                ))}
+                            </div>
+
+                            {/* Link */}
+                            <Link
+                                href={item.link}
+                                target={item.external ? "_blank" : undefined}
+                                rel={item.external ? "noopener noreferrer" : undefined}
+                                className={`inline-flex items-center gap-2 text-sm font-semibold transition-colors group/link ${
+                                    i === 0
+                                        ? "text-emerald-400 hover:text-emerald-300"
+                                        : "text-blue-400 hover:text-blue-300"
+                                }`}
+                            >
+                                {item.linkLabel}
+                                {item.external ? (
+                                    <ExternalLink className="w-3.5 h-3.5 transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
+                                ) : (
+                                    <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
+                                )}
+                            </Link>
+                        </motion.div>
+                    ))}
+                </div>
+
+                {/* ── Honesty strip ── */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.7, delay: 0.2 }}
+                    className="border-t border-white/[0.06] pt-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
+                >
+                    <div className="flex items-start gap-4">
+                        <div className="mt-1 w-0.5 h-10 rounded-full bg-zinc-700 shrink-0" />
+                        <p className="text-zinc-500 text-sm leading-relaxed max-w-md">
+                            I&apos;m early in my freelance journey and building my track record in public.
+                            These two projects are what I&apos;ve shipped. No inflated numbers, no borrowed credibility — just the work.
+                        </p>
+                    </div>
+                    <Link
+                        href="/book"
+                        className="shrink-0 inline-flex items-center gap-2 text-sm font-semibold text-white border border-white/20 px-5 py-2.5 rounded-xl hover:bg-white/5 transition-all duration-200"
+                    >
+                        Talk to me <ArrowUpRight className="w-4 h-4" />
+                    </Link>
+                </motion.div>
             </div>
-
-            <Link href="/case-studies" className="relative z-10 mt-10 text-zinc-300 underline underline-offset-4 hover:text-white">
-                See more client feedback
-            </Link>
         </div>
     );
 }
