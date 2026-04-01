@@ -132,6 +132,17 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                             <p className="text-zinc-400 mb-6 leading-relaxed">
                                 I help founders refactor early decisions into scalable, production-ready systems — without full rewrites.
                             </p>
+                            <div className="mb-6 flex flex-wrap gap-2">
+                                <Link href="/services/saas-mvp-development" className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/5 hover:text-white">
+                                    SaaS MVP Development
+                                </Link>
+                                <Link href="/services/nextjs-performance-optimization" className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/5 hover:text-white">
+                                    Next.js Performance Optimization
+                                </Link>
+                                <Link href="/services/production-readiness-upgrade" className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/5 hover:text-white">
+                                    Production Readiness Upgrade
+                                </Link>
+                            </div>
                             <BlogCTA />
                         </div>
                     </div>

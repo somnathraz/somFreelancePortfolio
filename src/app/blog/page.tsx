@@ -10,6 +10,22 @@ export const metadata: Metadata = {
     title: "Blog — SaaS MVPs, Next.js, Performance & Hiring a Developer | Somanath Studio",
     description:
         "Practical articles for SaaS founders: MVP scope, Next.js choices, why products feel slow after launch, and what to prepare before hiring a product engineer.",
+    alternates: {
+        canonical: "/blog",
+    },
+    openGraph: {
+        title: "Blog — SaaS MVPs, Next.js, Performance & Hiring a Developer | Somanath Studio",
+        description:
+            "Practical articles for SaaS founders on MVP scope, performance, and production-ready decisions.",
+        url: "/blog",
+        type: "website",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Blog — SaaS MVPs, Next.js, Performance & Hiring a Developer | Somanath Studio",
+        description:
+            "Practical articles for SaaS founders on MVP scope, performance, and production-ready decisions.",
+    },
 };
 
 export default async function BlogIndex(props: {
@@ -49,6 +65,10 @@ export default async function BlogIndex(props: {
                         <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm font-medium">
                             <Link href="/#process" className="text-blue-400 hover:text-blue-300 transition-colors">
                                 How I work
+                            </Link>
+                            <span className="text-zinc-700 hidden sm:inline">•</span>
+                            <Link href="/services/saas-mvp-development" className="text-blue-400 hover:text-blue-300 transition-colors">
+                                SaaS MVP Service
                             </Link>
                             <span className="text-zinc-700 hidden sm:inline">•</span>
                             <Link href="/case-studies" className="text-blue-400 hover:text-blue-300 transition-colors">

@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.somanathkhadanga.com"),
   title: "Somanath Studio — High-Performance SaaS Engineering & Development",
   description: "Senior freelance engineer specializing in building and scaling production SaaS systems, performance optimization, and AI-powered applications. 4+ years of industry experience.",
+  alternates: {
+    canonical: "/",
+  },
   keywords: ["saas development", "high performance web applications", "freelance saas engineer", "scalable software architecture", "ai powered applications", "next.js node.js mongodb"],
   openGraph: {
     title: "High-Performance SaaS Engineering — Somanath Studio",
@@ -50,14 +53,29 @@ export const metadata: Metadata = {
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "Somanath Studio",
-  "url": "https://www.somanathkhadanga.com",
-  "description": "High-performance SaaS engineering studio specializing in scalable, production-grade software.",
-  "founder": {
-    "@type": "Person",
-    "name": "Somanath"
-  }
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "Somanath Studio",
+      "url": "https://www.somanathkhadanga.com",
+      "description": "High-performance SaaS engineering studio specializing in scalable, production-grade software.",
+      "founder": {
+        "@type": "Person",
+        "name": "Somanath Khadanga"
+      }
+    },
+    {
+      "@type": "Person",
+      "name": "Somanath Khadanga",
+      "url": "https://www.somanathkhadanga.com",
+      "jobTitle": "Full Stack Developer"
+    },
+    {
+      "@type": "WebSite",
+      "name": "Somanath Studio",
+      "url": "https://www.somanathkhadanga.com"
+    }
+  ]
 };
 
 export default function RootLayout({

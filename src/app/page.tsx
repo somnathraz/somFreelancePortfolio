@@ -1,5 +1,6 @@
 import { Suspense } from "react"
 import dynamic from "next/dynamic"
+import type { Metadata } from "next"
 import { Navbar } from "@/components/Navbar"
 import { Hero } from "@/components/Hero"
 import { Button } from "@/components/ui/button"
@@ -37,6 +38,29 @@ const Footer = dynamic(() => import("@/components/Footer").then(mod => ({ defaul
 
 const MobileNav = dynamic(() => import("@/components/MobileNav").then(mod => ({ default: mod.MobileNav })), {})
 
+export const metadata: Metadata = {
+  title: "Somanath Studio | SaaS MVP Development and Performance Engineering",
+  description:
+    "I help SaaS founders build MVPs fast, optimize slow Next.js products, and upgrade production readiness with senior engineering support.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Somanath Studio | SaaS MVP Development and Performance Engineering",
+    description:
+      "Build your SaaS MVP fast, improve performance, and ship production-ready products with a senior technical partner.",
+    url: "/",
+    siteName: "Somanath Studio",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Somanath Studio | SaaS MVP Development and Performance Engineering",
+    description:
+      "Build your SaaS MVP fast, improve performance, and ship production-ready products with a senior technical partner.",
+  },
+}
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-black text-foreground selection:bg-white/20">
@@ -66,6 +90,19 @@ export default function Home() {
         <Suspense fallback={<div className="h-96 flex items-center justify-center"><div className="animate-pulse text-zinc-500">Loading services...</div></div>}>
           <BentoServices />
         </Suspense>
+      </section>
+
+      <section className="relative z-10 border-y border-white/5 bg-black/40 py-10">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-sm uppercase tracking-widest text-zinc-500">Explore Services</p>
+          <div className="mt-4 flex flex-wrap justify-center gap-3">
+            <a href="/services/saas-mvp-development" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">SaaS MVP Development</a>
+            <a href="/services/nextjs-performance-optimization" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">Next.js Performance Optimization</a>
+            <a href="/services/production-readiness-upgrade" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">Production Readiness Upgrade</a>
+            <a href="/services/ai-saas-development" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">AI SaaS Development</a>
+            <a href="/blog" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">Read Blog</a>
+          </div>
+        </div>
       </section>
 
       {/* Client Fit Section */}

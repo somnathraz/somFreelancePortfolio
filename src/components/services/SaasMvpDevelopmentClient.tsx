@@ -303,6 +303,26 @@ export function SaasMvpDevelopmentClient() {
         </div>
       </section>
 
+      <section className="border-b border-white/5 px-4 py-16">
+        <div className="container mx-auto max-w-5xl">
+          <h2 className="text-2xl font-bold tracking-tight text-white md:text-3xl">Related resources</h2>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link href="/services/nextjs-performance-optimization" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">
+              Next.js Performance Optimization
+            </Link>
+            <Link href="/services/production-readiness-upgrade" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">
+              Production Readiness Upgrade
+            </Link>
+            <Link href="/blog/production-ready-saas-mvp" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">
+              Production-ready SaaS MVP Guide
+            </Link>
+            <Link href="/blog/from-saas-idea-to-production" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">
+              From SaaS Idea to Production
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Final CTA — match homepage Cta (Particles + ShimmerButton) */}
       <section className="relative flex w-full flex-col items-center justify-center overflow-hidden border-t border-white/10 bg-black px-4 py-32 text-center">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-zinc-900/50 to-black" />

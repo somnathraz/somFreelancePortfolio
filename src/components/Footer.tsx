@@ -28,6 +28,9 @@ export function Footer() {
                             <Link href="/#services" className="hover:text-white transition-colors">Services</Link>
                             <Link href="/#work" className="hover:text-white transition-colors">Work</Link>
                             <Link href="/blog" className="hover:text-white transition-colors">Writing</Link>
+                            <Link href="/services/saas-mvp-development" className="hover:text-white transition-colors">SaaS MVP Development</Link>
+                            <Link href="/services/nextjs-performance-optimization" className="hover:text-white transition-colors">Next.js Performance</Link>
+                            <Link href="/services/production-readiness-upgrade" className="hover:text-white transition-colors">Production Readiness</Link>
                         </div>
 
                         <ContactSheet>

@@ -304,7 +304,7 @@ export function BentoServices() {
             name: "SaaS MVP Build",
             description:
                 "Launch your first usable product fast with solid architecture, clean UX, and the right technical foundation from day one.",
-            href: "#",
+            href: "/services/saas-mvp-development",
             cta: "Get MVP scope",
             background: mvpBackground,
             className: "col-span-3 lg:col-span-1",
@@ -314,7 +314,7 @@ export function BentoServices() {
             name: "Performance Optimization",
             description:
                 "Fix slow pages, poor Core Web Vitals, long API times, and frontend bottlenecks before they start hurting growth.",
-            href: "#",
+            href: "/services/nextjs-performance-optimization",
             cta: "Learn more",
             background: performanceBackground,
             className: "col-span-3 lg:col-span-1",
@@ -324,7 +324,7 @@ export function BentoServices() {
             name: "Production Readiness Upgrade",
             description:
                 "Turn an early MVP into a stable, maintainable product with better architecture, deployment flow, monitoring, and security practices.",
-            href: "#",
+            href: "/services/production-readiness-upgrade",
             cta: "Learn more",
             background: scalabilityBackground,
             className: "col-span-3 lg:col-span-1",
@@ -334,7 +334,7 @@ export function BentoServices() {
             name: "Architecture & Security Hardening",
             description:
                 "Reduce technical risk with stronger system design, secure defaults, observability, and launch confidence.",
-            href: "#",
+            href: "/services/production-readiness-upgrade",
             cta: "Learn more",
             background: securityBackground,
             className: "col-span-3 lg:col-span-2",
@@ -344,7 +344,7 @@ export function BentoServices() {
             name: "Ongoing Technical Partner",
             description:
                 "Get senior engineering support for shipping features faster, solving bottlenecks, and making smarter product decisions over time.",
-            href: "#",
+            href: "/services/ai-saas-development",
             cta: "Book intro call",
             background: supportBackground,
             className: "col-span-3 lg:col-span-1",

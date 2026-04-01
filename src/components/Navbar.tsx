@@ -17,6 +17,9 @@ export function Navbar() {
                 <Link href="/#services" className="text-sm font-medium text-muted-foreground transition-colors hover:text-white">
                     Services
                 </Link>
+                <Link href="/services/saas-mvp-development" className="text-sm font-medium text-muted-foreground transition-colors hover:text-white">
+                    MVP Service
+                </Link>
                 <Link href="/#work" className="text-sm font-medium text-muted-foreground transition-colors hover:text-white">
                     Work
                 </Link>
