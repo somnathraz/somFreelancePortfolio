@@ -32,10 +32,10 @@ export default function SaaSMvpDevelopmentPage() {
     provider: {
       "@type": "Organization",
       name: "Somanath Studio",
-      url: "https://www.somanathkhadanga.com",
+      url: "https://somanathkhadanga.com",
     },
     areaServed: "Worldwide",
-    url: "https://www.somanathkhadanga.com/services/saas-mvp-development",
+    url: "https://somanathkhadanga.com/services/saas-mvp-development",
     description:
       "Launch your SaaS MVP fast with clean architecture, strong UX, and production-minded engineering.",
   };

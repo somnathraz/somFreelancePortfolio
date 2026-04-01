@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
             userAgent: '*',
             allow: '/',
         },
-        sitemap: 'https://www.somanathkhadanga.com/sitemap.xml',
+        sitemap: 'https://somanathkhadanga.com/sitemap.xml',
     };
 }

@@ -25,14 +25,14 @@ export function MobileNav() {
             icon: (
                 <IconStack className="h-full w-full text-neutral-500 dark:text-neutral-300" />
             ),
-            href: "/#services",
+            href: "/services",
         },
         {
             title: "Work",
             icon: (
                 <IconBriefcase className="h-full w-full text-neutral-500 dark:text-neutral-300" />
             ),
-            href: "/#work",
+            href: "/case-studies",
         },
         {
             title: "Blog",

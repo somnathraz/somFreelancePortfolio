@@ -14,17 +14,11 @@ export function Navbar() {
             </Link>
 
             <nav className="hidden gap-8 md:flex">
-                <Link href="/#services" className="text-sm font-medium text-muted-foreground transition-colors hover:text-white">
+                <Link href="/services" className="text-sm font-medium text-muted-foreground transition-colors hover:text-white">
                     Services
                 </Link>
-                <Link href="/services/saas-mvp-development" className="text-sm font-medium text-muted-foreground transition-colors hover:text-white">
-                    MVP Service
-                </Link>
-                <Link href="/#work" className="text-sm font-medium text-muted-foreground transition-colors hover:text-white">
-                    Work
-                </Link>
-                <Link href="/#process" className="text-sm font-medium text-muted-foreground transition-colors hover:text-white">
-                    Process
+                <Link href="/case-studies" className="text-sm font-medium text-muted-foreground transition-colors hover:text-white">
+                    Case Studies
                 </Link>
                 <Link href="/blog" className="text-sm font-medium text-muted-foreground transition-colors hover:text-white">
                     Blogs

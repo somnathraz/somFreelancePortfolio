@@ -1,7 +1,7 @@
 import { getAllPosts } from '@/lib/blog';
 import { MetadataRoute } from 'next';
 
-const BASE_URL = 'https://www.somanathkhadanga.com';
+const BASE_URL = 'https://somanathkhadanga.com';
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const posts = getAllPosts();
@@ -18,6 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/blog',
         '/book',
         '/case-studies',
+        '/services',
         '/services/saas-mvp-development',
         '/services/nextjs-performance-optimization',
         '/services/production-readiness-upgrade',

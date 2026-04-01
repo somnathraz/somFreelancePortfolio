@@ -6,7 +6,7 @@ This project is built to position clear service offers for SaaS founders: MVP bu
 
 ## Live site
 
-- Add your production URL here: `https://your-domain.com`
+- Add your production URL here: `https://somanathkhadanga.com/`
 
 ## Why this exists
 

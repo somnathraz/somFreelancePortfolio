@@ -25,12 +25,13 @@ export function Footer() {
                     <div className="flex flex-col items-center gap-6 md:flex-row md:gap-8">
                         <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-zinc-500 font-medium tracking-wide">
                             <Link href="/" className="hover:text-white transition-colors">Home</Link>
-                            <Link href="/#services" className="hover:text-white transition-colors">Services</Link>
-                            <Link href="/#work" className="hover:text-white transition-colors">Work</Link>
+                            <Link href="/services" className="hover:text-white transition-colors">Services</Link>
+                            <Link href="/case-studies" className="hover:text-white transition-colors">Case Studies</Link>
                             <Link href="/blog" className="hover:text-white transition-colors">Writing</Link>
                             <Link href="/services/saas-mvp-development" className="hover:text-white transition-colors">SaaS MVP Development</Link>
                             <Link href="/services/nextjs-performance-optimization" className="hover:text-white transition-colors">Next.js Performance</Link>
                             <Link href="/services/production-readiness-upgrade" className="hover:text-white transition-colors">Production Readiness</Link>
+                            <Link href="/services/ai-saas-development" className="hover:text-white transition-colors">AI SaaS Development</Link>
                         </div>
 
                         <ContactSheet>

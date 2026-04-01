@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.somanathkhadanga.com"),
+  metadataBase: new URL("https://somanathkhadanga.com"),
   title: "Somanath Studio — High-Performance SaaS Engineering & Development",
   description: "Senior freelance engineer specializing in building and scaling production SaaS systems, performance optimization, and AI-powered applications. 4+ years of industry experience.",
   alternates: {
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     description: "Technical partner for founders building production-grade SaaS systems. Performance-focused, scalable, and built to last.",
     type: "website",
     locale: "en_US",
-    url: "https://www.somanathkhadanga.com",
+    url: "https://somanathkhadanga.com",
     siteName: "Somanath Studio",
     images: [
       {
@@ -57,7 +57,7 @@ const jsonLd = {
     {
       "@type": "Organization",
       "name": "Somanath Studio",
-      "url": "https://www.somanathkhadanga.com",
+      "url": "https://somanathkhadanga.com",
       "description": "High-performance SaaS engineering studio specializing in scalable, production-grade software.",
       "founder": {
         "@type": "Person",
@@ -67,13 +67,13 @@ const jsonLd = {
     {
       "@type": "Person",
       "name": "Somanath Khadanga",
-      "url": "https://www.somanathkhadanga.com",
+      "url": "https://somanathkhadanga.com",
       "jobTitle": "Full Stack Developer"
     },
     {
       "@type": "WebSite",
       "name": "Somanath Studio",
-      "url": "https://www.somanathkhadanga.com"
+      "url": "https://somanathkhadanga.com"
     }
   ]
 };

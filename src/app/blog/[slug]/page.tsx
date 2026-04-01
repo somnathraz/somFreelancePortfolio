@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const { slug } = await params;
     const post = getPostBySlug(slug);
 
-    const ogImage = `https://www.somanathkhadanga.com/og?title=${encodeURIComponent(post.frontmatter.title)}`;
+    const ogImage = `https://somanathkhadanga.com/og?title=${encodeURIComponent(post.frontmatter.title)}`;
 
     return {
         title: `${post.frontmatter.title} — Somanath Studio`,
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
             description: post.frontmatter.description,
             type: 'article',
             publishedTime: post.frontmatter.date,
-            url: `https://www.somanathkhadanga.com/blog/${post.slug}`,
+            url: `https://somanathkhadanga.com/blog/${post.slug}`,
             images: [
                 {
                     url: ogImage,
@@ -68,8 +68,8 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                         datePublished: post.frontmatter.date,
                         dateModified: post.frontmatter.date,
                         description: post.frontmatter.description,
-                        image: `https://www.somanathkhadanga.com/og?title=${encodeURIComponent(post.frontmatter.title)}`,
-                        url: `https://www.somanathkhadanga.com/blog/${post.slug}`,
+                        image: `https://somanathkhadanga.com/og?title=${encodeURIComponent(post.frontmatter.title)}`,
+                        url: `https://somanathkhadanga.com/blog/${post.slug}`,
                         author: {
                             '@type': 'Person',
                             name: 'Somanath Khadanga',

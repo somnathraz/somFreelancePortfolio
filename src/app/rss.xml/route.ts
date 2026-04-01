@@ -1,7 +1,7 @@
 import { getAllPosts } from '@/lib/blog';
 
-const BLOG_URL = 'https://www.somanathkhadanga.com/blog';
-const SITE_URL = 'https://www.somanathkhadanga.com';
+const BLOG_URL = 'https://somanathkhadanga.com/blog';
+const SITE_URL = 'https://somanathkhadanga.com';
 
 export async function GET() {
     const posts = getAllPosts();

@@ -773,11 +773,17 @@ export function NextjsPerformanceClient() {
                 <div className="container mx-auto max-w-5xl">
                     <h2 className="text-2xl font-bold tracking-tight text-white md:text-3xl">Related resources</h2>
                     <div className="mt-6 flex flex-wrap gap-3">
+                        <Link href="/services" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">
+                            All Services
+                        </Link>
                         <Link href="/services/saas-mvp-development" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">
                             SaaS MVP Development
                         </Link>
                         <Link href="/services/production-readiness-upgrade" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">
                             Production Readiness Upgrade
+                        </Link>
+                        <Link href="/services/ai-saas-development" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">
+                            AI SaaS Development
                         </Link>
                         <Link href="/case-studies" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">
                             Case Studies
