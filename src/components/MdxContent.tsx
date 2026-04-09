@@ -1,5 +1,24 @@
 import React from "react";
 import Image from "next/image";
+import {
+    AlertTriangle,
+    Bot,
+    Bug,
+    Compass,
+    FileText,
+    GitBranch,
+    KeyRound,
+    Layers3,
+    PackageSearch,
+    PenSquare,
+    Rocket,
+    ShieldAlert,
+    ShieldCheck,
+    Sparkles,
+    TriangleAlert,
+    Users,
+    Workflow,
+} from "lucide-react";
 
 export const mdxComponents = {
     h1: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
@@ -43,6 +62,23 @@ export const mdxComponents = {
         <img className={`rounded-xl border border-white/10 my-8 w-full ${className || ''}`} alt={alt} {...props} />
     ),
     Image: (props: React.ComponentProps<typeof Image>) => <Image {...props} />,
+    AlertTriangle,
+    Bot,
+    Bug,
+    Compass,
+    FileText,
+    GitBranch,
+    KeyRound,
+    Layers3,
+    PackageSearch,
+    PenSquare,
+    Rocket,
+    ShieldAlert,
+    ShieldCheck,
+    Sparkles,
+    TriangleAlert,
+    Users,
+    Workflow,
 };
 
 export default function MdxContent({ children }: { children: React.ReactNode }) {

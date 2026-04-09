@@ -37,6 +37,13 @@ const Circle = forwardRef<
 });
 Circle.displayName = "Circle";
 
+const supportMeteors = Array.from({ length: 20 }, (_, i) => ({
+    top: `${((i * 37) % 100) + ((i % 3) * 0.173)}%`,
+    left: `${((i * 53) % 100) + ((i % 5) * 0.127)}%`,
+    duration: `${3 + ((i * 17) % 30) / 10}s`,
+    delay: `${((i * 23) % 50) / 10}s`,
+}));
+
 export function BentoServices() {
     const containerRef = useRef<HTMLDivElement>(null);
     const div1Ref = useRef<HTMLDivElement>(null);
@@ -255,15 +262,15 @@ export function BentoServices() {
             <div className="flex flex-1 w-full h-full rounded-xl bg-zinc-950 border-none items-start justify-center relative overflow-hidden group p-4 pt-12">
                 {/* Meteors effect */}
                 <div className="absolute inset-0">
-                    {[...Array(20)].map((_, i) => (
+                    {supportMeteors.map((meteor, i) => (
                         <div
                             key={i}
                             className="absolute h-0.5 w-0.5 rounded-full bg-cyan-400 shadow-[0_0_10px_2px_rgba(34,211,238,0.3)]"
                             style={{
-                                top: `${Math.random() * 100}%`,
-                                left: `${Math.random() * 100}%`,
-                                animation: `meteor ${3 + Math.random() * 3}s linear infinite`,
-                                animationDelay: `${Math.random() * 5}s`,
+                                top: meteor.top,
+                                left: meteor.left,
+                                animation: `meteor ${meteor.duration} linear infinite`,
+                                animationDelay: meteor.delay,
                             }}
                         />
                     ))}

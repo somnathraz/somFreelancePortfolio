@@ -1,0 +1,316 @@
+---
+title: "Recent npm Security Changes: What SaaS Teams Should Fix Right Now"
+description: "A practical guide to recent npm security changes, including trusted publishing, token changes, and Dependabot malware alerts, plus what SaaS teams should fix right now."
+date: "2026-04-09"
+readTime: "8 min read"
+category: "Security"
+tags: ["npm", "Security", "Supply Chain", "Dependabot", "Production Readiness"]
+---
+
+import { AlertTriangle, KeyRound, PackageSearch, ShieldCheck, Workflow } from "lucide-react"
+
+![npm supply chain security and production readiness](/images/blog/recent-npm-security-changes.png)
+
+# Recent npm Security Changes: What SaaS Teams Should Fix Right Now
+
+If your SaaS product depends on npm packages, this is not background noise anymore.
+
+The npm and GitHub ecosystem has made several recent security changes that matter directly to real engineering teams:
+
+- npm now recommends trusted publishing with OIDC for CI and CD publishing instead of long-lived npm tokens
+- npm classic tokens were permanently revoked on **December 9, 2025**
+- npm write-enabled granular tokens now have stricter lifetime controls
+- GitHub launched Dependabot malware alerts for npm dependencies on **March 17, 2026**
+
+For founders and teams, the big takeaway is simple:
+
+Dependency security is no longer just about running `npm audit`.
+
+It is now also about how you publish packages, how you manage tokens, and how quickly you detect malicious or compromised dependencies.
+
+<div className="grid gap-3 sm:grid-cols-3 my-8">
+  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <Workflow className="w-5 h-5 text-blue-300 mb-3" />
+    <p className="mb-0 text-sm text-zinc-300">Publishing workflow security matters now, not later.</p>
+  </div>
+  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <KeyRound className="w-5 h-5 text-amber-300 mb-3" />
+    <p className="mb-0 text-sm text-zinc-300">Old token habits are being phased out by design.</p>
+  </div>
+  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <PackageSearch className="w-5 h-5 text-emerald-300 mb-3" />
+    <p className="mb-0 text-sm text-zinc-300">Dependency monitoring now includes malware-specific alerting for npm.</p>
+  </div>
+</div>
+
+In this post, I’ll break down what changed and what I would actually fix this week in a real SaaS workflow.
+
+---
+
+## The Short Version
+
+Here is what changed recently:
+
+- npm recommends trusted publishing for CI and CD package publishing, using OpenID Connect instead of access tokens
+- npm classic tokens were revoked on December 9, 2025
+- Existing write-enabled granular npm tokens are capped at a 90-day maximum lifetime
+- `npm login` now issues a two-hour session token instead of a long-lived token
+- GitHub added Dependabot malware alerts for npm dependencies in March 2026
+
+If your team still relies on old publish-token habits or only thinks about dependency security when a vulnerability appears, your process is behind where the ecosystem is moving.
+
+---
+
+## Why This Matters to SaaS Teams
+
+A lot of product teams assume npm security is mainly a package-maintainer problem.
+
+It is not.
+
+Even if you do not publish public packages, your SaaS product still depends on a supply chain:
+
+- Application dependencies
+- Transitive dependencies
+- CI and CD workflows
+- GitHub Actions
+- Internal packages
+- Build pipelines
+- Deployment secrets
+
+That means a weak dependency or publishing workflow can affect:
+
+- Build integrity
+- Deployment safety
+- Secrets exposure
+- Internal tooling
+- User trust
+
+GitHub’s documentation is clear that Dependabot alerts are tied to the dependency graph, and the newer malware alerting is a separate layer for known malicious npm packages.
+
+For live products, this kind of workflow cleanup fits naturally into [Production Readiness Upgrade](/services/production-readiness-upgrade).
+
+---
+
+## Change 1: Trusted Publishing Is Now the Right Default
+
+The most important workflow change is npm’s push toward trusted publishing.
+
+npm’s current documentation recommends using trusted publishing for CI and CD package publishing instead of access tokens. Trusted publishing uses OIDC so your CI or CD platform can authenticate without you storing a long-lived npm token in secrets.
+
+Why this matters:
+
+- Long-lived publish tokens can leak in CI
+- They can be exposed through poor secret handling
+- They can live longer than they should
+- If stolen, they can be reused to publish malicious versions
+
+Trusted publishing reduces that risk by removing the need to keep a reusable npm publish token in your pipeline for supported providers.
+
+It also improves package provenance. When you publish with trusted publishing from GitHub Actions or GitLab CI/CD, npm now automatically generates provenance attestations by default for eligible public packages.
+
+### What I’d Do
+
+If your team publishes packages from GitHub Actions or another supported platform, I would move to trusted publishing instead of keeping legacy token-based publishing around.
+
+<div className="rounded-xl border border-white/10 bg-white/5 p-5 my-8">
+  <ShieldCheck className="w-5 h-5 text-cyan-300 mb-3" />
+  <p className="mb-0 text-sm text-zinc-300">Trusted publishing is not just a nicer workflow. It is a security improvement because the credential is short-lived, workflow-specific, and not stored as a reusable npm secret.</p>
+</div>
+
+---
+
+## Change 2: Old Token Habits Are No Longer Safe Enough
+
+GitHub announced that npm classic tokens were permanently revoked on **December 9, 2025**.
+
+Before that, GitHub announced on **November 5, 2025** that:
+
+- New npm classic tokens could no longer be created
+- New write-enabled granular npm tokens would enforce 2FA by default
+- Existing write-enabled granular npm tokens would be capped at a **90-day maximum lifetime**
+
+GitHub also announced that `npm login` now gives you a **two-hour session token** instead of a long-lived token.
+
+Why this matters:
+
+A lot of teams still have security habits that assume:
+
+- A token can live forever
+- CI secrets rarely need rotation
+- Package publishing is set and forget
+
+That is exactly the mindset these platform changes are moving away from.
+
+### What I’d Do
+
+I would audit:
+
+- Where npm tokens still exist
+- Which CI and CD jobs still rely on them
+- Whether those jobs can move to trusted publishing
+- Whether token expiration and rotation policy is documented
+- Whether write-capable tokens are more permissive than they need to be
+
+If a team still has old-style token sprawl, this is worth cleaning up now rather than later.
+
+---
+
+## Change 3: Malware Alerting Is More Useful Than the Old Mental Model
+
+On **March 17, 2026**, GitHub launched Dependabot malware alerts for npm dependencies.
+
+GitHub says that when malware alerting is enabled, Dependabot can create alerts when a repository depends on npm packages with known malicious versions. Those alerts are powered by malware advisories in the GitHub Advisory Database.
+
+Why this matters:
+
+Not every supply-chain issue looks like a traditional vulnerability with a clean patch path.
+
+Sometimes the problem is simply:
+
+- A malicious package
+- A malicious version
+- A compromised release
+
+That is a different class of risk, and teams need visibility into it.
+
+GitHub also notes that malware alerts have limitations:
+
+- They cannot catch every issue
+- New malware can take time to appear in the advisory database
+- False positives can still happen in some cases
+
+### What I’d Do
+
+I would make sure:
+
+- Dependency graph is enabled
+- Dependabot alerts are enabled
+- Malware alerting is turned on where available
+- Someone actually owns triage
+
+An alert system nobody reviews is not a security process.
+
+---
+
+## What I Would Fix This Week in a Real SaaS Workflow
+
+If I were reviewing a modern SaaS project right now, I would do these first.
+
+### 1. Replace Token-Based Publishing Where Possible
+
+If packages are published from supported CI and CD systems, I would move to trusted publishing with OIDC.
+
+That aligns directly with npm’s current recommendation.
+
+### 2. Audit npm Tokens and Secret Sprawl
+
+I would check:
+
+- Active npm tokens
+- Write permissions
+- Expiration rules
+- Who owns them
+- Whether they are still needed
+
+This is especially important if your setup predates the November 2025 and December 2025 token-policy changes.
+
+### 3. Enable and Review Dependabot Alerts Properly
+
+I would confirm:
+
+- Dependency graph is on
+- Dependabot alerts are on
+- Security updates are configured
+- Malware alerts for npm are enabled where available
+
+GitHub treats these as related but separate layers, and they should be reviewed that way.
+
+If the security review also exposes slow builds, oversized bundles, or fragile frontend workflows, [Next.js Performance Optimization](/services/nextjs-performance-optimization) is often part of the same cleanup cycle.
+
+### 4. Stop Treating `npm audit` as the Whole Strategy
+
+`npm audit` can still be useful, but it is only one layer.
+
+Modern dependency security should also include:
+
+- Dependency alerts
+- Update workflows
+- Package review discipline
+- Safer publishing
+- Secrets hygiene
+
+That is the real shift happening now.
+
+### 5. Decide Who Owns Supply-Chain Security
+
+Someone needs to own:
+
+- Alert triage
+- Dependency updates
+- Publishing workflow changes
+- Token and secret cleanup
+- Package incident response
+
+If this is everyone’s job, it often becomes nobody’s job.
+
+If you want someone to review the workflow with you and turn the fixes into an actual plan, [book a 20-minute strategy call](/book).
+
+---
+
+## The Tools and Workflow I’d Use
+
+For a practical SaaS workflow, I would usually want some mix of:
+
+- GitHub Dependabot alerts for vulnerable dependencies
+- Dependabot security updates so patching can be automated where possible
+- Dependabot malware alerts for npm for known malicious versions
+- npm trusted publishing with OIDC instead of long-lived CI tokens
+- Short-lived, tightly scoped credentials wherever tokens are still unavoidable
+
+This is not about chasing every security headline.
+
+It is about building a workflow that is harder to break in predictable ways.
+
+<div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5 my-8">
+  <AlertTriangle className="w-5 h-5 text-amber-300 mb-3" />
+  <p className="mb-0 text-sm text-zinc-300">A strong supply-chain workflow is not just “scan dependencies.” It is how you publish, how you authenticate, how you monitor, and how quickly someone acts when the tooling raises its hand.</p>
+</div>
+
+---
+
+## What Founders Should Take From This
+
+If you are a founder, you do not need to memorize every npm change.
+
+But you should know this:
+
+- Your product depends on a software supply chain
+- Old token habits are becoming less acceptable
+- Publishing security matters
+- Dependency malware detection is improving
+- Teams that adapt faster will carry less invisible risk
+
+This is one of those areas where the product can look fine on the surface while the workflow behind it is much weaker than it should be.
+
+---
+
+## Final Thoughts
+
+The recent npm and GitHub changes are a signal.
+
+The signal is not just that security got stricter.
+
+It is this:
+
+Modern JavaScript teams need better dependency and publishing hygiene than they used to.
+
+For SaaS teams, the practical response is:
+
+- Move toward trusted publishing
+- Reduce token risk
+- Enable better dependency monitoring
+- Treat supply-chain security like part of production readiness
+
+That is a much stronger response than waiting for the next dependency problem to force the issue.
+
+If your product is live and the engineering workflow behind it needs cleanup, [see Production Readiness Upgrade](/services/production-readiness-upgrade).
