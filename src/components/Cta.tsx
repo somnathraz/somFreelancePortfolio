@@ -1,8 +1,6 @@
 import Link from "next/link";
-import ShimmerButton from "@/components/ui/shimmer-button";
-import { Particles } from "@/components/ui/particles";
 import { ArrowRight } from "lucide-react";
-import { ContactSheet } from "@/components/ContactSheet";
+import { DeferredParticles } from "@/components/DeferredParticles";
 
 export function Cta() {
     return (
@@ -11,7 +9,7 @@ export function Cta() {
             <div className="absolute inset-0 bg-gradient-to-b from-zinc-900/50 to-black pointer-events-none" />
 
             {/* Particles effect */}
-            <Particles
+            <DeferredParticles
                 className="absolute inset-0 pointer-events-none"
                 quantity={200}
                 staticity={30}
@@ -31,13 +29,12 @@ export function Cta() {
                 </div>
 
                 <div className="flex flex-col items-center gap-4 mt-2 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150">
-                    <ContactSheet>
-                        <ShimmerButton className="shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] hover:scale-105 transition-transform duration-300">
-                            <span className="whitespace-pre-wrap text-center text-base font-semibold leading-none tracking-tight text-white lg:text-lg px-4">
-                                Book a 20-minute call
-                            </span>
-                        </ShimmerButton>
-                    </ContactSheet>
+                    <Link
+                        href="/book"
+                        className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white px-6 py-3 text-base font-semibold text-black shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] transition-transform duration-300 hover:scale-[1.02] hover:bg-zinc-200"
+                    >
+                        Book a 20-minute call
+                    </Link>
 
                     <Link
                         href="/#work"

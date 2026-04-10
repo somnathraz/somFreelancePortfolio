@@ -1,6 +1,5 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ContactSheet } from "@/components/ContactSheet"
 import { Logo } from "@/components/Logo"
 
 export function Navbar() {
@@ -25,9 +24,9 @@ export function Navbar() {
                 </Link>
             </nav>
 
-            <ContactSheet>
-                <Button size="sm">Book Intro Call</Button>
-            </ContactSheet>
+            <Button asChild size="sm">
+                <Link href="/book">Book Intro Call</Link>
+            </Button>
         </header>
     )
 }

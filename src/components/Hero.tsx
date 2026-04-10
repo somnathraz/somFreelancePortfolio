@@ -1,10 +1,7 @@
-"use client"
-
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Terminal } from "lucide-react"
 import Link from "next/link"
 import { BorderBeam } from "./ui/border-beam"
-import { ContactSheet } from "./ContactSheet"
 
 export function Hero() {
     return (
@@ -39,12 +36,12 @@ export function Hero() {
                 </header>
 
                 <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-                    <ContactSheet>
-                        <Button size="lg" className="h-12 min-w-[220px] text-base bg-white text-black hover:bg-zinc-200">
+                    <Button asChild size="lg" className="h-12 min-w-[220px] text-base bg-white text-black hover:bg-zinc-200">
+                        <Link href="/book">
                             Book a 20-minute strategy call
                             <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                    </ContactSheet>
+                        </Link>
+                    </Button>
                     <Link href="#work">
                         <Button variant="outline" size="lg" className="h-12 min-w-[220px] text-base border-white/10 hover:bg-white/5 hover:text-white">
                             See case studies

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getAllPosts } from '@/lib/blog';
 import { Navbar } from '@/components/Navbar';
-import { MobileNav } from '@/components/MobileNav';
+import { ClientMobileNav } from '@/components/ClientMobileNav';
 import { Footer } from '@/components/Footer';
 
 import { Metadata } from 'next';
@@ -19,12 +19,21 @@ export const metadata: Metadata = {
             "Practical articles for SaaS founders on MVP scope, performance, and production-ready decisions.",
         url: "/blog",
         type: "website",
+        images: [
+            {
+                url: "/og?title=Blog",
+                width: 1200,
+                height: 630,
+                alt: "Somanath Studio blog",
+            },
+        ],
     },
     twitter: {
         card: "summary_large_image",
         title: "Blog — SaaS MVPs, Next.js, Performance & Hiring a Developer | Somanath Studio",
         description:
             "Practical articles for SaaS founders on MVP scope, performance, and production-ready decisions.",
+        images: ["/og?title=Blog"],
     },
 };
 
@@ -44,8 +53,51 @@ export default async function BlogIndex(props: {
         currentPage * POSTS_PER_PAGE
     );
 
+    const blogIndexJsonLd = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "CollectionPage",
+                name: "Somanath Studio Blog",
+                url: "https://somanathkhadanga.com/blog",
+                description:
+                    "Practical articles for SaaS founders on MVP scope, performance, and production-ready decisions.",
+            },
+            {
+                "@type": "BreadcrumbList",
+                itemListElement: [
+                    {
+                        "@type": "ListItem",
+                        position: 1,
+                        name: "Home",
+                        item: "https://somanathkhadanga.com/",
+                    },
+                    {
+                        "@type": "ListItem",
+                        position: 2,
+                        name: "Blog",
+                        item: "https://somanathkhadanga.com/blog",
+                    },
+                ],
+            },
+            {
+                "@type": "ItemList",
+                itemListElement: posts.map((post, index) => ({
+                    "@type": "ListItem",
+                    position: index + 1,
+                    url: `https://somanathkhadanga.com/blog/${post.slug}`,
+                    name: post.frontmatter.title,
+                })),
+            },
+        ],
+    };
+
     return (
         <main className="min-h-screen bg-black text-foreground selection:bg-white/20">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(blogIndexJsonLd) }}
+            />
             <Navbar />
 
             <section className="pt-32 pb-20 px-4 md:px-0">
@@ -73,6 +125,10 @@ export default async function BlogIndex(props: {
                             <span className="text-zinc-700 hidden sm:inline">•</span>
                             <Link href="/case-studies" className="text-blue-400 hover:text-blue-300 transition-colors">
                                 Case studies
+                            </Link>
+                            <span className="text-zinc-700 hidden sm:inline">•</span>
+                            <Link href="/stories" className="text-blue-400 hover:text-blue-300 transition-colors">
+                                Web Stories
                             </Link>
                             <span className="text-zinc-700 hidden sm:inline">•</span>
                             <Link href="/book" className="text-blue-400 hover:text-blue-300 transition-colors">
@@ -152,7 +208,7 @@ export default async function BlogIndex(props: {
             </section>
 
             <Footer />
-            <MobileNav />
+            <ClientMobileNav />
         </main>
     );
 }

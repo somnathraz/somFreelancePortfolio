@@ -1,21 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { MobileNav } from "@/components/MobileNav";
-import { ContactSheet } from "@/components/ContactSheet";
 import { Button } from "@/components/ui/button";
 import {
     ArrowRight, Zap, CheckCircle2, Clock, Terminal,
     Users, Rocket, Activity, TrendingDown, Package,
     MousePointerClick, Server, GitBranch, Layers,
-    Shield, Wrench, Search, AlertOctagon, AlertTriangle,
+    Shield, Wrench, Search, AlertOctagon,
     BarChart2,
 } from "lucide-react";
-import { Particles } from "@/components/ui/particles";
-import ShimmerButton from "@/components/ui/shimmer-button";
+import { DeferredParticles } from "@/components/DeferredParticles";
+import { DeferredSection } from "@/components/DeferredSection";
 import { ServiceSectionCard } from "@/components/services/ServiceSectionCard";
 import { motion, useInView } from "motion/react";
 import { FlickeringGrid } from "@/components/ui/flickering-grid";
@@ -29,6 +28,10 @@ import type { WhoItsForPersona } from "@/components/services/SectionWhoItsFor";
 import type { ServiceIncident } from "@/components/services/SectionIncidentBoard";
 import type { ServicePhase } from "@/components/services/SectionPhasedPipeline";
 import type { ServiceTransformation } from "@/components/services/SectionOutcomesBoard";
+
+const MobileNav = dynamic(() => import("@/components/MobileNav").then((mod) => ({ default: mod.MobileNav })), {
+    ssr: false,
+});
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -607,12 +610,12 @@ export function NextjsPerformanceClient() {
                         </p>
 
                         <div className="flex flex-col items-center gap-4 sm:flex-row lg:items-start">
-                            <ContactSheet>
-                                <Button size="lg" className="h-12 min-w-[220px] bg-white text-base text-black hover:bg-zinc-200">
+                                <Button asChild size="lg" className="h-12 min-w-[220px] bg-white text-base text-black hover:bg-zinc-200">
+                                    <Link href="/book">
                                     Book a 20-minute strategy call
                                     <ArrowRight className="ml-2 h-4 w-4" />
+                                    </Link>
                                 </Button>
-                            </ContactSheet>
                             <Button asChild variant="outline" size="lg" className="h-12 min-w-[220px] border-white/10 text-base hover:bg-white/5 hover:text-white">
                                 <Link href="/case-studies">See performance case studies</Link>
                             </Button>
@@ -696,6 +699,7 @@ export function NextjsPerformanceClient() {
             />
 
             {/* ── What makes my approach different ── */}
+            <DeferredSection minHeightClassName="h-[440px]">
             <section className="border-b border-white/5 px-4 py-20">
                 <div className="container mx-auto max-w-5xl">
                     <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">
@@ -768,7 +772,9 @@ export function NextjsPerformanceClient() {
                     </div>
                 </div>
             </section>
+            </DeferredSection>
 
+            <DeferredSection minHeightClassName="h-[220px]">
             <section className="border-b border-white/5 px-4 py-16">
                 <div className="container mx-auto max-w-5xl">
                     <h2 className="text-2xl font-bold tracking-tight text-white md:text-3xl">Related resources</h2>
@@ -794,11 +800,13 @@ export function NextjsPerformanceClient() {
                     </div>
                 </div>
             </section>
+            </DeferredSection>
 
             {/* ── Final CTA ── */}
+            <DeferredSection minHeightClassName="h-[520px]">
             <section className="relative flex w-full flex-col items-center justify-center overflow-hidden border-t border-white/10 bg-black px-4 py-32 text-center">
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-zinc-900/50 to-black" />
-                <Particles className="pointer-events-none absolute inset-0" quantity={200} staticity={30} ease={50} color="#ffffff" refresh />
+                <DeferredParticles className="pointer-events-none absolute inset-0" quantity={200} staticity={30} ease={50} color="#ffffff" refresh />
                 <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center gap-8">
                     <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col gap-4 items-center">
                         <h2 className="text-4xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-white/90 to-white/50 md:text-6xl">
@@ -809,13 +817,12 @@ export function NextjsPerformanceClient() {
                         </p>
                     </div>
                     <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 flex flex-col items-center gap-4">
-                        <ContactSheet>
-                            <ShimmerButton className="shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] transition-transform duration-300 hover:scale-105">
-                                <span className="whitespace-pre-wrap px-4 text-center text-base font-semibold leading-none tracking-tight text-white lg:text-lg">
+                        <Link
+                            href="/book"
+                            className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white px-6 py-3 text-base font-semibold text-black shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] transition-transform duration-300 hover:scale-[1.02] hover:bg-zinc-200"
+                        >
                                     Book a 20-minute strategy call
-                                </span>
-                            </ShimmerButton>
-                        </ContactSheet>
+                        </Link>
                         <Link href="/case-studies" className="inline-flex items-center gap-2 text-zinc-300 underline underline-offset-4 hover:text-white">
                             View relevant case studies
                             <ArrowRight className="h-4 w-4" />
@@ -826,6 +833,7 @@ export function NextjsPerformanceClient() {
                     </div>
                 </div>
             </section>
+            </DeferredSection>
 
             <Footer />
             <MobileNav />

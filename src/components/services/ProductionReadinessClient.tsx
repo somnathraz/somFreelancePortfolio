@@ -1,16 +1,13 @@
-"use client";
-
 import Link from "next/link";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { MobileNav } from "@/components/MobileNav";
-import { ContactSheet } from "@/components/ContactSheet";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { Particles } from "@/components/ui/particles";
-import ShimmerButton from "@/components/ui/shimmer-button";
+import { DeferredParticles } from "@/components/DeferredParticles";
+import { DeferredSection } from "@/components/DeferredSection";
+import { ClientMobileNav } from "@/components/ClientMobileNav";
 import { ServiceSectionCard } from "@/components/services/ServiceSectionCard";
-import { motion } from "motion/react";
+import { AnimatedSectionHeading } from "@/components/services/AnimatedSectionHeading";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -151,12 +148,12 @@ export function ProductionReadinessClient() {
           </header>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <ContactSheet>
-              <Button size="lg" className="h-12 min-w-[220px] bg-white text-base text-black hover:bg-zinc-200">
+              <Button asChild size="lg" className="h-12 min-w-[220px] bg-white text-base text-black hover:bg-zinc-200">
+                <Link href="/book">
                 Book a 20-minute strategy call
                 <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
-            </ContactSheet>
             <Button
               asChild
               variant="outline"
@@ -193,14 +190,9 @@ export function ProductionReadinessClient() {
       <section className="relative border-b border-white/5 px-4 py-20">
         <div className="pointer-events-none absolute inset-0 bg-grid-white/[0.02]" />
         <div className="container relative z-10 mx-auto max-w-5xl">
-          <motion.h2
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-3xl font-bold tracking-tight text-white md:text-5xl"
-          >
+          <AnimatedSectionHeading className="text-3xl font-bold tracking-tight text-white md:text-5xl">
             Who this is for
-          </motion.h2>
+          </AnimatedSectionHeading>
           <ul className="mt-8 grid gap-4 md:grid-cols-2">
             {fitItems.map((item, i) => (
               <ServiceSectionCard key={item} delay={i * 0.05}>{item}</ServiceSectionCard>
@@ -237,8 +229,8 @@ export function ProductionReadinessClient() {
         <div className="container relative z-10 mx-auto max-w-5xl">
           <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">What you get</h2>
           <p className="mt-6 max-w-3xl text-zinc-400">
-            The goal is simple: move from "it works for now" to "it can support real users and real
-            growth." The specific scope depends on what the product needs most.
+            The goal is simple: move from &quot;it works for now&quot; to &quot;it can support real users and real
+            growth.&quot; The specific scope depends on what the product needs most.
           </p>
           <ul className="mt-8 grid gap-4 md:grid-cols-2">
             {deliverableItems.map((item, i) => (
@@ -295,6 +287,7 @@ export function ProductionReadinessClient() {
         </div>
       </section>
 
+      <DeferredSection minHeightClassName="h-[520px]">
       {/* ── Selected proof ── */}
       <section className="border-b border-white/5 px-4 py-20">
         <div className="container mx-auto max-w-5xl">
@@ -309,7 +302,9 @@ export function ProductionReadinessClient() {
           </div>
         </div>
       </section>
+      </DeferredSection>
 
+      <DeferredSection minHeightClassName="h-[440px]">
       {/* ── FAQ ── */}
       <section className="border-b border-white/5 px-4 py-20">
         <div className="container mx-auto max-w-5xl">
@@ -324,7 +319,9 @@ export function ProductionReadinessClient() {
           </div>
         </div>
       </section>
+      </DeferredSection>
 
+      <DeferredSection minHeightClassName="h-[220px]">
       <section className="border-b border-white/5 px-4 py-16">
         <div className="container mx-auto max-w-5xl">
           <h2 className="text-2xl font-bold tracking-tight text-white md:text-3xl">Related resources</h2>
@@ -350,11 +347,13 @@ export function ProductionReadinessClient() {
           </div>
         </div>
       </section>
+      </DeferredSection>
 
       {/* ── Final CTA ── */}
+      <DeferredSection minHeightClassName="h-[520px]">
       <section className="relative flex w-full flex-col items-center justify-center overflow-hidden border-t border-white/10 bg-black px-4 py-32 text-center">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-zinc-900/50 to-black" />
-        <Particles
+        <DeferredParticles
           className="pointer-events-none absolute inset-0"
           quantity={200}
           staticity={30}
@@ -373,13 +372,12 @@ export function ProductionReadinessClient() {
             </p>
           </div>
           <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 flex flex-col items-center gap-4">
-            <ContactSheet>
-              <ShimmerButton className="shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] transition-transform duration-300 hover:scale-105">
-                <span className="whitespace-pre-wrap px-4 text-center text-base font-semibold leading-none tracking-tight text-white lg:text-lg">
+            <Link
+              href="/book"
+              className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white px-6 py-3 text-base font-semibold text-black shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] transition-transform duration-300 hover:scale-[1.02] hover:bg-zinc-200"
+            >
                   Book a 20-minute strategy call
-                </span>
-              </ShimmerButton>
-            </ContactSheet>
+            </Link>
             <Link
               href="/case-studies"
               className="inline-flex items-center gap-2 text-zinc-300 underline underline-offset-4 hover:text-white"
@@ -394,9 +392,10 @@ export function ProductionReadinessClient() {
           </div>
         </div>
       </section>
+      </DeferredSection>
 
       <Footer />
-      <MobileNav />
+      <ClientMobileNav />
     </main>
   );
 }

@@ -10,9 +10,13 @@ export interface Post {
         title: string;
         date: string;
         description: string;
+        /** Optional explicit last-updated date (ISO). Otherwise inferred from file mtime. */
+        updated?: string;
         [key: string]: any;
     };
     content: string;
+    /** ISO timestamp for SEO (sitemap lastmod, article modifiedTime, JSON-LD). */
+    lastModified: string;
 }
 
 export function getPostSlugs() {
@@ -27,11 +31,18 @@ export function getPostBySlug(slug: string): Post {
     const fullPath = path.join(contentDirectory, `${realSlug}.mdx`);
     const fileContents = fs.readFileSync(fullPath, 'utf8');
     const { data, content } = matter(fileContents);
+    const stat = fs.statSync(fullPath);
+    const publishedMs = new Date(data.date as string).getTime();
+    const mtimeMs = stat.mtime.getTime();
+    const updatedMs = data.updated ? new Date(data.updated as string).getTime() : 0;
+    const lastModifiedMs = Math.max(publishedMs, mtimeMs, updatedMs);
+    const lastModified = new Date(lastModifiedMs).toISOString();
 
     return {
         slug: realSlug,
         frontmatter: data as Post['frontmatter'],
         content,
+        lastModified,
     };
 }
 

@@ -14,12 +14,21 @@ export const metadata: Metadata = {
       "Launch your SaaS MVP fast with clean architecture, strong UX, and production-minded engineering.",
     url: "/services/saas-mvp-development",
     type: "website",
+    images: [
+      {
+        url: "/og?title=SaaS%20MVP%20Development",
+        width: 1200,
+        height: 630,
+        alt: "SaaS MVP Development for Founders",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "SaaS MVP Development for Founders | Somanath Studio",
     description:
       "Launch your SaaS MVP fast with clean architecture, strong UX, and production-minded engineering.",
+    images: ["/og?title=SaaS%20MVP%20Development"],
   },
 };
 
@@ -31,11 +40,14 @@ export default function SaaSMvpDevelopmentPage() {
     serviceType: "SaaS MVP Development",
     provider: {
       "@type": "Organization",
+      "@id": "https://somanathkhadanga.com/#organization",
       name: "Somanath Studio",
       url: "https://somanathkhadanga.com",
+      logo: "https://somanathkhadanga.com/icon.svg",
     },
     areaServed: "Worldwide",
     url: "https://somanathkhadanga.com/services/saas-mvp-development",
+    inLanguage: "en",
     description:
       "Launch your SaaS MVP fast with clean architecture, strong UX, and production-minded engineering.",
   };
@@ -79,10 +91,36 @@ export default function SaaSMvpDevelopmentPage() {
     ],
   };
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://somanathkhadanga.com/",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Services",
+        item: "https://somanathkhadanga.com/services",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: "SaaS MVP Development",
+        item: "https://somanathkhadanga.com/services/saas-mvp-development",
+      },
+    ],
+  };
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <SaasMvpDevelopmentClient />
     </>
   );

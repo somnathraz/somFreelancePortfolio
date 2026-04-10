@@ -10,11 +10,70 @@ export const metadata: Metadata = {
     title: "Case Studies — SaaS MVP, Performance & Production Readiness | Somanath Studio",
     description:
         "Examples of SaaS MVP builds, performance optimization, and production-grade improvements. Most client work is under NDA; book a call for the most relevant examples.",
+    alternates: {
+        canonical: "/case-studies",
+    },
+    openGraph: {
+        title: "Case Studies — SaaS MVP, Performance & Production Readiness | Somanath Studio",
+        description:
+            "Examples of SaaS MVP builds, performance optimization, and production-grade improvements. Most client work is under NDA; book a call for the most relevant examples.",
+        url: "/case-studies",
+        type: "website",
+        images: [
+            {
+                url: "/og?title=Case%20Studies",
+                width: 1200,
+                height: 630,
+                alt: "Somanath Studio case studies",
+            },
+        ],
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Case Studies — SaaS MVP, Performance & Production Readiness | Somanath Studio",
+        description:
+            "Examples of SaaS MVP builds, performance optimization, and production-grade improvements. Most client work is under NDA; book a call for the most relevant examples.",
+        images: ["/og?title=Case%20Studies"],
+    },
 };
 
 export default function CaseStudiesPage() {
+    const caseStudiesJsonLd = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "CollectionPage",
+                name: "Case Studies",
+                url: "https://somanathkhadanga.com/case-studies",
+                description:
+                    "Examples of SaaS MVP builds, performance optimization, and production-grade improvements.",
+            },
+            {
+                "@type": "BreadcrumbList",
+                itemListElement: [
+                    {
+                        "@type": "ListItem",
+                        position: 1,
+                        name: "Home",
+                        item: "https://somanathkhadanga.com/",
+                    },
+                    {
+                        "@type": "ListItem",
+                        position: 2,
+                        name: "Case Studies",
+                        item: "https://somanathkhadanga.com/case-studies",
+                    },
+                ],
+            },
+        ],
+    };
+
     return (
         <main className="min-h-screen bg-black text-foreground selection:bg-white/20">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(caseStudiesJsonLd) }}
+            />
             <Navbar />
 
             <section className="relative z-10 border-b border-white/5 bg-black pt-28 pb-12 md:pt-32 md:pb-16">

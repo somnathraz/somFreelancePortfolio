@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     siteName: "Somanath Studio",
     images: [
       {
-        url: "/og-image.png", // Ensure this exists or user provides one
+        url: "/og?title=Somanath%20Studio",
         width: 1200,
         height: 630,
         alt: "Somanath Studio — High-Performance SaaS Engineering",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "High-Performance SaaS Engineering — Somanath Studio",
     description: "Senior freelance engineer helping founders build fast, scalable SaaS products.",
-    images: ["/og-image.png"],
+    images: ["/og?title=Somanath%20Studio"],
   },
   icons: {
     icon: "/icon.svg",
@@ -56,8 +56,10 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "Organization",
+      "@id": "https://somanathkhadanga.com/#organization",
       "name": "Somanath Studio",
       "url": "https://somanathkhadanga.com",
+      "logo": "https://somanathkhadanga.com/icon.svg",
       "description": "High-performance SaaS engineering studio specializing in scalable, production-grade software.",
       "founder": {
         "@type": "Person",
@@ -73,7 +75,11 @@ const jsonLd = {
     {
       "@type": "WebSite",
       "name": "Somanath Studio",
-      "url": "https://somanathkhadanga.com"
+      "url": "https://somanathkhadanga.com",
+      "publisher": {
+        "@id": "https://somanathkhadanga.com/#organization"
+      },
+      "inLanguage": "en"
     }
   ]
 };

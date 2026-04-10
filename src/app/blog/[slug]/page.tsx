@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { Navbar } from '@/components/Navbar';
 import MdxContent, { mdxComponents } from '@/components/MdxContent';
-import { MobileNav } from '@/components/MobileNav';
+import { ClientMobileNav } from '@/components/ClientMobileNav';
 import { BlogCTA } from '@/components/BlogCTA';
 import { Footer } from '@/components/Footer';
 import { getPostBySlug, getPostSlugs } from '@/lib/blog';
@@ -33,6 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
             description: post.frontmatter.description,
             type: 'article',
             publishedTime: post.frontmatter.date,
+            modifiedTime: post.lastModified,
             url: `https://somanathkhadanga.com/blog/${post.slug}`,
             images: [
                 {
@@ -53,6 +54,58 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
     const { slug } = await params;
     const post = getPostBySlug(slug);
     const formattedDate = format(new Date(post.frontmatter.date), 'MMMM d, yyyy');
+    const postUrl = `https://somanathkhadanga.com/blog/${post.slug}`;
+    const ogImage = `https://somanathkhadanga.com/og?title=${encodeURIComponent(post.frontmatter.title)}`;
+    const articleJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: post.frontmatter.title,
+        datePublished: post.frontmatter.date,
+        dateModified: post.lastModified,
+        description: post.frontmatter.description,
+        image: ogImage,
+        url: postUrl,
+        mainEntityOfPage: postUrl,
+        author: {
+            '@type': 'Person',
+            name: 'Somanath Khadanga',
+        },
+        publisher: {
+            '@type': 'Organization',
+            '@id': 'https://somanathkhadanga.com/#organization',
+            name: 'Somanath Studio',
+            url: 'https://somanathkhadanga.com',
+            logo: {
+                '@type': 'ImageObject',
+                url: 'https://somanathkhadanga.com/icon.svg',
+            },
+        },
+        inLanguage: 'en',
+    };
+    const breadcrumbJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: 'https://somanathkhadanga.com/',
+            },
+            {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Blog',
+                item: 'https://somanathkhadanga.com/blog',
+            },
+            {
+                '@type': 'ListItem',
+                position: 3,
+                name: post.frontmatter.title,
+                item: postUrl,
+            },
+        ],
+    };
 
     return (
         <main className="min-h-screen bg-black text-foreground selection:bg-white/20">
@@ -61,21 +114,12 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        '@context': 'https://schema.org',
-                        '@type': 'BlogPosting',
-                        headline: post.frontmatter.title,
-                        datePublished: post.frontmatter.date,
-                        dateModified: post.frontmatter.date,
-                        description: post.frontmatter.description,
-                        image: `https://somanathkhadanga.com/og?title=${encodeURIComponent(post.frontmatter.title)}`,
-                        url: `https://somanathkhadanga.com/blog/${post.slug}`,
-                        author: {
-                            '@type': 'Person',
-                            name: 'Somanath Khadanga',
-                        },
-                    }),
+                    __html: JSON.stringify(articleJsonLd),
                 }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
             />
 
             <article className="pt-32 pb-20 px-4 md:px-0">
@@ -150,7 +194,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             </article>
 
             <Footer />
-            <MobileNav />
+            <ClientMobileNav />
         </main>
     );
 }

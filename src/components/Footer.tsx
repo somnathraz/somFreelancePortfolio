@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { ContactSheet } from "@/components/ContactSheet";
 import { Logo } from "@/components/Logo";
 import { ArrowRight } from "lucide-react";
 
@@ -34,12 +31,13 @@ export function Footer() {
                             <Link href="/services/ai-saas-development" className="hover:text-white transition-colors">AI SaaS Development</Link>
                         </div>
 
-                        <ContactSheet>
-                            <button className="group inline-flex items-center gap-2 rounded-full border border-white/15 bg-gradient-to-r from-white to-zinc-200 px-5 py-2.5 text-sm font-semibold text-black transition-all hover:-translate-y-0.5 hover:from-cyan-200 hover:to-white hover:shadow-[0_12px_35px_-12px_rgba(34,211,238,0.55)]">
+                        <Link
+                            href="/book"
+                            className="group inline-flex items-center gap-2 rounded-full border border-white/15 bg-gradient-to-r from-white to-zinc-200 px-5 py-2.5 text-sm font-semibold text-black transition-all hover:-translate-y-0.5 hover:from-cyan-200 hover:to-white hover:shadow-[0_12px_35px_-12px_rgba(34,211,238,0.55)]"
+                        >
                                 Book a 20-minute strategy call
                                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                            </button>
-                        </ContactSheet>
+                        </Link>
                     </div>
 
                     <p className="text-xs text-zinc-600 font-mono md:hidden mt-4">
