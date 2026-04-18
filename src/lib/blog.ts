@@ -4,16 +4,24 @@ import matter from 'gray-matter';
 
 const contentDirectory = path.join(process.cwd(), 'content/blog');
 
+export interface PostFrontmatter {
+    title: string;
+    date: string;
+    description: string;
+    /** Optional SEO-focused title for <title> tag. Falls back to `title` when absent. Used to keep on-page H1 expressive while keeping the SERP title under 60 chars. */
+    metaTitle?: string;
+    readTime?: string;
+    category?: string;
+    tags?: string[];
+    intro?: string;
+    shareImage?: string;
+    /** Optional explicit last-updated date (ISO). Otherwise inferred from file mtime. */
+    updated?: string;
+}
+
 export interface Post {
     slug: string;
-    frontmatter: {
-        title: string;
-        date: string;
-        description: string;
-        /** Optional explicit last-updated date (ISO). Otherwise inferred from file mtime. */
-        updated?: string;
-        [key: string]: any;
-    };
+    frontmatter: PostFrontmatter;
     content: string;
     /** ISO timestamp for SEO (sitemap lastmod, article modifiedTime, JSON-LD). */
     lastModified: string;
