@@ -142,7 +142,7 @@ Think in terms of:
 - Better separation between critical and non-critical data
 
 A page often feels much faster when the data strategy is simplified, even without changing the UI much.
-
+If you're already on Next.js 16, turning on  [React Compiler](/blog/react-compiler-nextjs-16-production) covers a specific slice of re-render cleanup — but it's not a substitute for the broader work in this post.
 ---
 
 ## 3. Slow APIs Are Making the Frontend Look Bad
@@ -150,7 +150,7 @@ A page often feels much faster when the data strategy is simplified, even withou
 Sometimes teams blame Next.js, but the real issue is behind the frontend.
 
 If your APIs are slow, the app will feel slow no matter how modern the frontend stack is.
-
+If you've recently upgraded to Next.js 16, [the caching model changed meaningfully](/blog/nextjs-16-app-router-caching-changes-saas) and may be part of why your APIs feel heavier now
 Common backend causes:
 
 - Inefficient database queries

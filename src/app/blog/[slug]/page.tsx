@@ -9,6 +9,22 @@ import { Footer } from '@/components/Footer';
 import { getPostBySlug, getPostSlugs } from '@/lib/blog';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 
+const siteUrl = 'https://somanathkhadanga.com';
+
+function getPostShareImage(post: ReturnType<typeof getPostBySlug>) {
+    const shareImage = post.frontmatter.shareImage;
+
+    if (shareImage) {
+        if (shareImage.startsWith('http://') || shareImage.startsWith('https://')) {
+            return shareImage;
+        }
+
+        return new URL(shareImage, siteUrl).toString();
+    }
+
+    return `${siteUrl}/og?title=${encodeURIComponent(post.frontmatter.title)}`;
+}
+
 export function generateStaticParams() {
     const posts = getPostSlugs();
     return posts.map((post) => ({
@@ -19,11 +35,12 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
     const post = getPostBySlug(slug);
-
-    const ogImage = `https://somanathkhadanga.com/og?title=${encodeURIComponent(post.frontmatter.title)}`;
+    const shareImage = getPostShareImage(post);
 
     return {
-        title: `${post.frontmatter.title} — Somanath Studio`,
+        title: post.frontmatter.metaTitle
+            ? post.frontmatter.metaTitle
+            : `${post.frontmatter.title} — Somanath Studio`,
         description: post.frontmatter.description,
         alternates: {
             canonical: `/blog/${post.slug}`,
@@ -34,10 +51,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
             type: 'article',
             publishedTime: post.frontmatter.date,
             modifiedTime: post.lastModified,
-            url: `https://somanathkhadanga.com/blog/${post.slug}`,
+            url: `${siteUrl}/blog/${post.slug}`,
             images: [
                 {
-                    url: ogImage,
+                    url: shareImage,
                 },
             ],
         },
@@ -45,7 +62,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
             card: 'summary_large_image',
             title: post.frontmatter.title,
             description: post.frontmatter.description,
-            images: [ogImage],
+            images: [shareImage],
         },
     };
 }
@@ -54,8 +71,8 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
     const { slug } = await params;
     const post = getPostBySlug(slug);
     const formattedDate = format(new Date(post.frontmatter.date), 'MMMM d, yyyy');
-    const postUrl = `https://somanathkhadanga.com/blog/${post.slug}`;
-    const ogImage = `https://somanathkhadanga.com/og?title=${encodeURIComponent(post.frontmatter.title)}`;
+    const postUrl = `${siteUrl}/blog/${post.slug}`;
+    const shareImage = getPostShareImage(post);
     const articleJsonLd = {
         '@context': 'https://schema.org',
         '@type': 'BlogPosting',
@@ -63,7 +80,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
         datePublished: post.frontmatter.date,
         dateModified: post.lastModified,
         description: post.frontmatter.description,
-        image: ogImage,
+        image: shareImage,
         url: postUrl,
         mainEntityOfPage: postUrl,
         author: {
@@ -72,12 +89,12 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
         },
         publisher: {
             '@type': 'Organization',
-            '@id': 'https://somanathkhadanga.com/#organization',
+            '@id': `${siteUrl}/#organization`,
             name: 'Somanath Studio',
-            url: 'https://somanathkhadanga.com',
+            url: siteUrl,
             logo: {
                 '@type': 'ImageObject',
-                url: 'https://somanathkhadanga.com/icon.svg',
+                url: `${siteUrl}/icon.svg`,
             },
         },
         inLanguage: 'en',
@@ -90,13 +107,13 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                 '@type': 'ListItem',
                 position: 1,
                 name: 'Home',
-                item: 'https://somanathkhadanga.com/',
+                item: `${siteUrl}/`,
             },
             {
                 '@type': 'ListItem',
                 position: 2,
                 name: 'Blog',
-                item: 'https://somanathkhadanga.com/blog',
+                item: `${siteUrl}/blog`,
             },
             {
                 '@type': 'ListItem',
