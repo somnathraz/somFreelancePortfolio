@@ -362,7 +362,7 @@ export function BentoServices() {
         <div className="w-full">
             <div className="mx-auto max-w-3xl px-4 pt-24 pb-10 text-center">
                 <p className="text-lg leading-relaxed text-zinc-400 md:text-xl">
-                    Services built for SaaS founders who need speed now and clean scale later.
+                    Four engagements. All of them about shipping SaaS that doesn&apos;t fall over.
                 </p>
             </div>
             <BentoGrid className="max-w-6xl mx-auto px-4 pb-24 pt-0">

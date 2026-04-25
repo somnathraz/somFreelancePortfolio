@@ -29,7 +29,7 @@ const services: ServiceItem[] = [
   {
     title: "Production Readiness Upgrade",
     href: "/services/production-readiness-upgrade",
-    description: "Stabilize architecture, release flow, security, and maintainability after launch.",
+    description: "Clean up the parts of your MVP that started cracking after launch.",
     accent: "from-violet-500/20 to-fuchsia-500/5",
   },
   {
@@ -55,7 +55,8 @@ export function ServicesIndexClient() {
           <p className="mb-4 text-xs font-mono uppercase tracking-widest text-zinc-500">Services</p>
           <h1 className="text-4xl font-bold tracking-tight text-white md:text-6xl">SaaS-focused engineering services</h1>
           <p className="mt-5 max-w-3xl text-lg text-zinc-400">
-            Choose the service page that matches your stage and problem. Every page follows the same premium structure: clarity, proof, process, and next steps.
+            Four engagements, depending on where your product is. If you&apos;re not sure which
+            one fits, the 20-minute call sorts it out.
           </p>
 
           <div className="mt-12 grid gap-5 md:grid-cols-2">

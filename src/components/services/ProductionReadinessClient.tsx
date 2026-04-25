@@ -20,27 +20,20 @@ const fitItems = [
 ];
 
 const problemItems = [
-  "Technical debt from rushed launch decisions slowing every new feature",
-  "Weak or unclear architecture that makes additions expensive and risky",
-  "Unstable deployment and release workflows that make shipping nerve-wracking",
-  "Missing monitoring, logging, or observability — you find out about problems from users",
-  "Auth, permissions, or admin flows that were done quickly and need tightening",
-  "Inconsistent API design or backend structure that confuses the team",
-  "Performance issues that keep coming back because the root cause was never fixed",
-  "Poor maintainability making every new change slower and harder than it should be",
+  "Every new feature touches more files than it should and feels risky to ship",
+  "Auth, roles, and permissions are scattered across the codebase and nobody fully trusts them",
+  "Deployments are stressful — there's no clean rollback story and people only ship on Mondays",
+  "The team avoids certain pages or flows because they always break in unexpected ways",
+  "You're hearing about bugs from users instead of from your own monitoring",
 ];
 
 const deliverableItems = [
   "Architecture review and targeted cleanup of high-risk areas",
-  "Frontend and backend refactoring where the code is most fragile",
   "Auth, session, and role/permission improvements",
-  "API and database structure cleanup and consistency improvements",
   "Deployment and release-flow improvements for safer, faster shipping",
   "Monitoring, logging, and observability setup recommendations",
   "Performance and stability fixes in key product flows",
   "Security hardening of common weak points",
-  "Maintainability improvements to support future team velocity",
-  "A clearer technical foundation for scaling users and features",
 ];
 
 const outcomeItems = [
@@ -66,7 +59,7 @@ const differentiators = [
     body: "Production readiness is about what happens after users arrive, features multiply, and the team needs to move faster with confidence.",
   },
   {
-    title: "Founder-friendly execution",
+    title: "Clear updates, no jargon",
     body: "You get clear tradeoff explanations, practical recommendations, and direct communication — not unnecessary complexity or jargon.",
   },
 ];
@@ -138,12 +131,12 @@ export function ProductionReadinessClient() {
               Production Readiness Upgrade
             </div>
             <h1 className="text-4xl font-bold tracking-tighter text-white sm:text-5xl xl:text-6xl">
-              Turn your MVP into a production-ready SaaS product.
+              Your MVP shipped. Now make sure it survives growth.
             </h1>
             <p className="mx-auto max-w-3xl text-lg text-zinc-400 sm:text-xl">
-              I help founders and growing startup teams strengthen architecture, improve stability,
-              tighten security, and clean up technical debt — so the product is easier to maintain,
-              safer to scale, and more reliable for real users.
+              The codebase that got you to launch is rarely the codebase that gets you to 1,000 users.
+              I clean up the parts that break first — auth, deploys, architecture, the bits the team
+              keeps avoiding — without rewriting what already works.
             </p>
           </header>
 
@@ -364,7 +357,7 @@ export function ProductionReadinessClient() {
         <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center gap-8">
           <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col gap-4 items-center">
             <h2 className="text-4xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-white/90 to-white/50 md:text-6xl">
-              Your MVP got you to launch. Now it needs to support real growth.
+              You shipped. Don&apos;t let the codebase be the thing that stops you next.
             </h2>
             <p className="max-w-3xl text-lg text-zinc-400 md:text-xl">
               I help founders strengthen the product behind the scenes — so it becomes easier to scale,

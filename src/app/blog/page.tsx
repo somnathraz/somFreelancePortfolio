@@ -107,12 +107,12 @@ export default async function BlogIndex(props: {
                             Blog
                         </p>
                         <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-6">
-                            Insights for SaaS founders
+                            Notes from shipping SaaS
                         </h1>
                         <p className="text-zinc-400 text-lg mb-6 leading-relaxed">
-                            Buyer-intent and technical writing on shipping MVPs, improving performance,
-                            and production-ready architecture — grounded in real client work on Next.js,
-                            Node, and AI-powered SaaS.
+                            What I&apos;ve learned building MVPs, fixing slow Next.js apps, and shipping AI features
+                            that don&apos;t fall apart in production. Written for founders who want the honest version,
+                            not the polished agency version.
                         </p>
                         <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm font-medium">
                             <Link href="/#process" className="text-blue-400 hover:text-blue-300 transition-colors">

@@ -22,16 +22,16 @@ export function Hero() {
                     </div>
 
                     <h1 className="text-4xl font-bold tracking-tighter text-white sm:text-5xl xl:text-6xl">
-                    Build your SaaS MVP fast.
+                    Built in 21 days.
                     <br className="hidden md:block" />
                         <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40">
-                        Then scale it the right way.
+                        Still running in production.
                         </span>
                     </h1>
 
                     <p className="mx-auto max-w-3xl text-lg text-zinc-400 sm:text-xl">
-                        From early architecture to launch, performance, and scale — I build and optimize
-                        Next.js, Node.js, and AI-powered SaaS products for founders who need more than a basic freelance developer.
+                        I&apos;m a senior engineer who builds and ships SaaS products for founders —
+                        Next.js, Node.js, AI features, and the boring production work that keeps it all running after launch.
                     </p>
                 </header>
 

@@ -211,9 +211,9 @@ export function BookingPage() {
                     <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto">
                         <Check className="w-10 h-10 text-green-400" />
                     </div>
-                    <h1 className="text-3xl font-bold">Booking Confirmed!</h1>
+                    <h1 className="text-3xl font-bold">You&apos;re in.</h1>
                     <p className="text-zinc-400">
-                        A calendar invite has been sent to <span className="text-white">{email}</span>
+                        Calendar invite sent to <span className="text-white">{email}</span>. I&apos;ll come prepared — see you on the call.
                     </p>
 
                     <div className="bg-zinc-900 rounded-xl p-6 text-left space-y-4 border border-zinc-800">
@@ -296,7 +296,7 @@ export function BookingPage() {
                     </button>
 
                     <div>
-                        <h1 className="text-2xl font-bold">Complete Your Booking</h1>
+                        <h1 className="text-2xl font-bold">Almost there</h1>
                         <p className="text-zinc-400 mt-2">
                             {selectedDate && format(new Date(selectedDate), 'EEEE, MMMM d')} at {selectedSlot?.display}
                         </p>
@@ -335,7 +335,7 @@ export function BookingPage() {
                             <Textarea
                                 value={projectDetails}
                                 onChange={(e) => setProjectDetails(e.target.value)}
-                                placeholder="Tell me about your project, timeline, and any specific requirements..."
+                                placeholder="What you're building, where you're stuck, what you've tried. The messier the better — saves us time on the call."
                                 className="bg-zinc-900 border-zinc-700 text-white placeholder:text-zinc-500 min-h-[120px]"
                             />
                         </div>
@@ -376,7 +376,7 @@ export function BookingPage() {
                             </Link>
                             <div>
                                 <h1 className="text-xl font-bold">Somanath Khadanga</h1>
-                                <p className="text-zinc-400 text-sm">Project Meeting</p>
+                                <p className="text-zinc-400 text-sm">60-minute project call</p>
                             </div>
                         </div>
                         <div className="text-left md:text-right text-sm text-zinc-400 w-full md:w-auto pl-9 md:pl-0">

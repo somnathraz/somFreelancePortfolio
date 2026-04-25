@@ -563,20 +563,20 @@ function WaterfallVisual() {
 
 const differentiators = [
     {
-        title: "I optimize the experience, not just the report",
-        body: "PageSpeed scores are useful, but the real goal is faster user flows, better responsiveness, and less friction in the product. A green score that nobody notices is the wrong target.",
+        title: "I optimize what users feel, not what Lighthouse sees",
+        body: "A green PageSpeed score that nobody can feel is the wrong target. The goal is a product that responds when users tap.",
     },
     {
         title: "High-impact bottlenecks first",
-        body: "Instead of chasing tiny gains everywhere, I identify the parts of the product that are actually hurting user experience and business outcomes and fix those first.",
+        body: "I identify the parts of the product hurting users and revenue, and fix those first. Tiny gains everywhere come later, if at all.",
     },
     {
-        title: "Built for products that already exist",
-        body: "This service is specifically for teams that don't need a rebuild. They need focused, surgical engineering improvements — not a proposal for a six-month rewrite.",
+        title: "Built for products that already shipped",
+        body: "This service is for teams that don't need a rebuild. They need surgical fixes, not a six-month rewrite proposal.",
     },
     {
-        title: "Practical recommendations only",
-        body: "You get changes that are realistic to implement and worth maintaining. Not a giant theoretical audit that describes every possible improvement and leaves implementation entirely to you.",
+        title: "Recommendations you'll ship",
+        body: "You get changes that are realistic to implement and worth maintaining. Not a 40-page audit that lists every possible improvement and leaves you to figure it out.",
     },
 ];
 
@@ -606,7 +606,8 @@ export function NextjsPerformanceClient() {
                         </h1>
 
                         <p className="max-w-xl text-lg text-zinc-400">
-                            I help SaaS teams fix slow pages, poor Core Web Vitals, sluggish frontend interactions, and backend bottlenecks — so the product feels faster, converts better, and scales more cleanly.
+                            Your Next.js app got slower as it grew. That&apos;s normal. Fixing it without rewriting
+                            the whole thing is the part most teams get wrong — and the part I do every week.
                         </p>
 
                         <div className="flex flex-col items-center gap-4 sm:flex-row lg:items-start">
@@ -810,7 +811,7 @@ export function NextjsPerformanceClient() {
                 <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center gap-8">
                     <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col gap-4 items-center">
                         <h2 className="text-4xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-white/90 to-white/50 md:text-6xl">
-                            Your product does not need to stay slow just because it already shipped.
+                            Slow products lose users quietly. Yours doesn&apos;t have to.
                         </h2>
                         <p className="max-w-2xl text-lg text-zinc-400 md:text-xl">
                             I help SaaS teams improve Next.js performance in practical, high-impact ways — so the product feels faster, behaves better, and supports growth more cleanly.

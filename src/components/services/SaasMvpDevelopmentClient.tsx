@@ -29,21 +29,15 @@ const deliverableItems = [
   "Product scoping and feature prioritization",
   "Technical architecture planning",
   "Responsive frontend with Next.js / React",
-  "Backend APIs and database design",
-  "Authentication and user roles",
+  "Backend APIs, database design, auth, and admin panels",
   "Payments, subscriptions, or billing flows",
-  "Dashboards and admin panels",
-  "AI-powered workflows or integrations where they add real value",
-  "Deployment setup and launch support",
-  "Core performance, SEO, and production-readiness basics",
+  "Deployment, launch support, and post-launch handover",
 ];
 
 const outcomeItems = [
   "Launch faster with fewer technical mistakes",
   "Validate your idea with a real product",
-  "Avoid rebuilding core decisions too early",
-  "Create a foundation that supports future features and scale",
-  "Move from concept to traction with less friction",
+  "A foundation that supports your next 12 months of features",
 ];
 
 const faqItems = [
@@ -67,19 +61,19 @@ const faqItems = [
 
 const differentiators = [
   {
-    title: "Fast, but not careless",
+    title: "Speed without the rewrite later",
     body: "I move quickly, but your MVP is never treated like a throwaway prototype.",
   },
   {
-    title: "Built for launch, not demo day",
+    title: "A product, not a demo",
     body: "The goal is a usable product you can show customers, test in market, and keep improving.",
   },
   {
-    title: "Production-minded from the start",
+    title: "Built like it has to last",
     body: "Architecture, maintainability, performance, and future scale are considered early.",
   },
   {
-    title: "Founder-friendly execution",
+    title: "You'll always know what's happening",
     body: "You get direct communication, practical tradeoff decisions, and clear progress.",
   },
 ];
@@ -111,12 +105,11 @@ export function SaasMvpDevelopmentClient() {
               SaaS MVP Development
             </div>
             <h1 className="text-4xl font-bold tracking-tighter text-white sm:text-5xl xl:text-6xl">
-              Build your SaaS MVP fast — with the right foundation from day one.
+              Ship the version of your SaaS that&apos;s worth shipping.
             </h1>
             <p className="mx-auto max-w-3xl text-lg text-zinc-400 sm:text-xl">
-              I help SaaS founders turn ideas into launch-ready products with clean architecture,
-              strong UX, and production-minded engineering. You move faster now without creating
-              avoidable problems later.
+              Most MVPs ship too much, too fragile, too fast. I help founders cut scope to what
+              actually matters, build it cleanly, and launch in weeks — not months.
             </p>
           </header>
 
@@ -347,10 +340,10 @@ export function SaasMvpDevelopmentClient() {
         <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center gap-8">
           <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col gap-4 items-center">
             <h2 className="text-4xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-white/90 to-white/50 md:text-6xl">
-              Need to launch your SaaS MVP without creating a mess behind the scenes?
+              Ready to ship the smallest version of your SaaS that&apos;s actually worth shipping?
             </h2>
             <p className="max-w-3xl text-lg text-zinc-400 md:text-xl">
-              I help founders ship faster, make better technical decisions, and build products that are ready for real users — not just internal demos.
+              I help founders ship faster, make better technical decisions, and build products users can actually depend on.
             </p>
           </div>
           <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 flex flex-col items-center gap-4">
@@ -368,7 +361,7 @@ export function SaasMvpDevelopmentClient() {
               <ArrowRight className="h-4 w-4" />
             </Link>
             <p className="text-xs text-zinc-500 max-w-xl">
-              Best for founders and teams who need real product engineering, not just another generic freelancer.
+              Best fit for founders who want a senior engineer, not a team of juniors.
             </p>
           </div>
         </div>

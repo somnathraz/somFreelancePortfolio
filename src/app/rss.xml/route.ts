@@ -25,7 +25,7 @@ export async function GET() {
     <channel>
         <title>Somanath Studio Engineering Blog</title>
         <link>${SITE_URL}</link>
-        <description>Practical thoughts on software architecture, building for scale, and the business of engineering.</description>
+        <description>Practical writing on shipping SaaS, fixing slow apps, and the engineering decisions founders end up regretting.</description>
         <language>en-us</language>
         <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
         <atom:link href="${SITE_URL}/rss.xml" rel="self" type="application/rss+xml" />

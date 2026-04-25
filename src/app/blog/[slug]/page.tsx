@@ -188,10 +188,11 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                     <div className="mt-20 pt-12 border-t border-white/10">
                         <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-8 md:p-10">
                             <h3 className="text-xl font-bold text-white mb-3">
-                                Working on a SaaS that’s starting to feel slow or brittle?
+                                Working on a SaaS that&apos;s starting to feel fragile?
                             </h3>
                             <p className="text-zinc-400 mb-6 leading-relaxed">
-                                I help founders refactor early decisions into scalable, production-ready systems — without full rewrites.
+                                I help founders fix the parts that break first — without rewriting what already works.
+                                Book a 20-minute call and we&apos;ll figure out where to start.
                             </p>
                             <div className="mb-6 flex flex-wrap gap-2">
                                 <Link href="/services/saas-mvp-development" className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/5 hover:text-white">

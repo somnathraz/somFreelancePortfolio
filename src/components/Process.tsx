@@ -4,7 +4,7 @@ export function Process() {
     const steps = [
         {
             title: "1. Discovery",
-            description: "Understand product goals, users, constraints, and timeline.",
+            description: "Get clear on the product, the users, and what version one really needs.",
         },
         {
             title: "2. Scoping & Architecture",

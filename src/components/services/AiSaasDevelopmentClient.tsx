@@ -14,17 +14,13 @@ const fitItems = [
   "Are building an AI-first product and need a strong technical partner",
   "Want practical AI workflows, not just a demo",
   "Need help deciding what should and should not be powered by AI",
-  "Want AI features that fit cleanly into a real product experience",
 ];
 
 const problemItems = [
-  "AI features with no clear user value",
   "Messy chat or copilot UX that confuses users",
   "Weak retrieval, search, or document workflows",
   "Automation ideas that sound smart but break real operations",
-  "AI features bolted onto a product without product thinking",
   "Poor integration between AI functionality and the rest of the SaaS app",
-  "Unclear tradeoffs around speed, quality, reliability, and cost",
 ];
 
 const deliverableItems = [
@@ -32,39 +28,33 @@ const deliverableItems = [
   "Chat and copilot-style product experiences",
   "Document understanding and summarization workflows",
   "Semantic search and knowledge retrieval experiences",
-  "AI-assisted admin and internal-tool workflows",
-  "AI automation for repetitive product or ops tasks",
-  "Prompt and workflow design",
-  "Frontend and backend implementation",
-  "Guardrails, fallback behavior, and monitoring-minded integration",
-  "Production-ready integration into your real product experience",
+  "AI automation for admin, internal tools, and repetitive ops tasks",
+  "Frontend, backend, prompt design, guardrails, and fallback behavior",
 ];
 
 const outcomeItems = [
-  "More useful product workflows",
   "Faster user actions in repetitive or complex tasks",
   "Stronger product differentiation",
-  "AI features that feel integrated, not bolted on",
   "Better internal efficiency through automation and summarization",
   "A cleaner path from AI concept to launch-ready implementation",
 ];
 
 const differentiators = [
   {
-    title: "I build AI features around product value, not hype",
-    body: "The goal is not to have AI. The goal is to make a workflow faster, more useful, or easier for the user.",
+    title: "Useful beats impressive",
+    body: "A feature that saves a user three minutes wins over a feature that wows the demo. I optimize for the first one.",
   },
   {
-    title: "I think beyond the demo",
-    body: "A good AI feature has to fit the product, support real usage, and feel reliable enough to keep.",
+    title: "AI is a tool, not the strategy",
+    body: "The strategy is the product. AI is one option among many for any given workflow, and I'll tell you when it's not the right one.",
   },
   {
-    title: "I focus on practical implementation",
-    body: "That means deciding where AI helps, where standard product logic is better, and how the full experience should behave.",
+    title: "Built for the messy middle of real products",
+    body: "Demos work in clean conditions. Real products have weird edge cases, latency budgets, and users who do unexpected things. I build for that.",
   },
   {
-    title: "I keep it founder-friendly",
-    body: "You get direct communication, realistic tradeoffs, and AI features designed to support the business, not distract from it.",
+    title: "You'll know what we're building and why",
+    body: "Clear scope, real tradeoffs, no jargon-as-decoration.",
   },
 ];
 
@@ -94,7 +84,7 @@ const proofItems = [
 const faqItems = [
   {
     q: "What kinds of AI features can you build?",
-    a: "Things like chat-based workflows, copilots, search, summarization, internal assistant tools, document workflows, and useful automation inside SaaS products.",
+    a: "The ones tied to a workflow — search that actually returns the right thing, summaries the user trusts, copilots that draft work the user would have written anyway. I avoid open-ended chat features that don't have a clear job.",
   },
   {
     q: "Can you help decide whether AI is even the right choice?",
@@ -132,12 +122,11 @@ export function AiSaasDevelopmentClient() {
               AI SaaS Development
             </div>
             <h1 className="text-4xl font-bold tracking-tighter text-white sm:text-5xl xl:text-6xl">
-              Build AI features your users will actually use.
+              AI features that earn their place in the product.
             </h1>
             <p className="mx-auto max-w-3xl text-lg text-zinc-400 sm:text-xl">
-              I help SaaS founders and startup teams design, build, and ship AI-powered product
-              features that solve real workflow problems, from copilots and chat experiences to
-              search, summarization, automation, and internal AI tools.
+              The interesting question isn&apos;t &quot;how do we add AI?&quot; — it&apos;s which feature actually
+              makes the product more useful. I help founders figure that out, then build it.
             </p>
           </header>
 
@@ -346,7 +335,7 @@ export function AiSaasDevelopmentClient() {
         <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center gap-8">
           <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col gap-4 items-center">
             <h2 className="text-4xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-white/90 to-white/50 md:text-6xl">
-              Want AI features that feel useful inside a real product, not just impressive in a demo?
+              Ready to build the AI feature your users will keep using?
             </h2>
             <p className="max-w-3xl text-lg text-zinc-400 md:text-xl">
               I help founders build AI-powered SaaS experiences that are practical, product-aware,
