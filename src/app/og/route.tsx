@@ -60,7 +60,7 @@ export async function GET(request: Request) {
             opacity: 0.8,
           }}
         >
-          www.somanathkhadanga.com
+          somanathkhadanga.com
         </div>
       </div>
     ),
