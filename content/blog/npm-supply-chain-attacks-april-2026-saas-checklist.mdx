@@ -1,0 +1,203 @@
+---
+title: "The April 2026 npm Supply Chain Wave: A SaaS Founder's 48-Hour Checklist"
+metaTitle: "April 2026 npm Supply Chain Attacks: SaaS Checklist"
+description: "Three coordinated npm attacks hit the ecosystem in 48 hours — pgserve, Bitwarden CLI, and Axios. A practical, founder-focused breakdown of what to audit and fix in your SaaS this week."
+date: "2026-04-29"
+readTime: "9 min read"
+category: "Security"
+tags: ["npm", "Security", "Supply Chain", "Production Readiness", "SaaS", "CI/CD"]
+---
+
+import { AlertTriangle, KeyRound, PackageSearch, ShieldCheck, ClipboardCheck, Workflow, Bug } from "lucide-react"
+
+If you ship a SaaS product on Node, this past week was loud.
+
+Between **April 21 and 23, 2026**, three separate supply-chain attacks landed on npm in roughly 48 hours. Two of them — `pgserve` and the Bitwarden CLI compromise — had the same fingerprint: a malicious `postinstall` hook running on every developer machine and CI runner that touched the package. The third — the Axios compromise — pulled a credential-harvesting RAT into thousands of dependent projects through a single hijacked maintainer account.
+
+I'm writing this on April 29. The window where this is "fresh news" is closing. The window where your audit catches a problem before it becomes an incident is still open.
+
+This post is the founder version of the response: not a forensic recap, but the short list of things I'd actually do this week if I had a SaaS in production right now.
+
+<div className="grid gap-3 sm:grid-cols-3 my-8">
+  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <PackageSearch className="w-5 h-5 text-emerald-300 mb-3" />
+    <p className="mb-0 text-sm text-zinc-300">Three npm attacks in 48 hours, all targeting CI tokens, cloud credentials, and developer environment secrets.</p>
+  </div>
+  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <Workflow className="w-5 h-5 text-blue-300 mb-3" />
+    <p className="mb-0 text-sm text-zinc-300">The shared pattern is `postinstall` hooks — code that runs automatically the moment you `npm install`.</p>
+  </div>
+  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <KeyRound className="w-5 h-5 text-amber-300 mb-3" />
+    <p className="mb-0 text-sm text-zinc-300">Even if you don't use any of the named packages, your transitive dependencies and CI workflow probably still need an audit.</p>
+  </div>
+</div>
+
+---
+
+## The Short Version
+
+Three incidents, in chronological order:
+
+- **April 21 — `pgserve` (PostgreSQL server for Node)**: Three malicious versions published within hours. The `postinstall` hook injects a credential-harvesting script that runs on every `npm install`.
+- **April 22 — Bitwarden CLI**: A trojanized version of the password manager's own developer tool sat on npm for roughly 90 minutes before being pulled. The credential-stealing version had a narrow window, but anyone whose CI ran during it was potentially exposed.
+- **April 21–23 — Axios compromise**: A separate, broader campaign hit `axios` through a hijacked maintainer account, pulling a RAT into projects via the dependency graph.
+
+If you read those three together, the takeaway is not "this specific package is bad." It's that **the attack pattern is now repeatable, fast, and scaled**. Three different packages from three different categories — database tooling, security tooling, an HTTP client used by half the npm ecosystem — all hit in the same week.
+
+That's not a coincidence. That's a maturity signal.
+
+---
+
+## Why This One Is Different
+
+The earlier wave I covered in [Recent npm Security Changes: What SaaS Teams Should Fix Right Now](/blog/recent-npm-security-changes-what-saas-teams-should-fix-right-now) was about platform-level changes — npm classic tokens being revoked, granular tokens getting shorter lifetimes, GitHub adding malware alerts to Dependabot.
+
+This wave is about attackers responding to those changes. Three things stand out:
+
+1. **The blast radius keeps getting wider.** Axios alone is in the dependency tree of an enormous number of Node SaaS apps. A single hijacked maintainer account is a faster path to thousands of victims than scanning for vulnerabilities ever was.
+2. **`postinstall` hooks are still the favorite vector.** Two of the three attacks used them. The hook runs the moment you install — not when you import the package, not when you run the app. That's why CI runners are such valuable targets: they install fresh on every job and they hold every credential the deploy needs.
+3. **The 90-minute Bitwarden window is the new standard.** Attackers are publishing, harvesting, and getting pulled before most teams even know there was anything to look at. If you're relying on "I'll see it on Hacker News tomorrow" you're already late.
+
+For founders running a live SaaS product, this kind of cleanup is exactly the work that fits inside a [Production Readiness Upgrade](/services/production-readiness-upgrade). It's the boring infrastructure layer that decides whether your next outage is a 20-minute fix or a 3-day incident.
+
+<div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5 my-8">
+  <AlertTriangle className="w-5 h-5 text-amber-300 mb-3" />
+  <p className="mb-0 text-sm text-zinc-300">If you ran any CI job between April 21 and April 23 that did a fresh install of `pgserve`, Bitwarden CLI, or Axios, treat your CI secrets as potentially exposed. Rotate now, investigate later.</p>
+</div>
+
+---
+
+## You're Affected Even If You Don't Use These Packages
+
+This is the part founders most often miss.
+
+You don't need to be running `pgserve` to be affected by this wave. You need to ask:
+
+- Is **Axios** anywhere in your dependency tree? It probably is. Run `npm ls axios` and brace yourself.
+- Did any developer install Bitwarden CLI globally on a machine that has access to your AWS or GCP credentials? Check.
+- Are your CI runners doing fresh installs on every job, or do you cache `node_modules`? Fresh installs mean every malicious version that ever briefly existed in your lockfile window had a chance to run.
+
+The honest answer for most SaaS teams: there's at least a small chance someone, somewhere in your build pipeline, ran code from one of these packages. The right move isn't panic — it's a focused audit.
+
+---
+
+## The 48-Hour Checklist
+
+Here's the order I'd actually run this in. It's prioritized by what catches the worst case first.
+
+### 1. Lockfile audit (15 minutes)
+
+Run a quick check to see what's in your tree:
+
+```bash
+npm ls axios
+npm ls bitwarden
+npm ls pgserve
+```
+
+For each result, confirm the version that's actually installed. Cross-reference against the affected version ranges (publicly listed by GitHub Advisory Database, GitGuardian, and Microsoft's writeup). If you're inside an affected range, treat the next step as urgent rather than routine.
+
+### 2. CI/CD secret rotation (1–2 hours)
+
+This is the single highest-value action in this whole list.
+
+- Rotate every npm token your CI uses to publish or read private packages.
+- Rotate cloud credentials your CI uses to deploy: AWS access keys, GCP service account keys, Vercel deployment tokens, Cloudflare API tokens.
+- Rotate any third-party API keys that live in CI: Stripe, OpenAI, Anthropic, SendGrid, Resend.
+- If you use `GITHUB_TOKEN` for anything beyond default permissions, audit the scopes and rotate any long-lived PAT.
+
+The credential-harvesting payload in `pgserve` specifically targeted exactly this list. If you wait, you're betting that no one ran a malicious install on your runner. That's not a bet I'd make.
+
+### 3. Postinstall hooks audit (30 minutes)
+
+In your `package.json` and across your dependencies, find anything running on `postinstall`, `preinstall`, or `prepare`:
+
+```bash
+npm config set ignore-scripts true
+```
+
+This is the nuclear option — it disables all install scripts globally on your machine. Most projects do not need install scripts; most install scripts that exist are doing something you'd rather know about. For CI specifically, set it on the runner. Your build still works for the vast majority of dependency types.
+
+If a specific package legitimately needs an install script (some native modules do — `better-sqlite3`, `sharp`, etc.), allow them explicitly. Don't allow them globally.
+
+### 4. Dependabot malware alerts (10 minutes)
+
+GitHub launched Dependabot malware alerts for npm in March 2026. Confirm:
+
+- Dependency graph is enabled on every production repo.
+- Dependabot alerts are turned on.
+- **Malware alerting** specifically is enabled (it's a separate toggle from regular CVE alerts).
+- Notifications go somewhere a human reads — not a Slack channel nobody's in, not an email filter that auto-archives.
+
+If you don't have someone monitoring this, the alerts are noise.
+
+### 5. Production deploy freeze if you've shipped recently (judgment call)
+
+If you deployed to production between April 19 and April 24 with a fresh CI install in that window, consider freezing further deploys until step 2 is complete. Anything you shipped during that window may have been built with a contaminated build environment. Most likely it's fine. But "most likely" is not the bar I'd hold for production credentials.
+
+<div className="rounded-xl border border-white/10 bg-white/5 p-5 my-8">
+  <ClipboardCheck className="w-5 h-5 text-cyan-300 mb-3" />
+  <p className="mb-0 text-sm text-zinc-300">Steps 1, 2, and 4 together are about three hours of work for most SaaS products. The cost-benefit on this one is so skewed that "I'll get to it next week" is the wrong answer.</p>
+</div>
+
+---
+
+## Postinstall Hooks: The Pattern That Keeps Winning
+
+Two out of three of these attacks used `postinstall`. The previous wave's malicious packages used `postinstall`. The pattern is not new and the defenses are not exotic.
+
+The reason it keeps working is that almost every npm install runs scripts by default, and almost every CI pipeline does a fresh install on every job. The combined effect is that any malicious package that briefly exists on the registry gets executed on a lot of machines holding a lot of credentials.
+
+The fix is not technically hard:
+
+- For most projects, `npm config set ignore-scripts true` in CI is safe.
+- For projects with native modules, allowlist the specific packages that need scripts.
+- For developer machines, the same setting blocks an entire class of "I just installed a package and now my SSH keys are gone" outcomes.
+
+This is one of those changes that costs almost nothing to make and pays out the first time you avoid being on the wrong side of one of these incidents. Worth doing this week regardless of whether you were affected by this specific wave.
+
+<div className="rounded-xl border border-white/10 bg-white/5 p-5 my-8">
+  <ShieldCheck className="w-5 h-5 text-emerald-300 mb-3" />
+  <p className="mb-0 text-sm text-zinc-300">Disabling install scripts in CI is the single highest leverage hardening change you can make in under five minutes. The blast radius of every future npm supply-chain attack drops sharply the moment you do it.</p>
+</div>
+
+---
+
+## Two Things to Skip
+
+A lot of the public response to this wave has been noisy. Some of it isn't worth your time as a founder:
+
+**Skip: switching package managers.** "Just move to pnpm" or "yarn handles this better" — they don't, not in any way that actually changes the threat model. All three managers run install scripts by default and all three trust the npm registry as a source of truth. Moving package managers without changing your install-script policy is theater.
+
+**Skip: rewriting your package.json to pin every dependency to an exact version.** Tempting, but it doesn't help against a maintainer-account compromise — the attacker just publishes the next patch version and you're either stuck on an outdated, vulnerable version or you're updating to a malicious one. The actual fix is provenance verification (npm trusted publishing, sigstore signatures), which is a longer conversation than this post.
+
+What does help: the five steps in the checklist above, plus the broader provenance work I covered in [Recent npm Security Changes: What SaaS Teams Should Fix Right Now](/blog/recent-npm-security-changes-what-saas-teams-should-fix-right-now).
+
+---
+
+## The Bigger Picture
+
+Two patterns are clearly emerging:
+
+1. **Supply-chain attacks are now a continuous workload, not a periodic news event.** The window between waves is shrinking. The work of "is my CI pipeline still safe" is becoming weekly, not annual.
+2. **The defense is mostly boring.** Rotate tokens. Disable install scripts. Pay attention to Dependabot alerts. None of this is glamorous engineering work. All of it costs less than the first incident you avoid.
+
+For founders running a live SaaS, this is the category of work that's easiest to keep deferring and most expensive to defer. It doesn't show up on the roadmap. It doesn't have a feature flag. It just decides whether you're the person reading the post-incident writeup or writing it.
+
+If your product launched recently and the foundations underneath it are starting to feel like one of those things you'll "get to later," [Production Readiness Upgrade](/services/production-readiness-upgrade) is the engagement designed exactly for that work — without rewriting the parts that already work.
+
+<div className="rounded-xl border border-white/10 bg-white/5 p-5 my-8">
+  <Bug className="w-5 h-5 text-rose-300 mb-3" />
+  <p className="mb-0 text-sm text-zinc-300">The teams I see handle these incidents well are not the ones with the fanciest tooling. They're the ones who decided last quarter that npm hygiene was non-negotiable. By the time the next attack lands, the work is already done.</p>
+</div>
+
+---
+
+## Final Thoughts
+
+This wave isn't the last one. The infrastructure changes npm and GitHub shipped in the past year — trusted publishing, token revocation, malware alerts — are good and they raise the floor. But attackers are also adapting, and the speed of the adaptation is the actual story of April 2026.
+
+The 48-hour checklist above takes most teams a single afternoon. Do it this week. The next time you wake up to a Hacker News post about an npm package getting compromised, you want to be the founder who already rotated the tokens and disabled the install scripts — not the one finding out their CI ran a credential harvester last Tuesday.
+
+If you're reviewing your stack more broadly — auth flows, deploy pipelines, observability, the parts of your SaaS that always seem to be one step behind feature work — that's the [Production Readiness Upgrade](/services/production-readiness-upgrade) conversation. If you'd rather have the call before you have the incident, [book a 20-minute strategy call](/book).
