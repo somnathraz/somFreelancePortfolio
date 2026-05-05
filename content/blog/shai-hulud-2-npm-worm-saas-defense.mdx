@@ -1,0 +1,261 @@
+---
+title: "Shai-Hulud 2.0: The npm Worm Spreading Through SAP and Intercom Packages This Week"
+metaTitle: "Shai-Hulud 2.0 npm Worm: SaaS Defense Guide"
+description: "The Shai-Hulud npm worm is back. A self-propagating attack using preinstall hooks and the Bun runtime to bypass Node.js security tooling, with 1,200+ GitHub repos used as exfil targets. What SaaS teams need to change this weekend."
+date: "2026-05-05"
+readTime: "10 min read"
+category: "Security"
+tags: ["npm", "Security", "Supply Chain", "Shai-Hulud", "SAP", "Worm", "Production Readiness", "SaaS"]
+---
+
+import { AlertTriangle, KeyRound, PackageSearch, ShieldAlert, ShieldCheck, ClipboardCheck, Workflow, GitBranch, Bug } from "lucide-react"
+
+A week ago I wrote about [the April 2026 npm supply chain wave](/blog/npm-supply-chain-attacks-april-2026-saas-checklist) — pgserve, Bitwarden CLI, Axios. I called it a maturity signal. I underestimated how fast.
+
+Since **April 29**, a new variant called **Shai-Hulud 2.0** (also being called "Mini Shai-Hulud" by some firms) has been actively spreading through the npm ecosystem. As of today, May 5, it's hit:
+
+- Four official **SAP CAP** (Cloud Application Programming) JavaScript packages
+- `intercom-client@7.0.4` and `intercom-client@7.0.3` from the Intercom ecosystem
+- `lightning@2.6.2` and `lightning@2.6.3`
+- **Around 1,200 public GitHub repositories** are now being used as dumping grounds for harvested credentials
+
+That last number is the one founders should pay attention to. This isn't a single bad package. It's a worm — and it's still spreading.
+
+This post is the technical follow-up to last week's checklist. If you read that one and assumed the work was done, you should keep reading.
+
+<div className="grid gap-3 sm:grid-cols-3 my-8">
+  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <Workflow className="w-5 h-5 text-amber-300 mb-3" />
+    <p className="mb-0 text-sm text-zinc-300">The new variant uses `preinstall` hooks — earlier in the npm lifecycle than `postinstall`, and harder to block with the obvious mitigations.</p>
+  </div>
+  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <PackageSearch className="w-5 h-5 text-blue-300 mb-3" />
+    <p className="mb-0 text-sm text-zinc-300">It downloads the Bun runtime and runs an 11.7MB obfuscated payload outside Node — bypassing most npm-aware security tooling.</p>
+  </div>
+  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <GitBranch className="w-5 h-5 text-rose-300 mb-3" />
+    <p className="mb-0 text-sm text-zinc-300">It's self-propagating: harvested GitHub tokens get used to publish malicious versions to other packages the victim owns.</p>
+  </div>
+</div>
+
+---
+
+## What's Actually Happening
+
+Here's the short version, as cleanly as I can give it.
+
+A group calling itself **TeamPCP** has been compromising npm maintainer accounts and publishing trojanized versions of popular packages. The current campaign started April 29 with four SAP packages published between 09:55 and 12:14 UTC. It expanded to Intercom and Lightning packages within days.
+
+Each compromised package contains a `preinstall` script. When you run `npm install` — or when your CI runs `npm install` — that script fires before any application code, before any other install step, before npm prints anything useful to the terminal.
+
+The script does three things:
+
+1. **Detects your OS and architecture**, then downloads or locates the Bun JavaScript runtime if it's not already on the machine.
+2. **Spawns a detached Bun process** running an 11.7MB obfuscated payload, with stdout/stderr suppressed and the process backgrounded so the install appears to complete normally.
+3. **Harvests credentials** from your filesystem (`.aws/credentials`, `~/.config/gcloud`, GitHub tokens, npm tokens, SSH keys) and from cloud metadata endpoints, then exfiltrates them — by **creating a new public GitHub repository** under your own account using your own credentials, and committing the stolen secrets to it.
+
+That last detail is what makes this worm-shaped instead of merely malicious. The exfil target is GitHub itself. There's no suspicious external endpoint to block at the firewall. From your network's perspective, your developer just pushed code to GitHub. From your dev's perspective, nothing happened.
+
+<div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5 my-8">
+  <AlertTriangle className="w-5 h-5 text-amber-300 mb-3" />
+  <p className="mb-0 text-sm text-zinc-300">The 1,200 figure being tracked by security firms is the count of public GitHub repos the worm has created so far to dump harvested credentials. Each repo represents one or more compromised developer machines.</p>
+</div>
+
+---
+
+## What I Got Half-Right Last Week
+
+In [last week's post](/blog/npm-supply-chain-attacks-april-2026-saas-checklist), I emphasized `postinstall` hooks as the dominant attack vector. That was true for the pgserve and Bitwarden incidents. It is **not** the full picture for Shai-Hulud 2.0.
+
+The relevant scripts in npm's lifecycle are, in order:
+
+```
+preinstall  →  install  →  postinstall  →  prepare
+```
+
+`preinstall` runs first — before any package files are even unpacked into `node_modules`. This matters because:
+
+- If you've added `npm config set ignore-scripts true` based on last week's advice, you're still protected — `ignore-scripts` blocks all of these.
+- If you've only blocked `postinstall` specifically (some teams do this with allowlists), you're not protected.
+- Several developer tools that "allow scripts but warn on them" trigger their warnings on `postinstall` because that's the historically common vector. `preinstall` warnings are less mature.
+
+The fix is simple: when you're disabling install scripts, make sure you're disabling **all** lifecycle scripts, not just postinstall. The npm flag covers everything; some custom CI tooling does not.
+
+<div className="rounded-xl border border-white/10 bg-white/5 p-5 my-8">
+  <ShieldCheck className="w-5 h-5 text-emerald-300 mb-3" />
+  <p className="mb-0 text-sm text-zinc-300">If your CI has `npm config set ignore-scripts true` set globally, you are protected from this attack. If your CI uses a custom allowlist or only blocks `postinstall`, audit it today.</p>
+</div>
+
+---
+
+## Why "It's Just SAP and Intercom Packages" Misses the Point
+
+When this kind of incident lands, the first instinct for most teams is to check whether they use the named packages. If the answer is no, they breathe out and move on.
+
+That's the wrong reaction for two reasons.
+
+**First**, the packages named in the news cycle are the ones that have already been caught. The worm's whole point is to keep spreading. Every time it harvests credentials from a developer who maintains other packages, those packages are next. The set of compromised packages is monotonically increasing while the worm is active.
+
+**Second**, even if you don't directly depend on any compromised package, your transitive dependency graph almost certainly includes packages whose maintainers do. If a maintainer of a package you depend on transitively gets infected, the next version of their package gets infected too. Lockfiles help, but only until you next update.
+
+This is the architectural shift that makes worm-style attacks fundamentally different from the earlier "single bad package" pattern. The blast radius is no longer determined by which packages you import. It's determined by **how often you install fresh during the time the worm is active**.
+
+For most SaaS teams, "how often you install fresh" is measured in CI builds per day. Which means the right way to think about this isn't "did I install a bad package" — it's "what was the cumulative chance that any of my CI runs in the last 7 days hit a compromised version of anything in my tree."
+
+For a team running 50+ CI builds per day, that probability is no longer negligible.
+
+---
+
+## The Bun Runtime Evasion Is Worth Understanding
+
+The other thing that makes this variant interesting — and concerning — is the choice of Bun.
+
+Most npm-focused security tooling expects malicious code to run inside Node. Sandboxes, runtime monitors, allowlists for child processes, package-level audits — all of them are tuned for Node's behavior, Node's syscall patterns, Node's networking primitives.
+
+Shai-Hulud 2.0 downloads Bun and runs the obfuscated payload **inside Bun**, not inside Node. The implications:
+
+- A monitor that watches for suspicious behavior in `node` processes won't see anything; the malicious work happens in a `bun` process.
+- A network egress filter that whitelists Node's typical TLS fingerprint may pass Bun's traffic through unchallenged.
+- Static analysis of the npm package itself reveals only the loader (`setup_bun.js`), which is small and not obviously malicious. The 11.7MB obfuscated payload it fetches is the part that does the harm, and it's not in the package metadata.
+
+This is a sophisticated escalation. The defense isn't "use a smarter scanner" — most existing scanners are scanning the wrong thing. The defense is to prevent the loader from running at all, which goes back to disabling install scripts.
+
+<div className="rounded-xl border border-white/10 bg-white/5 p-5 my-8">
+  <Bug className="w-5 h-5 text-rose-300 mb-3" />
+  <p className="mb-0 text-sm text-zinc-300">A package scanner that says "this package is clean" can be technically correct and still miss this attack entirely. The malicious payload isn't in the package — it's downloaded by a tiny loader the moment install scripts run.</p>
+</div>
+
+---
+
+## What Actually Stops a Preinstall + Bun + Self-Propagating Worm
+
+Most of the standard advice — "audit your dependencies," "use a scanner," "pin your versions" — does very little against this specific threat model. Here's what actually works:
+
+### 1. Disable install scripts globally in CI
+
+If you do nothing else from this post, do this:
+
+```bash
+npm config set ignore-scripts true
+```
+
+For pnpm:
+
+```bash
+pnpm config set side-effects-cache false
+pnpm config set ignore-scripts true
+```
+
+For yarn (1.x and berry):
+
+```bash
+yarn config set ignore-scripts true
+```
+
+This single line is the difference between "the worm runs on your CI runner" and "the worm gets unpacked into a directory and never executes."
+
+For developer machines, the same setting is recommended. You'll occasionally need to allow scripts for specific packages with native bindings (`better-sqlite3`, `sharp`, `node-gyp`-based modules) — do that explicitly per package, not globally.
+
+### 2. Limit the credentials your CI has access to
+
+The harvesting payload exfiltrates whatever it can find. If your CI runner has long-lived AWS keys, npm publish tokens, GitHub PATs, and Stripe keys all available simultaneously, an infected install gets all of them.
+
+The defense here is short-lived credentials and least-privilege scoping:
+
+- **OIDC-based authentication** for cloud providers (AWS, GCP) instead of long-lived access keys. The token only exists during the job and is scoped to that one job.
+- **Per-job scoped tokens** for npm publishing — npm trusted publishing with OIDC where supported.
+- **GitHub Actions `permissions:` blocks** that limit `GITHUB_TOKEN` to the minimum needed for each job.
+- **No long-lived PATs** in CI. Period.
+
+If the worm runs on a CI runner with only short-lived OIDC tokens, what it harvests expires before it can be used.
+
+### 3. Audit GitHub for unexpected repositories
+
+Because the exfil target is GitHub itself, the worm leaves a unique fingerprint: new public repositories created under accounts whose owners didn't create them.
+
+Run this audit on your team:
+
+- Each developer logs into GitHub and reviews their list of public repos for anything they don't recognize, especially recently created.
+- Same for any GitHub Apps or service accounts your team uses.
+- Set up a webhook or scheduled job to alert on new repository creation events under your org.
+
+This is also the simplest way to catch ongoing infection. If a worm is active on a developer machine right now, this check will show it.
+
+### 4. Stop trusting your lockfile alone
+
+Lockfiles pin versions, but they don't verify those versions weren't tampered with after publishing. For higher-trust environments:
+
+- Enable **npm package provenance verification** for packages that publish with provenance attestations.
+- For internal packages, publish with **trusted publishing** (OIDC-based) and verify provenance on install.
+- For high-stakes deploys, consider an internal package mirror that holds a known-good cache of dependencies and doesn't fetch from the public registry during deploy.
+
+### 5. Treat install logs as security telemetry
+
+Most teams ignore install output. For the next few weeks, don't:
+
+- Compare CI install times — the loader downloads the Bun runtime, which adds noticeable latency. A build that suddenly takes 30 seconds longer than usual on its install step is worth investigating.
+- Watch for unexpected outbound connections during install. Bun's user-agent and TLS fingerprint differ from Node's; a network log showing both during a Node-only project's install is a flag.
+
+---
+
+## A Five-Step Hardening Plan for This Weekend
+
+If you have a SaaS in production and you've been on the fence about doing the security cleanup, here's the order I'd run:
+
+1. **Saturday morning, 30 min** — Set `ignore-scripts true` in CI and on every developer machine on your team. Update the team's onboarding docs to include it.
+2. **Saturday afternoon, 1 hr** — Audit GitHub for unexpected public repositories created in the past two weeks under any team member's account or org.
+3. **Sunday morning, 2 hr** — Move at least one CI job from long-lived credentials to OIDC-based short-lived auth. Pick the highest-privilege one (usually deploy or publish).
+4. **Sunday afternoon, 1 hr** — Review your team's GitHub Actions `permissions:` blocks. Reduce any with `write-all` to specific permissions.
+5. **Monday morning, 30 min** — Set up a recurring weekly check (calendar reminder, team agenda item) for npm advisory bulletins and Dependabot alerts.
+
+Total: about half a weekend of work. The next time a Shai-Hulud 3.0 lands, you're not the team that has to cancel the week to do incident response.
+
+<div className="rounded-xl border border-white/10 bg-white/5 p-5 my-8">
+  <ClipboardCheck className="w-5 h-5 text-cyan-300 mb-3" />
+  <p className="mb-0 text-sm text-zinc-300">This work isn't about defending against any one specific attack. It's about ensuring that the next worm — and there will be one — finds a much smaller blast radius on your infrastructure.</p>
+</div>
+
+---
+
+## What to Watch For Next Week
+
+A few things I'm watching as this story develops:
+
+- **Shai-Hulud 3.0** has already been reported by some firms (Upwind, others) with enhanced obfuscation. This is a campaign that iterates faster than most teams patch.
+- **Other registries**: PyPI is showing similar patterns. The same self-propagation logic works for any package registry where maintainers can publish and credentials can be harvested.
+- **Bun's response**: Bun the company will need to address the runtime being weaponized. There will probably be discussion about install-time signing, provenance for runtime downloads, etc.
+- **GitHub's response**: Public repos as exfil targets is a clever vector. GitHub will likely add detection for sudden bulk creation of repositories under personal accounts.
+
+The most useful posture for SaaS founders right now isn't "wait for the platforms to fix it." The platforms will fix it. But the fixes will take weeks to months, and they'll come after the next two or three variants. The work you do this weekend protects you for those weeks-to-months.
+
+---
+
+## The Bigger Picture
+
+This is the second post I've written about npm supply-chain attacks in seven days. That's not a content cadence I planned — it's a reflection of how active the threat landscape has become.
+
+Two patterns are clear:
+
+1. **Supply-chain attacks are now continuous.** The window between waves is shrinking from months to weeks. Worm-style self-propagation makes the windows overlap.
+2. **The defenses are mostly architectural, not reactive.** You can't outpace the attacks by reading more news. You can only outpace them by changing your infrastructure so that any individual compromise has a small blast radius.
+
+For founders running a live SaaS, this is exactly the work that fits inside a [Production Readiness Upgrade](/services/production-readiness-upgrade). It's the layer of the product nobody asks about until it fails — at which point it's the only thing anyone asks about.
+
+If your product launched in the last year and the security/auth/CI layer has been on the "we'll get to it later" list, this is the moment to move it. Not because of this specific worm, but because the meta-pattern is clear: the cost of delay keeps going up.
+
+<div className="rounded-xl border border-white/10 bg-white/5 p-5 my-8">
+  <ShieldAlert className="w-5 h-5 text-amber-300 mb-3" />
+  <p className="mb-0 text-sm text-zinc-300">A SaaS that's well-engineered for features and poorly engineered for credential hygiene is the typical 2026 incident. The features carry the product to launch. The hygiene decides whether the product survives the second year.</p>
+</div>
+
+---
+
+## Final Thoughts
+
+Shai-Hulud 2.0 will be patched. The packages will get pulled. The advisories will get filed. The next variant will land and the cycle will repeat.
+
+What changes in 2026 is the speed. The window between identifying a problem and seeing it weaponized at scale is narrowing fast. The teams that handle this well are the ones that did the boring infrastructure work before they needed it.
+
+If you read [last week's post](/blog/npm-supply-chain-attacks-april-2026-saas-checklist), the work in this one is the next 20%. If you didn't, start with last week's checklist and then come back to this for the architectural pieces. Either way, the goal is the same: make your stack the one the next worm fails on, not the one it propagates through.
+
+If you'd rather have someone else do the cleanup audit, that's exactly what [Production Readiness Upgrade](/services/production-readiness-upgrade) is for. If you want a single call to figure out what your specific stack actually needs first, [book a 20-minute strategy call](/book).
