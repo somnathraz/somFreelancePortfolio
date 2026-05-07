@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useInView } from "motion/react";
+import { motion, useInView, useMotionValue, useSpring, useTransform } from "motion/react";
 import { BorderBeam } from "@/components/ui/border-beam";
-import { ArrowRight, MapPin, Calendar, ExternalLink, Pencil, Cpu, GraduationCap } from "lucide-react";
+import { ArrowRight, MapPin, Calendar, ExternalLink, Pencil, Cpu, GraduationCap, ArrowUpRight, Zap, Bot, Globe, Code2 } from "lucide-react";
 
 // ─── Social icons ─────────────────────────────────────────────────────────────
 
@@ -153,6 +153,435 @@ const PROJECTS = [
         accent: "emerald",
     },
 ];
+
+// ─── Personal projects data ───────────────────────────────────────────────────
+
+const PERSONAL_PROJECTS = [
+    {
+        id: "paperchai",
+        featured: true,
+        status: "live",
+        statusLabel: "Live",
+        name: "PaperChai",
+        tagline: "Invoicing SaaS for freelancers",
+        description:
+            "Built to solve a real pain — scattered invoices, zero cash-flow visibility, manual follow-ups. PaperChai gives freelancers and small businesses a clean dashboard with invoice creation, payment tracking, and client management. Shipped from idea to production in 11 days, solo.",
+        stack: ["Next.js App Router", "TypeScript", "PostgreSQL", "Tailwind CSS"],
+        metrics: [
+            { value: "11", unit: "days", label: "idea → production" },
+            { value: "100%", unit: "", label: "solo build" },
+        ],
+        accent: "#22d3ee",
+        accentClass: "cyan",
+        image: "/images/Project-1.png",
+        href: "/blog/paperchai-from-idea-to-running-saas",
+        icon: <Zap className="w-5 h-5" />,
+    },
+    {
+        id: "ai-agents",
+        featured: false,
+        status: "building",
+        statusLabel: "Building now",
+        name: "AI Agent Platform",
+        tagline: "Multi-step agents for SaaS automation",
+        description:
+            "Orchestrating AI agents that automate repetitive SaaS workflows — document processing, data extraction, smart routing, and async task queues. Built on OpenAI function calling with a Next.js control plane and Node.js workers.",
+        stack: ["Next.js", "OpenAI API", "Node.js", "Redis", "TypeScript"],
+        metrics: [
+            { value: "∞", unit: "", label: "automation potential" },
+        ],
+        accent: "#a78bfa",
+        accentClass: "violet",
+        image: null,
+        href: null,
+        icon: <Bot className="w-5 h-5" />,
+    },
+    {
+        id: "seafoods",
+        featured: false,
+        status: "live",
+        statusLabel: "Live",
+        name: "LocalBoyNani Seafoods",
+        tagline: "Full-stack e-commerce, 3 cities",
+        description:
+            "Production e-commerce platform for a real seafood delivery business. Live orders, inventory, admin dashboard, and 120-min delivery SLA across Bangalore, Hyderabad & Chennai.",
+        stack: ["Next.js", "Node.js", "Cloudflare R2"],
+        metrics: [
+            { value: "3", unit: " cities", label: "live coverage" },
+            { value: "120", unit: "min", label: "delivery SLA" },
+        ],
+        accent: "#34d399",
+        accentClass: "emerald",
+        image: "/images/project-7.png",
+        href: "https://localboynaniseafoods.com",
+        icon: <Globe className="w-5 h-5" />,
+    },
+    {
+        id: "ai-tools-dir",
+        featured: false,
+        status: "personal",
+        statusLabel: "Personal",
+        name: "AI Tools Directory",
+        tagline: "Search UX for AI discovery",
+        description:
+            "Fast, searchable catalog for discovering AI tools. Explores Algolia-powered instant search, Framer Motion transitions, and high-performance frontend rendering for large datasets.",
+        stack: ["React", "Algolia", "Framer Motion", "Vercel Edge"],
+        metrics: [],
+        accent: "#f59e0b",
+        accentClass: "amber",
+        image: "/images/project-2.png",
+        href: null,
+        icon: <Code2 className="w-5 h-5" />,
+    },
+    {
+        id: "ai-code-review",
+        featured: false,
+        status: "personal",
+        statusLabel: "Personal",
+        name: "AI Code Review Assistant",
+        tagline: "LLM-in-the-loop dev workflows",
+        description:
+            "GitHub-integrated AI tool that surfaces code review suggestions automatically via GitHub Actions. Explores LLM function calling and async webhook pipelines.",
+        stack: ["Python", "OpenAI API", "GitHub Actions", "Redis"],
+        metrics: [],
+        accent: "#60a5fa",
+        accentClass: "blue",
+        image: "/images/project-3.png",
+        href: null,
+        icon: <Bot className="w-5 h-5" />,
+    },
+];
+
+// ─── Project card (tilt + spotlight) ─────────────────────────────────────────
+
+function ProjectCard({ project, delay = 0 }: { project: typeof PERSONAL_PROJECTS[0]; delay?: number }) {
+    const cardRef = useRef<HTMLDivElement>(null);
+    const isInView = useInView(cardRef, { once: true, margin: "-60px" });
+
+    const mouseX = useMotionValue(0);
+    const mouseY = useMotionValue(0);
+    const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [6, -6]), { stiffness: 200, damping: 20 });
+    const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-6, 6]), { stiffness: 200, damping: 20 });
+    const glowX = useTransform(mouseX, [-0.5, 0.5], ["0%", "100%"]);
+    const glowY = useTransform(mouseY, [-0.5, 0.5], ["0%", "100%"]);
+
+    const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        const rect = cardRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
+        mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
+    }, [mouseX, mouseY]);
+
+    const handleMouseLeave = useCallback(() => {
+        mouseX.set(0);
+        mouseY.set(0);
+    }, [mouseX, mouseY]);
+
+    const STATUS_STYLE: Record<string, string> = {
+        live: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+        building: "bg-violet-500/15 text-violet-400 border-violet-500/30",
+        personal: "bg-zinc-800 text-zinc-400 border-zinc-700",
+    };
+
+    return (
+        <motion.div
+            ref={cardRef}
+            initial={{ opacity: 0, y: 32, scale: 0.97 }}
+            animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+            transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+            style={{ perspective: 1000 }}
+        >
+            <motion.div
+                style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                className="relative h-full rounded-2xl border border-white/10 bg-zinc-950 overflow-hidden group cursor-default"
+            >
+                {/* Mouse-following glow */}
+                <motion.div
+                    className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"
+                    style={{
+                        background: `radial-gradient(320px circle at ${glowX} ${glowY}, ${project.accent}18, transparent 70%)`,
+                    }}
+                />
+
+                {/* Top accent bar */}
+                <div
+                    className="absolute top-0 left-0 right-0 h-px"
+                    style={{ background: `linear-gradient(90deg, transparent, ${project.accent}80, transparent)` }}
+                />
+
+                {/* BorderBeam on building projects */}
+                {project.status === "building" && <BorderBeam size={160} duration={8} />}
+
+                <div className="relative p-6 flex flex-col h-full">
+                    {/* Header row */}
+                    <div className="flex items-start justify-between gap-3 mb-4">
+                        <div
+                            className="w-10 h-10 rounded-xl flex items-center justify-center border shrink-0"
+                            style={{ background: `${project.accent}18`, borderColor: `${project.accent}40`, color: project.accent }}
+                        >
+                            {project.icon}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className={`px-2 py-0.5 rounded-full border text-xs font-medium flex items-center gap-1.5 ${STATUS_STYLE[project.status]}`}>
+                                {project.status === "live" && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
+                                {project.status === "building" && <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />}
+                                {project.statusLabel}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Title + tagline */}
+                    <h3 className="text-xl font-bold text-white mb-1">{project.name}</h3>
+                    <p className="text-sm font-medium mb-3" style={{ color: project.accent }}>{project.tagline}</p>
+                    <p className="text-sm text-zinc-400 leading-relaxed flex-1 mb-4">{project.description}</p>
+
+                    {/* Metrics */}
+                    {project.metrics.length > 0 && (
+                        <div className="flex gap-4 mb-4">
+                            {project.metrics.map((m) => (
+                                <div key={m.label}>
+                                    <p className="text-xl font-bold text-white tabular-nums">{m.value}<span className="text-sm font-normal text-zinc-400">{m.unit}</span></p>
+                                    <p className="text-[11px] text-zinc-500">{m.label}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Stack chips */}
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                        {project.stack.map((tech) => (
+                            <span key={tech} className="px-2 py-0.5 rounded text-[11px] bg-white/5 border border-white/8 text-zinc-400">
+                                {tech}
+                            </span>
+                        ))}
+                    </div>
+
+                    {/* CTA */}
+                    {project.href && (
+                        <a
+                            href={project.href}
+                            target={project.href.startsWith("http") ? "_blank" : undefined}
+                            rel={project.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                            className="mt-auto flex items-center gap-1.5 text-sm font-medium transition-colors"
+                            style={{ color: project.accent }}
+                        >
+                            {project.href.startsWith("http") ? "Visit live →" : "Read case study →"}
+                            <ArrowUpRight className="w-4 h-4" />
+                        </a>
+                    )}
+                </div>
+            </motion.div>
+        </motion.div>
+    );
+}
+
+// ─── Featured project card (large, cinematic) ────────────────────────────────
+
+function FeaturedProjectCard({ project }: { project: typeof PERSONAL_PROJECTS[0] }) {
+    const ref = useRef<HTMLDivElement>(null);
+    const isInView = useInView(ref, { once: true, margin: "-60px" });
+    const mouseX = useMotionValue(0);
+    const mouseY = useMotionValue(0);
+    const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [4, -4]), { stiffness: 180, damping: 22 });
+    const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-4, 4]), { stiffness: 180, damping: 22 });
+    const glowX = useTransform(mouseX, [-0.5, 0.5], ["0%", "100%"]);
+    const glowY = useTransform(mouseY, [-0.5, 0.5], ["0%", "100%"]);
+
+    const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        const rect = ref.current?.getBoundingClientRect();
+        if (!rect) return;
+        mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
+        mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
+    }, [mouseX, mouseY]);
+
+    return (
+        <motion.div
+            ref={ref}
+            initial={{ opacity: 0, y: 40 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+            style={{ perspective: 1200 }}
+            className="col-span-full"
+        >
+            <motion.div
+                style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={() => { mouseX.set(0); mouseY.set(0); }}
+                className="relative rounded-2xl border border-white/10 bg-zinc-950 overflow-hidden group"
+            >
+                {/* Cinematic glow layer */}
+                <motion.div
+                    className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                    style={{
+                        background: `radial-gradient(500px circle at ${glowX} ${glowY}, ${project.accent}12, transparent 60%)`,
+                    }}
+                />
+
+                {/* Top gradient bar */}
+                <div className="absolute top-0 left-0 right-0 h-[2px]"
+                    style={{ background: `linear-gradient(90deg, transparent 0%, ${project.accent}90 30%, ${project.accent} 50%, ${project.accent}90 70%, transparent 100%)` }}
+                />
+
+                <BorderBeam size={280} duration={12} />
+
+                <div className="grid md:grid-cols-2 gap-0">
+                    {/* Left: content */}
+                    <div className="p-8 md:p-10 flex flex-col justify-between">
+                        <div>
+                            <div className="flex items-center gap-3 mb-6">
+                                <div
+                                    className="w-12 h-12 rounded-xl flex items-center justify-center border"
+                                    style={{ background: `${project.accent}18`, borderColor: `${project.accent}40`, color: project.accent }}
+                                >
+                                    {project.icon}
+                                </div>
+                                <span className="px-2.5 py-1 rounded-full border bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-xs font-medium flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                    Live
+                                </span>
+                            </div>
+
+                            <h3 className="text-3xl md:text-4xl font-bold text-white mb-2 tracking-tight">{project.name}</h3>
+                            <p className="text-lg font-medium mb-4" style={{ color: project.accent }}>{project.tagline}</p>
+                            <p className="text-zinc-300 leading-relaxed mb-6">{project.description}</p>
+
+                            <div className="flex gap-6 mb-6">
+                                {project.metrics.map((m) => (
+                                    <div key={m.label}>
+                                        <p className="text-3xl font-bold text-white tabular-nums">{m.value}<span className="text-base text-zinc-400 font-normal">{m.unit}</span></p>
+                                        <p className="text-xs text-zinc-500 mt-0.5">{m.label}</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="flex flex-wrap gap-2 mb-8">
+                                {project.stack.map((tech) => (
+                                    <span key={tech} className="px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs font-medium text-zinc-300">
+                                        {tech}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        {project.href && (
+                            <Link
+                                href={project.href}
+                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm text-black transition-all hover:brightness-110 w-fit"
+                                style={{ background: project.accent }}
+                            >
+                                Read the full case study
+                                <ArrowRight className="w-4 h-4" />
+                            </Link>
+                        )}
+                    </div>
+
+                    {/* Right: screenshot */}
+                    {project.image && (
+                        <div className="relative min-h-[240px] md:min-h-0 overflow-hidden border-t md:border-t-0 md:border-l border-white/5">
+                            <Image
+                                src={project.image}
+                                alt={project.name}
+                                fill
+                                className="object-cover object-top group-hover:scale-[1.03] transition-transform duration-700"
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/60 via-transparent to-transparent md:bg-gradient-to-l" />
+                        </div>
+                    )}
+                </div>
+            </motion.div>
+        </motion.div>
+    );
+}
+
+// ─── Section: Personal Projects ───────────────────────────────────────────────
+
+function PersonalProjectsSection() {
+    const sectionRef = useRef<HTMLDivElement>(null);
+    const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+
+    const featured = PERSONAL_PROJECTS.find((p) => p.featured)!;
+    const rest = PERSONAL_PROJECTS.filter((p) => !p.featured);
+
+    return (
+        <section ref={sectionRef} className="py-20">
+            {/* Heading with cinematic reveal */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={isInView ? { opacity: 1 } : {}}
+                transition={{ duration: 0.6 }}
+                className="mb-12"
+            >
+                <div className="flex items-center gap-3 mb-3">
+                    <motion.span
+                        initial={{ scaleX: 0 }}
+                        animate={isInView ? { scaleX: 1 } : {}}
+                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                        style={{ originX: 0 }}
+                        className="block w-8 h-px bg-gradient-to-r from-cyan-400 to-transparent"
+                    />
+                    <motion.h2
+                        initial={{ opacity: 0, x: -12 }}
+                        animate={isInView ? { opacity: 1, x: 0 } : {}}
+                        transition={{ duration: 0.55, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                        className="text-2xl md:text-3xl font-bold text-white"
+                    >
+                        What I'm Building
+                    </motion.h2>
+                </div>
+                <motion.p
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={isInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ duration: 0.5, delay: 0.18 }}
+                    className="text-zinc-400 text-base max-w-xl"
+                >
+                    Personal projects, live SaaS products, and things actively in progress —
+                    built to solve real problems and explore new patterns.
+                </motion.p>
+            </motion.div>
+
+            {/* Featured project */}
+            <div className="grid grid-cols-1 gap-5 mb-5">
+                <FeaturedProjectCard project={featured} />
+            </div>
+
+            {/* Rest of projects */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {rest.map((project, i) => (
+                    <ProjectCard key={project.id} project={project} delay={i * 0.08} />
+                ))}
+            </div>
+
+            {/* Bottom strip: "building in public" note */}
+            <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="mt-8 flex items-center justify-between gap-4 rounded-xl border border-white/5 bg-white/[0.02] px-5 py-4 flex-wrap"
+            >
+                <div className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
+                    <span className="text-sm text-zinc-400">
+                        <span className="text-white font-medium">Building in public.</span> Follow progress on{" "}
+                        <a href="https://www.youtube.com/@progammingtech4141" target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-white underline underline-offset-2">
+                            YouTube
+                        </a>
+                        {" "}&amp;{" "}
+                        <a href="https://www.instagram.com/codewithsom" target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-white underline underline-offset-2">
+                            Instagram
+                        </a>
+                    </span>
+                </div>
+                <Link href="/case-studies" className="text-sm text-zinc-400 hover:text-white flex items-center gap-1.5 transition-colors">
+                    All case studies <ArrowUpRight className="w-3.5 h-3.5" />
+                </Link>
+            </motion.div>
+        </section>
+    );
+}
 
 // ─── Fade-in wrapper ──────────────────────────────────────────────────────────
 
@@ -458,6 +887,11 @@ export function AboutPageClient() {
                         ))}
                     </div>
                 </section>
+
+                <div className="border-t border-white/5" />
+
+                {/* ── Personal Projects ── */}
+                <PersonalProjectsSection />
 
                 <div className="border-t border-white/5" />
 
