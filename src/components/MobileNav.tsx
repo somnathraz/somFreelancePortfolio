@@ -6,7 +6,7 @@ import {
     IconHome,
     IconBriefcase,
     IconStack,
-    IconRoute,
+    IconUser,
     IconNews,
     IconMessage2,
 } from "@tabler/icons-react";
@@ -19,6 +19,13 @@ export function MobileNav() {
                 <IconHome className="h-full w-full text-neutral-500 dark:text-neutral-300" />
             ),
             href: "/",
+        },
+        {
+            title: "About",
+            icon: (
+                <IconUser className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+            ),
+            href: "/about",
         },
         {
             title: "Services",
