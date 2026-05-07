@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createCalendarEvent, getBusyTimes } from '@/lib/google-calendar';
 import { addMinutes } from 'date-fns';
 
-const MEETING_DURATION = 60; // minutes
+const MEETING_DURATION = 20; // minutes
 
 export async function POST(request: NextRequest) {
     try {

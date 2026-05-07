@@ -4,7 +4,7 @@ import { addDays, startOfDay, endOfDay, addMinutes, format, setHours, setMinutes
 import { toZonedTime, fromZonedTime } from 'date-fns-tz';
 
 // Configuration
-const MEETING_DURATION = 60; // minutes
+const MEETING_DURATION = 20; // minutes
 const BUFFER_TIME = 30; // minutes between meetings
 const WORK_START_HOUR = 9; // 9 AM
 const WORK_END_HOUR = 21; // 9 PM
