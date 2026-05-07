@@ -1,10 +1,13 @@
-import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
+import nodemailer from 'nodemailer';
 
-const ses = new SESv2Client({
-    region: process.env.AWS_SES_REGION || 'us-east-1',
-    credentials: {
-        accessKeyId: process.env.AWS_SES_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.AWS_SES_SECRET_ACCESS_KEY!,
+// SES SMTP transport — credentials set in Vercel env vars
+const transporter = nodemailer.createTransport({
+    host: `email-smtp.${process.env.AWS_SES_REGION || 'ap-south-1'}.amazonaws.com`,
+    port: 587,
+    secure: false, // STARTTLS on port 587
+    auth: {
+        user: process.env.SES_SMTP_USER,
+        pass: process.env.SES_SMTP_PASS,
     },
 });
 
@@ -139,7 +142,7 @@ Your call is confirmed — Somanath Studio
 
 Hi ${clientName},
 
-Your strategy call is booked.
+Your 20-minute strategy call is booked.
 
 Date & Time: ${formattedStart} – ${formattedEnd}
 ${meetLink ? `Google Meet: ${meetLink}` : ''}
@@ -150,24 +153,11 @@ Need to reschedule? Reply to this email.
 somanathkhadanga.com
 `.trim();
 
-    const command = new SendEmailCommand({
-        FromEmailAddress: process.env.SES_FROM_EMAIL || 'bookings@somanathkhadanga.com',
-        Destination: {
-            ToAddresses: [clientEmail],
-        },
-        Content: {
-            Simple: {
-                Subject: {
-                    Data: `Confirmed: Strategy call with Somanath — ${startTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}`,
-                    Charset: 'UTF-8',
-                },
-                Body: {
-                    Html: { Data: html, Charset: 'UTF-8' },
-                    Text: { Data: text, Charset: 'UTF-8' },
-                },
-            },
-        },
+    return transporter.sendMail({
+        from: `"Somanath Studio" <${process.env.SES_FROM_EMAIL || 'dev@somanathkhadanga.com'}>`,
+        to: clientEmail,
+        subject: `Confirmed: Strategy call with Somanath — ${startTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}`,
+        html,
+        text,
     });
-
-    return ses.send(command);
 }
