@@ -1,7 +1,7 @@
 ---
 title: "OpenAI on AWS Bedrock: The AI SaaS Provider Landscape Just Shifted"
 metaTitle: "OpenAI on AWS Bedrock: AI SaaS Provider Guide"
-description: "OpenAI ended Microsoft exclusivity. GPT-5.5, GPT-5.4, and Codex are now on AWS Bedrock. A founder-focused breakdown of what changed, when AWS makes sense, and what to ignore in the news cycle."
+description: "OpenAI ended Microsoft exclusivity. GPT-5.5 and Codex are now on AWS Bedrock alongside Claude. What changed, when Bedrock makes sense for SaaS founders, and what to ignore."
 date: "2026-05-05"
 readTime: "9 min read"
 category: "AI SaaS"
@@ -184,6 +184,30 @@ Those questions matter more than the model picker. They're also exactly the kind
   <Wrench className="w-5 h-5 text-emerald-300 mb-3" />
   <p className="mb-0 text-sm text-zinc-300">The teams I see make the best AI provider decisions are the ones that decide what they're optimizing for first — latency, cost, compliance, optionality — and then pick the stack that fits. The teams that make the worst decisions pick the stack first and figure out the tradeoffs later.</p>
 </div>
+
+---
+
+## Frequently Asked Questions
+
+### Is OpenAI available on AWS Bedrock?
+
+Yes, as of May 2026 — GPT-5.5 and GPT-5.4 are available through Amazon Bedrock in limited preview. Codex is also on Bedrock as a CLI, desktop app, and VS Code extension. General availability hasn't been confirmed yet, so production builds should plan for a waiting period.
+
+### Is AWS Bedrock cheaper than using the OpenAI API directly?
+
+Not necessarily. Bedrock adds its own markup on top of the provider's base rate, plus you pay for AWS networking, CloudWatch logging, and Bedrock-specific costs. Direct API is usually cheaper for pure token cost. Bedrock's value is in the operational layer — unified billing, IAM auth, VPC isolation, compliance — not in per-token savings.
+
+### Can I use both OpenAI and Anthropic Claude on the same Bedrock account?
+
+Yes. That's the main structural change from this announcement. Before May 2026, Bedrock hosted Anthropic, Meta, Mistral, and others — but not OpenAI. Now both major frontier providers (OpenAI and Anthropic) are callable through the same Bedrock API surface, with the same auth and billing.
+
+### Does AWS Bedrock support GPT-4?
+
+Not currently. The models announced are GPT-5.5 and GPT-5.4, which are OpenAI's frontier-tier models as of 2026. Older GPT-4 variants aren't listed in the Bedrock catalog. For GPT-4-class workloads, the direct OpenAI API or Azure OpenAI Service remain the current paths.
+
+### How does OpenAI on Bedrock compare to Azure OpenAI Service?
+
+Azure OpenAI has been available since 2023 and has broader model coverage and more enterprise deployment options. Bedrock's OpenAI offering is newer and in limited preview. If you're already on Azure or have an existing Azure OpenAI deployment, there's no reason to move. If you're already AWS-native, Bedrock is now a viable alternative to keep your AI traffic inside the same cloud account.
 
 ---
 
