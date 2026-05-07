@@ -3,7 +3,7 @@ import { createCalendarEvent, getBusyTimes } from '@/lib/google-calendar';
 import { sendBookingConfirmation } from '@/lib/email';
 import { addMinutes } from 'date-fns';
 
-const MEETING_DURATION = 60; // minutes
+const MEETING_DURATION = 20; // minutes
 
 export async function POST(request: NextRequest) {
     try {

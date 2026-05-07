@@ -13,7 +13,11 @@ import {
     DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { Calendar, Mail, MessageCircle, X } from "lucide-react";
+import { Calendar, Mail, MessageCircle, Linkedin } from "lucide-react";
+
+const CONTACT_EMAIL = "somnathkhadanga@gmail.com";
+const WHATSAPP_NUMBER = "917008748856";
+const LINKEDIN_URL = "https://www.linkedin.com/in/somnath-khadanga";
 
 interface ContactSheetProps {
     children: React.ReactNode;
@@ -31,15 +35,18 @@ export function ContactSheet({ children }: ContactSheetProps) {
         const body = encodeURIComponent(
             "Hi Somanath,\n\nI'd like to discuss a project with you.\n\nProject Type: \nTimeline: \nBudget Range: \n\nBest,\n"
         );
-        window.location.href = `mailto:somnathkhadanga@gmail.com?subject=${subject}&body=${body}`;
+        window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
     };
 
     const handleWhatsApp = () => {
         const message = encodeURIComponent(
             "Hi Somanath! I'd like to discuss a project with you."
         );
-        // TODO: Replace with your actual WhatsApp number (format: country code + number, no + or spaces)
-        window.open(`https://wa.me/917008748856?text=${message}`, "_blank");
+        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
+    };
+
+    const handleLinkedIn = () => {
+        window.open(LINKEDIN_URL, "_blank");
     };
 
     return (
@@ -67,10 +74,10 @@ export function ContactSheet({ children }: ContactSheetProps) {
                             </div>
                             <div className="flex-1">
                                 <h3 className="font-semibold text-white mb-1">
-                                    Schedule a call
+                                    Book a 20-min call
                                 </h3>
                                 <p className="text-sm text-zinc-400">
-                                    Best for new projects and scoping.
+                                    Best for scoping projects and timelines.
                                 </p>
                             </div>
                         </button>
@@ -86,7 +93,7 @@ export function ContactSheet({ children }: ContactSheetProps) {
                             <div className="flex-1">
                                 <h3 className="font-semibold text-white mb-1">Send an email</h3>
                                 <p className="text-sm text-zinc-400">
-                                    Best if you have a written brief or doc to share.
+                                    {CONTACT_EMAIL}
                                 </p>
                             </div>
                         </button>
@@ -106,11 +113,27 @@ export function ContactSheet({ children }: ContactSheetProps) {
                                 </p>
                             </div>
                         </button>
+
+                        {/* LinkedIn */}
+                        <button
+                            onClick={handleLinkedIn}
+                            className="w-full flex items-start gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors text-left group"
+                        >
+                            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-sky-500/20 flex items-center justify-center group-hover:bg-sky-500/30 transition-colors">
+                                <Linkedin className="w-5 h-5 text-sky-400" />
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="font-semibold text-white mb-1">LinkedIn</h3>
+                                <p className="text-sm text-zinc-400">
+                                    Connect or send a message.
+                                </p>
+                            </div>
+                        </button>
                     </div>
 
                     <DrawerFooter className="pt-2">
                         <p className="text-xs text-center text-zinc-500 mb-4">
-                            ⚡ Replies within 24 hours
+                            ⚡ Replies within 24 hours · IST timezone
                         </p>
                         <DrawerClose asChild>
                             <Button variant="outline" className="border-white/10 text-white hover:bg-white/5">

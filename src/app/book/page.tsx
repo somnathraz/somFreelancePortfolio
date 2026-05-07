@@ -3,13 +3,13 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: "Book a Call — Somanath Studio",
-    description: "Book a 60-minute call to scope your SaaS project. Bring the messy version — the call works better that way.",
+    description: "Book a free 20-minute strategy call with Somanath. Select a time that works for you.",
     alternates: {
         canonical: "/book",
     },
     openGraph: {
         title: "Book a Call — Somanath Studio",
-        description: "Book a 60-minute call to scope your SaaS project. Bring the messy version — the call works better that way.",
+        description: "Book a free 20-minute strategy call with Somanath. Select a time that works for you.",
         url: "/book",
         type: "website",
         images: [
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     twitter: {
         card: "summary_large_image",
         title: "Book a Call — Somanath Studio",
-        description: "Book a 60-minute call to scope your SaaS project. Bring the messy version — the call works better that way.",
+        description: "Book a free 20-minute strategy call with Somanath. Select a time that works for you.",
         images: ["/og?title=Book%20a%20Call"],
     },
 };
@@ -37,7 +37,7 @@ export default function BookPage() {
                 "@type": "WebPage",
                 name: "Book a Call",
                 url: "https://somanathkhadanga.com/book",
-                description: "Book a 60-minute call to scope your SaaS project. Bring the messy version — the call works better that way.",
+                description: "Book a free 20-minute strategy call with Somanath. Select a time that works for you.",
             },
             {
                 "@type": "BreadcrumbList",
