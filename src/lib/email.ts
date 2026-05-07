@@ -14,6 +14,7 @@ const transporter = nodemailer.createTransport({
 export interface BookingEmailParams {
     clientName: string;
     clientEmail: string;
+    clientPhone?: string;
     startTime: Date;
     endTime: Date;
     meetLink?: string;
@@ -38,6 +39,7 @@ export async function sendBookingConfirmation(params: BookingEmailParams) {
     const {
         clientName,
         clientEmail,
+        clientPhone,
         startTime,
         endTime,
         meetLink,
@@ -103,6 +105,7 @@ export async function sendBookingConfirmation(params: BookingEmailParams) {
               <p style="margin:0 0 6px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">Date &amp; Time</p>
               <p style="margin:0; font-size:16px; color:#ffffff; font-weight:500;">${formattedStart}</p>
               <p style="margin:4px 0 0 0; font-size:14px; color:#a1a1aa;">until ${formattedEnd}</p>
+              ${clientPhone ? `<p style="margin:8px 0 0 0; font-size:13px; color:#71717a;">📱 ${clientPhone}</p>` : ''}
             </td>
           </tr>
 
@@ -145,6 +148,7 @@ Hi ${clientName},
 Your 20-minute strategy call is booked.
 
 Date & Time: ${formattedStart} – ${formattedEnd}
+${clientPhone ? `Phone: ${clientPhone}` : ''}
 ${meetLink ? `Google Meet: ${meetLink}` : ''}
 ${projectDetails ? `\nYour notes: ${projectDetails}` : ''}
 

@@ -58,6 +58,7 @@ export async function createCalendarEvent(
         const event = await calendar.events.insert({
             calendarId: process.env.GOOGLE_CALENDAR_ID,
             conferenceDataVersion: 1, // Enable Google Meet link generation
+            sendUpdates: 'all', // Email the invite + reminders to all attendees
             requestBody: {
                 summary,
                 description,
@@ -69,6 +70,9 @@ export async function createCalendarEvent(
                     dateTime: endTime.toISOString(),
                     timeZone: 'Asia/Kolkata',
                 },
+                attendees: [
+                    { email: attendeeEmail }, // Client — receives invite + reminders
+                ],
                 conferenceData: {
                     createRequest: {
                         requestId: `meet-${Date.now()}`,
@@ -79,8 +83,9 @@ export async function createCalendarEvent(
                     useDefault: false,
                     overrides: [
                         { method: 'email', minutes: 24 * 60 }, // 24 hours before
-                        { method: 'email', minutes: 60 }, // 1 hour before
-                        { method: 'popup', minutes: 30 }, // 30 minutes before
+                        { method: 'email', minutes: 60 },      // 1 hour before
+                        { method: 'email', minutes: 10 },      // 10 minutes before
+                        { method: 'popup', minutes: 10 },      // 10 min popup (for you)
                     ],
                 },
             },
