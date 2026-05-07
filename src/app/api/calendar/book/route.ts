@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createCalendarEvent, getBusyTimes } from '@/lib/google-calendar';
+import { sendBookingConfirmation } from '@/lib/email';
 import { addMinutes } from 'date-fns';
 
 const MEETING_DURATION = 20; // minutes
@@ -58,7 +59,23 @@ ${process.env.NEXT_PUBLIC_MEETING_URL ? `🔗 Meeting Link: ${process.env.NEXT_P
             email
         );
 
-        const meetingUrl = process.env.NEXT_PUBLIC_MEETING_URL || event.hangoutLink;
+        const meetingUrl = event.hangoutLink || process.env.NEXT_PUBLIC_MEETING_URL;
+
+        // Send confirmation email to client via Resend
+        try {
+            await sendBookingConfirmation({
+                clientName: name,
+                clientEmail: email,
+                startTime: start,
+                endTime: end,
+                meetLink: meetingUrl ?? undefined,
+                timezone: timezone,
+                projectDetails: projectDetails,
+            });
+        } catch (emailError) {
+            // Don't fail the booking if email fails — log and continue
+            console.error('Failed to send confirmation email:', emailError);
+        }
 
         return NextResponse.json({
             success: true,

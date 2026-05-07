@@ -109,7 +109,23 @@ export function ContactSheet({ children }: ContactSheetProps) {
                             <div className="flex-1">
                                 <h3 className="font-semibold text-white mb-1">WhatsApp</h3>
                                 <p className="text-sm text-zinc-400">
-                                    Fastest for quick questions.
+                                    Best for quick questions or short async chats.
+                                </p>
+                            </div>
+                        </button>
+
+                        {/* LinkedIn */}
+                        <button
+                            onClick={handleLinkedIn}
+                            className="w-full flex items-start gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors text-left group"
+                        >
+                            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-sky-500/20 flex items-center justify-center group-hover:bg-sky-500/30 transition-colors">
+                                <Linkedin className="w-5 h-5 text-sky-400" />
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="font-semibold text-white mb-1">LinkedIn</h3>
+                                <p className="text-sm text-zinc-400">
+                                    Connect or send a message.
                                 </p>
                             </div>
                         </button>

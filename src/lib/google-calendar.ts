@@ -57,7 +57,7 @@ export async function createCalendarEvent(
     try {
         const event = await calendar.events.insert({
             calendarId: process.env.GOOGLE_CALENDAR_ID,
-            conferenceDataVersion: 1, // Enable Google Meet
+            conferenceDataVersion: 1, // Enable Google Meet link generation
             requestBody: {
                 summary,
                 description,
@@ -68,6 +68,12 @@ export async function createCalendarEvent(
                 end: {
                     dateTime: endTime.toISOString(),
                     timeZone: 'Asia/Kolkata',
+                },
+                conferenceData: {
+                    createRequest: {
+                        requestId: `meet-${Date.now()}`,
+                        conferenceSolutionKey: { type: 'hangoutsMeet' },
+                    },
                 },
                 reminders: {
                     useDefault: false,

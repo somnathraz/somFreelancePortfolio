@@ -21,10 +21,11 @@ export function Cta() {
             <div className="z-10 relative flex flex-col items-center gap-8 px-4 max-w-4xl mx-auto">
                 <div className="flex flex-col gap-4 items-center animate-in fade-in slide-in-from-bottom-8 duration-700">
                     <h2 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white via-white/90 to-white/50 tracking-tighter leading-tight">
-                        Building a SaaS product or fixing a slow one?
+                        Two live products. One available engineer.
                     </h2>
                     <p className="text-zinc-400 max-w-2xl text-lg md:text-xl leading-relaxed">
-                        I help founders launch faster, improve performance, and build with production in mind from day one.
+                        If your SaaS needs to ship, get faster, or stop falling apart in production —
+                        that&apos;s the work I do. Book a 20-minute call and we&apos;ll see if it fits.
                     </p>
                 </div>
 
@@ -49,7 +50,7 @@ export function Cta() {
                             ● Currently available for 1–2 new SaaS projects
                         </p>
                         <p className="text-xs text-zinc-500 max-w-xl">
-                            Best for founders and teams who need real product engineering, not just another generic freelancer.
+                            Best fit for founders who want a senior engineer, not a team of juniors.
                         </p>
                     </div>
                 </div>

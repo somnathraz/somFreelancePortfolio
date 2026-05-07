@@ -19,7 +19,7 @@ export function Footer() {
                             </div>
                         </div>
                         <p className="text-sm text-zinc-500 font-medium max-w-xs">
-                            High-Performance SaaS Engineering for Founders & Scaling Teams
+                            Senior SaaS engineering for founders who want to ship without regretting it later.
                         </p>
                         {/* Social links */}
                         <div className="flex items-center gap-4 mt-1">
