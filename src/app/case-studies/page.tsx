@@ -82,19 +82,19 @@ export default function CaseStudiesPage() {
                         Case studies
                     </p>
                     <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl mb-6">
-                        Selected client work
+                        Two live products. A few experiments. No fluff.
                     </h1>
                     <p className="text-zinc-400 text-lg leading-relaxed mb-8">
-                        A few examples of the work I do most: SaaS MVP builds, performance fixes, and
-                        production-grade product improvements. Most client work is under NDA, so I share
-                        deeper details during calls.
+                        I&apos;m early in my freelance journey and I&apos;m not going to pad this page with
+                        fictional case studies. Here&apos;s what&apos;s actually shipped and what I&apos;m working on.
+                        For the most relevant examples to your project, the call is faster than a portfolio.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Button asChild className="bg-white text-black hover:bg-zinc-200">
                             <Link href="/book">Book a 20-minute strategy call</Link>
                         </Button>
                         <Button asChild variant="outline" className="border-white/10 hover:bg-white/5 hover:text-white">
-                            <Link href="/blog">Read buyer-intent articles</Link>
+                            <Link href="/blog">Read the blog</Link>
                         </Button>
                     </div>
                 </div>

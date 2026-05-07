@@ -70,7 +70,7 @@ export function ContactSheet({ children }: ContactSheetProps) {
                                     Schedule a call
                                 </h3>
                                 <p className="text-sm text-zinc-400">
-                                    Best for scoping and timelines.
+                                    Best for new projects and scoping.
                                 </p>
                             </div>
                         </button>
@@ -86,7 +86,7 @@ export function ContactSheet({ children }: ContactSheetProps) {
                             <div className="flex-1">
                                 <h3 className="font-semibold text-white mb-1">Send an email</h3>
                                 <p className="text-sm text-zinc-400">
-                                    Ideal if you already have requirements.
+                                    Best if you have a written brief or doc to share.
                                 </p>
                             </div>
                         </button>
@@ -102,7 +102,7 @@ export function ContactSheet({ children }: ContactSheetProps) {
                             <div className="flex-1">
                                 <h3 className="font-semibold text-white mb-1">WhatsApp</h3>
                                 <p className="text-sm text-zinc-400">
-                                    Fastest for quick questions.
+                                    Best for quick questions or short async chats.
                                 </p>
                             </div>
                         </button>
