@@ -6,6 +6,8 @@ import { Code2, Database, LayoutTemplate, Server, Box } from "lucide-react"
 import Marquee from "@/components/magicui/marquee"
 import { HomeDeferredContent } from "@/components/HomeDeferredContent"
 import { getAllPosts } from "@/lib/blog"
+import { LatestPostTiltCard } from "@/components/LatestPostTiltCard"
+import { ArrowRight } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Somanath Studio | SaaS MVP Development and Performance Engineering",
@@ -40,7 +42,9 @@ export const metadata: Metadata = {
 }
 
 export default function Home() {
-  const latestPosts = getAllPosts().slice(0, 6)
+  // 5 posts so the featured-first layout (2-col card + 4 small) fills exactly
+  // 2 rows × 3 cols on lg with no empty cells.
+  const latestPosts = getAllPosts().slice(0, 5)
 
   const homepageJsonLd = {
     "@context": "https://schema.org",
@@ -145,65 +149,54 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Latest from the blog — server-rendered so crawlers discover posts in initial HTML */}
-      <section id="latest-posts" className="relative z-10 bg-black py-20">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <div className="flex items-end justify-between gap-4 mb-10">
-            <div>
-              <p className="text-xs font-mono uppercase tracking-widest text-zinc-500 mb-3">
-                Latest from the blog
+      {/* Latest from the blog — links are server-rendered (client component still
+          SSRs) so crawlers see all 6 post URLs in the initial HTML. */}
+      <section id="latest-posts" className="relative z-10 overflow-hidden bg-black py-24 md:py-32">
+        {/* Soft radial spotlight to match the rest of the site's premium dark aesthetic */}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="h-[24rem] w-[24rem] rounded-full bg-indigo-500/[0.07] blur-[120px]" />
+        </div>
+        <div className="pointer-events-none absolute inset-0 bg-grid-white/[0.015] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
+
+        <div className="container relative z-10 mx-auto max-w-6xl px-4">
+          <div className="mb-12 flex flex-col items-start justify-between gap-6 md:mb-16 md:flex-row md:items-end">
+            <div className="max-w-xl">
+              <p className="mb-3 text-xs font-mono uppercase tracking-widest text-zinc-500">
+                — From the blog
               </p>
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
-                Recent writing
+              <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">
+                Notes from shipping SaaS
               </h2>
+              <p className="mt-4 text-zinc-400">
+                Practical writing on Next.js, performance, AI features, and the production work
+                most posts don&apos;t cover.
+              </p>
             </div>
             <Link
               href="/blog"
-              className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors whitespace-nowrap"
+              className="group inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-200 backdrop-blur-sm transition-all hover:border-white/30 hover:bg-white/10 hover:text-white"
             >
-              View all posts <span aria-hidden>→</span>
+              View all posts
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
 
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
-            {latestPosts.map((post) => (
-              <li key={post.slug}>
-                <Link href={`/blog/${post.slug}`} className="group block">
-                  <article className="space-y-2">
-                    <div className="flex items-center gap-3 text-xs text-zinc-500 font-mono">
-                      <time dateTime={post.frontmatter.date}>{post.frontmatter.date}</time>
-                      {post.frontmatter.readTime && (
-                        <>
-                          <span aria-hidden>•</span>
-                          <span>{post.frontmatter.readTime}</span>
-                        </>
-                      )}
-                      {post.frontmatter.category && (
-                        <>
-                          <span aria-hidden>•</span>
-                          <span className="text-zinc-400">{post.frontmatter.category}</span>
-                        </>
-                      )}
-                    </div>
-                    <h3 className="text-lg md:text-xl font-semibold text-zinc-100 group-hover:text-blue-400 transition-colors leading-snug">
-                      {post.frontmatter.title}
-                    </h3>
-                    <p className="text-sm text-zinc-400 leading-relaxed line-clamp-2">
-                      {post.frontmatter.description}
-                    </p>
-                  </article>
-                </Link>
-              </li>
+          <div className="grid auto-rows-fr grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {latestPosts.map((post, idx) => (
+              <LatestPostTiltCard
+                key={post.slug}
+                index={idx}
+                featured={idx === 0}
+                post={{
+                  slug: post.slug,
+                  title: post.frontmatter.title,
+                  description: post.frontmatter.description,
+                  date: post.frontmatter.date,
+                  readTime: post.frontmatter.readTime,
+                  category: post.frontmatter.category,
+                }}
+              />
             ))}
-          </ul>
-
-          <div className="mt-12 text-center sm:hidden">
-            <Link
-              href="/blog"
-              className="inline-flex items-center gap-1 text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors"
-            >
-              View all posts <span aria-hidden>→</span>
-            </Link>
           </div>
         </div>
       </section>
