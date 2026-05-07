@@ -1,6 +1,12 @@
-import { Resend } from 'resend';
+import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const ses = new SESv2Client({
+    region: process.env.AWS_SES_REGION || 'us-east-1',
+    credentials: {
+        accessKeyId: process.env.AWS_SES_ACCESS_KEY_ID!,
+        secretAccessKey: process.env.AWS_SES_SECRET_ACCESS_KEY!,
+    },
+});
 
 export interface BookingEmailParams {
     clientName: string;
@@ -70,14 +76,12 @@ export async function sendBookingConfirmation(params: BookingEmailParams) {
       <td align="center">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
 
-          <!-- Header -->
           <tr>
             <td style="padding:0 0 32px 0;">
               <p style="margin:0; font-size:13px; color:#52525b; letter-spacing:2px; text-transform:uppercase;">SOMANATH STUDIO</p>
             </td>
           </tr>
 
-          <!-- Title -->
           <tr>
             <td style="padding:0 0 8px 0;">
               <h1 style="margin:0; font-size:28px; font-weight:700; color:#ffffff; line-height:1.2;">Your call is confirmed</h1>
@@ -89,10 +93,8 @@ export async function sendBookingConfirmation(params: BookingEmailParams) {
             </td>
           </tr>
 
-          <!-- Divider -->
           <tr><td style="border-top:1px solid #27272a; padding:0 0 28px 0;"></td></tr>
 
-          <!-- Date/time -->
           <tr>
             <td style="padding:0 0 28px 0;">
               <p style="margin:0 0 6px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">Date &amp; Time</p>
@@ -104,7 +106,6 @@ export async function sendBookingConfirmation(params: BookingEmailParams) {
           ${meetSection}
 
           ${projectDetails ? `
-          <!-- Project details -->
           <tr>
             <td style="padding:0 0 28px 0;">
               <p style="margin:0 0 6px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">Your Notes</p>
@@ -112,17 +113,14 @@ export async function sendBookingConfirmation(params: BookingEmailParams) {
             </td>
           </tr>` : ''}
 
-          <!-- Divider -->
           <tr><td style="border-top:1px solid #27272a; padding:0 0 24px 0;"></td></tr>
 
-          <!-- Footer note -->
           <tr>
             <td style="padding:0 0 40px 0;">
               <p style="margin:0; font-size:14px; color:#52525b; line-height:1.6;">Need to reschedule? Reply to this email and I'll sort it out.</p>
             </td>
           </tr>
 
-          <!-- Footer -->
           <tr>
             <td>
               <p style="margin:0; font-size:13px; color:#3f3f46;">somanathkhadanga.com</p>
@@ -141,7 +139,7 @@ Your call is confirmed — Somanath Studio
 
 Hi ${clientName},
 
-Your 20-minute strategy call is booked.
+Your strategy call is booked.
 
 Date & Time: ${formattedStart} – ${formattedEnd}
 ${meetLink ? `Google Meet: ${meetLink}` : ''}
@@ -152,11 +150,24 @@ Need to reschedule? Reply to this email.
 somanathkhadanga.com
 `.trim();
 
-    return resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || 'bookings@somanathkhadanga.com',
-        to: clientEmail,
-        subject: `Confirmed: Strategy call with Somanath — ${startTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}`,
-        html,
-        text,
+    const command = new SendEmailCommand({
+        FromEmailAddress: process.env.SES_FROM_EMAIL || 'bookings@somanathkhadanga.com',
+        Destination: {
+            ToAddresses: [clientEmail],
+        },
+        Content: {
+            Simple: {
+                Subject: {
+                    Data: `Confirmed: Strategy call with Somanath — ${startTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}`,
+                    Charset: 'UTF-8',
+                },
+                Body: {
+                    Html: { Data: html, Charset: 'UTF-8' },
+                    Text: { Data: text, Charset: 'UTF-8' },
+                },
+            },
+        },
     });
+
+    return ses.send(command);
 }
