@@ -213,7 +213,7 @@ export function BookingPage() {
                     </div>
                     <h1 className="text-3xl font-bold">Booking Confirmed!</h1>
                     <p className="text-zinc-400">
-                        A calendar invite has been sent to <span className="text-white">{email}</span>
+                        A confirmation email has been sent to <span className="text-white">{email}</span>
                     </p>
 
                     <div className="bg-zinc-900 rounded-xl p-6 text-left space-y-4 border border-zinc-800">
@@ -232,7 +232,7 @@ export function BookingPage() {
                             <Clock className="w-5 h-5 text-zinc-400" />
                             <div>
                                 <p className="text-sm text-zinc-400">Duration</p>
-                                <p className="font-medium">60 minutes</p>
+                                <p className="font-medium">20 minutes</p>
                             </div>
                         </div>
 
@@ -382,7 +382,7 @@ export function BookingPage() {
                         <div className="text-left md:text-right text-sm text-zinc-400 w-full md:w-auto pl-9 md:pl-0">
                             <div className="flex items-center gap-2">
                                 <Clock className="w-4 h-4" />
-                                60 min appointment
+                                20-min strategy call
                             </div>
                             <div className="flex items-center gap-2 mt-1">
                                 <Video className="w-4 h-4" />
