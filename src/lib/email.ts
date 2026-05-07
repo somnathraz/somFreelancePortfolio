@@ -1,16 +1,20 @@
-import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
+import nodemailer from 'nodemailer';
 
-const ses = new SESv2Client({
-    region: process.env.AWS_SES_REGION || 'us-east-1',
-    credentials: {
-        accessKeyId: process.env.AWS_SES_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.AWS_SES_SECRET_ACCESS_KEY!,
+// SES SMTP transport — credentials set in Vercel env vars
+const transporter = nodemailer.createTransport({
+    host: `email-smtp.${process.env.AWS_SES_REGION || 'ap-south-1'}.amazonaws.com`,
+    port: 587,
+    secure: false, // STARTTLS on port 587
+    auth: {
+        user: process.env.SES_SMTP_USER,
+        pass: process.env.SES_SMTP_PASS,
     },
 });
 
 export interface BookingEmailParams {
     clientName: string;
     clientEmail: string;
+    clientPhone?: string;
     startTime: Date;
     endTime: Date;
     meetLink?: string;
@@ -35,6 +39,7 @@ export async function sendBookingConfirmation(params: BookingEmailParams) {
     const {
         clientName,
         clientEmail,
+        clientPhone,
         startTime,
         endTime,
         meetLink,
@@ -100,6 +105,7 @@ export async function sendBookingConfirmation(params: BookingEmailParams) {
               <p style="margin:0 0 6px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">Date &amp; Time</p>
               <p style="margin:0; font-size:16px; color:#ffffff; font-weight:500;">${formattedStart}</p>
               <p style="margin:4px 0 0 0; font-size:14px; color:#a1a1aa;">until ${formattedEnd}</p>
+              ${clientPhone ? `<p style="margin:8px 0 0 0; font-size:13px; color:#71717a;">📱 ${clientPhone}</p>` : ''}
             </td>
           </tr>
 
@@ -139,9 +145,10 @@ Your call is confirmed — Somanath Studio
 
 Hi ${clientName},
 
-Your strategy call is booked.
+Your 20-minute strategy call is booked.
 
 Date & Time: ${formattedStart} – ${formattedEnd}
+${clientPhone ? `Phone: ${clientPhone}` : ''}
 ${meetLink ? `Google Meet: ${meetLink}` : ''}
 ${projectDetails ? `\nYour notes: ${projectDetails}` : ''}
 
@@ -150,24 +157,11 @@ Need to reschedule? Reply to this email.
 somanathkhadanga.com
 `.trim();
 
-    const command = new SendEmailCommand({
-        FromEmailAddress: process.env.SES_FROM_EMAIL || 'bookings@somanathkhadanga.com',
-        Destination: {
-            ToAddresses: [clientEmail],
-        },
-        Content: {
-            Simple: {
-                Subject: {
-                    Data: `Confirmed: Strategy call with Somanath — ${startTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}`,
-                    Charset: 'UTF-8',
-                },
-                Body: {
-                    Html: { Data: html, Charset: 'UTF-8' },
-                    Text: { Data: text, Charset: 'UTF-8' },
-                },
-            },
-        },
+    return transporter.sendMail({
+        from: `"Somanath Studio" <${process.env.SES_FROM_EMAIL || 'dev@somanathkhadanga.com'}>`,
+        to: clientEmail,
+        subject: `Confirmed: Strategy call with Somanath — ${startTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}`,
+        html,
+        text,
     });
-
-    return ses.send(command);
 }

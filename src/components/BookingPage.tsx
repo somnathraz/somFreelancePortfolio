@@ -76,6 +76,7 @@ export function BookingPage() {
     // Form state
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
     const [projectDetails, setProjectDetails] = useState("");
 
     // Detect timezone on mount
@@ -141,6 +142,7 @@ export function BookingPage() {
                 body: JSON.stringify({
                     name,
                     email,
+                    phone,
                     projectDetails,
                     startTime: selectedSlot.start,
                     timezone,
@@ -324,6 +326,19 @@ export function BookingPage() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="john@example.com"
+                                className="bg-zinc-900 border-zinc-700 text-white placeholder:text-zinc-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-sm font-medium text-zinc-300 mb-2 block">
+                                Phone Number <span className="text-zinc-500 font-normal">(optional)</span>
+                            </label>
+                            <Input
+                                type="tel"
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                                placeholder="+91 98765 43210"
                                 className="bg-zinc-900 border-zinc-700 text-white placeholder:text-zinc-500"
                             />
                         </div>

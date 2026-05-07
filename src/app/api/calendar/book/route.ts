@@ -8,7 +8,7 @@ const MEETING_DURATION = 20; // minutes
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { name, email, projectDetails, startTime, timezone } = body;
+        const { name, email, phone, projectDetails, startTime, timezone } = body;
 
         if (!name || !email || !startTime) {
             return NextResponse.json(
@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
 
 👤 Client: ${name}
 📧 Email: ${email}
+${phone ? `📱 Phone: ${phone}` : ''}
 🌍 Client Timezone: ${timezone || 'Not specified'}
 
 📝 Project Details:
@@ -66,6 +67,7 @@ ${process.env.NEXT_PUBLIC_MEETING_URL ? `🔗 Meeting Link: ${process.env.NEXT_P
             await sendBookingConfirmation({
                 clientName: name,
                 clientEmail: email,
+                clientPhone: phone,
                 startTime: start,
                 endTime: end,
                 meetLink: meetingUrl ?? undefined,
