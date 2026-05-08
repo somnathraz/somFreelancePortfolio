@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Mail, MessageCircle, Linkedin } from "lucide-react";
 
 const CONTACT_EMAIL = "somnathkhadanga@gmail.com";
-const WHATSAPP_NUMBER = "917008748856";
+const WHATSAPP_NUMBER = "917008257342";
 const LINKEDIN_URL = "https://www.linkedin.com/in/somnath-khadanga";
 
 interface ContactSheetProps {
