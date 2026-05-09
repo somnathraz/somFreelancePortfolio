@@ -53,6 +53,9 @@ function renderStoryHtml(slug: string) {
           `
           : "";
 
+      // Only the cover page gets <h1>; all other pages use <h2> to keep one <h1> per document
+      const headingTag = index === 0 ? "h1" : "h2";
+
       return `
         <amp-story-page id="${escapeHtml(page.id)}">
           <amp-story-grid-layer template="fill">
@@ -60,7 +63,7 @@ function renderStoryHtml(slug: string) {
           </amp-story-grid-layer>
           <amp-story-grid-layer template="vertical" class="content-layer">
             <div class="eyebrow">${escapeHtml(page.kicker)}</div>
-            <h1>${escapeHtml(page.headline)}</h1>
+            <${headingTag}>${escapeHtml(page.headline)}</${headingTag}>
             <p>${escapeHtml(page.body)}</p>
             ${bullets}
             ${ctaMarkup}
@@ -119,9 +122,10 @@ function renderStoryHtml(slug: string) {
         color: white;
         background: #050505;
       }
-      h1 {
+      h1, h2 {
         margin: 0;
         font-size: 2.05rem;
+        font-weight: 700;
         line-height: 1.05;
         letter-spacing: -0.04em;
         max-width: 11ch;
