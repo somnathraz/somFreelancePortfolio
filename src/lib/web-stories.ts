@@ -1,3 +1,5 @@
+import { getAllPosts, getPostBySlug, type Post } from './blog';
+
 export type WebStory = {
   slug: string;
   title: string;
@@ -16,6 +18,9 @@ export type WebStory = {
   }>;
 };
 
+// ---------------------------------------------------------------------------
+// Handcrafted stories — these take priority over auto-generated ones
+// ---------------------------------------------------------------------------
 export const webStories: WebStory[] = [
   {
     slug: "saas-mvp-cost-2026",
@@ -412,6 +417,154 @@ export const webStories: WebStory[] = [
   },
 ];
 
-export function getWebStoryBySlug(slug: string) {
-  return webStories.find((story) => story.slug === slug);
+// ---------------------------------------------------------------------------
+// Auto-generation helpers
+// ---------------------------------------------------------------------------
+
+/** Set of slugs that already have a handcrafted story */
+const HANDCRAFTED_SLUGS = new Set(webStories.map((s) => s.slug));
+
+/** Extract the URL of the first markdown image in MDX content */
+function extractFirstImage(content: string): string | null {
+  const match = content.match(/!\[.*?\]\(([^)]+)\)/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
+/** Strip everything after the first colon or em-dash for a compact headline */
+function shortTitle(title: string): string {
+  return title
+    .replace(/\s[—–]\s.+$/, "")   // remove em/en dash subtitle
+    .replace(/:\s.+$/, "")         // remove colon subtitle
+    .replace(/\?$/, "")
+    .trim();
+}
+
+/** Pick a "Why It Matters" headline based on category */
+function whyItMattersHeadline(category?: string): string {
+  const cat = (category || "").toLowerCase();
+  if (cat.includes("ai")) return "AI implementation shapes product direction";
+  if (cat.includes("performance") || cat.includes("speed")) return "Speed compounds over time";
+  if (cat.includes("security")) return "Security debt is real and expensive";
+  if (cat.includes("architecture")) return "Architecture choices compound fast";
+  if (cat.includes("mvp")) return "MVP decisions have long tails";
+  return "Technical decisions shape business outcomes";
+}
+
+/** Auto-generate a 6-page WebStory from a blog post's frontmatter + content */
+export function generateStoryFromPost(post: Post): WebStory {
+  const { slug, frontmatter, content } = post;
+  const { title, description, category, tags = [], shareImage } = frontmatter;
+
+  const poster = shareImage || extractFirstImage(content) || "/images/blog/default-story-bg.png";
+  const cat = category || "Founder Insight";
+  const readTime = frontmatter.readTime || "quick read";
+
+  // Split description into sentences for varied copy across pages
+  const sentences = description.split(/(?<=[.!?])\s+/).filter(Boolean);
+  const s1 = sentences[0] || description;
+  const s2 = sentences[1] || s1;
+
+  // Tag bullets (up to 4, lowercased)
+  const tagBullets = tags.slice(0, 4).map((t: string) => t.toLowerCase());
+
+  return {
+    slug,
+    title,
+    description,
+    poster,
+    sourceBlogUrl: `/blog/${slug}`,
+    serviceUrl: "/book",
+    accent: "#22d3ee",
+    pages: [
+      {
+        id: "cover",
+        kicker: "Web Story",
+        headline: title,
+        body: s1,
+        layout: "cover",
+      },
+      {
+        id: "context",
+        kicker: cat,
+        headline: shortTitle(title),
+        body: description,
+        layout: "split",
+      },
+      {
+        id: "topics",
+        kicker: "Topics Covered",
+        headline: "What this breaks down",
+        body: `Key ${cat} concepts for founders shipping in 2026.`,
+        bullets: tagBullets.length ? tagBullets : [cat.toLowerCase()],
+        layout: "list",
+      },
+      {
+        id: "insight",
+        kicker: "Why It Matters",
+        headline: whyItMattersHeadline(category),
+        body: s2,
+        layout: "split",
+      },
+      {
+        id: "takeaway",
+        kicker: "The Takeaway",
+        headline: "Read the full guide",
+        body: `A ${readTime} with practical advice and real trade-offs for founders who want to ship without regret.`,
+        layout: "split",
+      },
+      {
+        id: "cta",
+        kicker: "Next Step",
+        headline: "Go deeper",
+        body: "Read the full article or book a 20-minute strategy call to apply this directly to your product.",
+        layout: "cta",
+      },
+    ],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns all stories: handcrafted first (in original order),
+ * then auto-generated for every other blog post (sorted newest first).
+ * Safe to call only from server components and route handlers.
+ */
+export function getAllStories(): WebStory[] {
+  try {
+    const posts = getAllPosts();
+    const autoGenerated = posts
+      .filter((post) => !HANDCRAFTED_SLUGS.has(post.slug))
+      .map((post) => generateStoryFromPost(post));
+    return [...webStories, ...autoGenerated];
+  } catch {
+    // Fallback to handcrafted only if filesystem read fails (e.g. during build edge)
+    return webStories;
+  }
+}
+
+/**
+ * Look up a story by slug.
+ * Checks handcrafted first, then auto-generates from the matching blog post.
+ * Safe to call only from server components and route handlers.
+ */
+export function getWebStoryBySlug(slug: string): WebStory | undefined {
+  // 1. Check handcrafted stories first
+  const handcrafted = webStories.find((s) => s.slug === slug);
+  if (handcrafted) return handcrafted;
+
+  // 2. Auto-generate from blog post if one exists
+  try {
+    const post = getPostBySlug(slug);
+    return generateStoryFromPost(post);
+  } catch {
+    return undefined;
+  }
 }

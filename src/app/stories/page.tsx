@@ -4,7 +4,7 @@ import { ArrowRight, ArrowUpRight, BookOpen, Layers3 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ClientMobileNav } from "@/components/ClientMobileNav";
-import { webStories } from "@/lib/web-stories";
+import { getAllStories } from "@/lib/web-stories";
 
 export const metadata: Metadata = {
   title: "Web Stories | Somanath Studio",
@@ -38,6 +38,8 @@ export const metadata: Metadata = {
 };
 
 export default function StoriesPage() {
+  const stories = getAllStories();
+
   const storiesJsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -67,7 +69,7 @@ export default function StoriesPage() {
       },
       {
         "@type": "ItemList",
-        itemListElement: webStories.map((story, index) => ({
+        itemListElement: stories.map((story, index) => ({
           "@type": "ListItem",
           position: index + 1,
           url: `https://somanathkhadanga.com/stories/${story.slug}`,
@@ -109,14 +111,14 @@ export default function StoriesPage() {
 
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
-              href={`/stories/${webStories[0].slug}`}
+              href={`/stories/${stories[0].slug}`}
               className="inline-flex h-12 min-w-[220px] items-center justify-center rounded-md bg-white px-6 text-base font-medium text-black hover:bg-zinc-200"
             >
               Open first story
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
             <Link
-              href={webStories[0].sourceBlogUrl}
+              href={stories[0].sourceBlogUrl}
               className="inline-flex h-12 min-w-[220px] items-center justify-center rounded-md border border-white/10 px-6 text-base text-white hover:bg-white/5"
             >
               Read source article
@@ -126,7 +128,7 @@ export default function StoriesPage() {
           <div className="mx-auto mt-10 w-full max-w-4xl border-y border-white/10 bg-white/[0.02] px-4 py-6 backdrop-blur-sm">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-4">
               <div className="text-center sm:border-r sm:border-white/10 sm:pr-4">
-                <p className="text-2xl font-bold text-white">{webStories.length}</p>
+                <p className="text-2xl font-bold text-white">{stories.length}</p>
                 <p className="mt-1 text-xs font-medium uppercase tracking-widest text-zinc-500">
                   Stories live
                 </p>
@@ -161,7 +163,7 @@ export default function StoriesPage() {
           </div>
 
           <div className="grid gap-8">
-            {webStories.map((story) => (
+            {stories.map((story) => (
               <article
                 key={story.slug}
                 className="overflow-hidden border border-white/10 bg-white/[0.02] backdrop-blur-sm"
