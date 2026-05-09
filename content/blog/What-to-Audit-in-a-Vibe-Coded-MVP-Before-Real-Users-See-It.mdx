@@ -1,0 +1,490 @@
+---
+title: "What to Audit in a Vibe-Coded MVP Before Real Users See It"
+description: "A technical audit checklist for MVPs built with Cursor, Claude Code, or other AI tools — the specific things that break in production that the AI didn't warn you about."
+date: "2026-05-09"
+readTime: "10 min read"
+category: "Production Readiness"
+tags: ["MVP", "Cursor", "Claude Code", "AI Coding", "Production", "Security", "SaaS", "Audit"]
+shareImage: "/images/blog/vibe-coded-mvp-audit.png"
+---
+
+![Technical audit checklist for AI-generated SaaS MVPs before production launch](/images/blog/vibe-coded-mvp-audit.png)
+
+You built it with Cursor. Or Claude Code. Maybe both. The product works — users can sign up, the core workflow runs, and you've shown it to a dozen people without anything catching fire.
+
+Now you want to share it more widely.
+
+Before you do, run this audit.
+
+This is not a "rewrite everything" post. Most AI-generated code is structurally fine. The problem is almost never the code itself — it's the things the AI didn't know to think about: your deployment environment, your specific threat model, what happens when a real user does something unexpected at 2am.
+
+I've reviewed several AI-assisted codebases in the last few months. The same problems show up in almost all of them. They're not hard to fix. They're just not obvious when you're moving fast.
+
+<div className="grid gap-3 sm:grid-cols-2 my-8">
+  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <Rocket className="w-5 h-5 text-blue-300 mb-3" />
+    <p className="mb-0 text-sm text-zinc-300">AI coding tools are genuinely fast. They're not good at knowing what they don't know about your specific production context.</p>
+  </div>
+  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <ShieldAlert className="w-5 h-5 text-amber-300 mb-3" />
+    <p className="mb-0 text-sm text-zinc-300">The things that break in production are almost never the core feature. They're the edges around it that nobody vibe-coded.</p>
+  </div>
+</div>
+
+---
+
+## 1. Auth: The Most Common Breaking Point
+
+AI tools write auth that works for the happy path. It's the unhappy paths that cause incidents.
+
+Here's what to check:
+
+**Middleware protection is consistent, not selective.**
+
+In Next.js, a common pattern is protecting routes via `middleware.ts` — but then having API routes that don't re-verify the session. If someone bypasses your frontend and hits `/api/admin/users` directly, does the route independently check auth?
+
+Every API route that touches user data should verify the session or token independently of whatever the middleware does. Middleware is a convenience layer, not a security boundary.
+
+```typescript
+// This pattern from AI tools is not enough
+export async function GET(request: NextRequest) {
+  // If middleware already checked, is this safe?
+  // No — middleware can be bypassed, skipped, or misconfigured
+  const users = await db.user.findMany()
+  return NextResponse.json(users)
+}
+
+// This is what you actually want
+export async function GET(request: NextRequest) {
+  const session = await getServerSession(authOptions)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (session.user.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  const users = await db.user.findMany()
+  return NextResponse.json(users)
+}
+```
+
+**Role checks happen on the server, not just the client.**
+
+If your app shows an admin dashboard only when `user.role === 'admin'` in a React component, that's UI gating — not access control. The underlying API calls that populate the admin dashboard still need server-side role verification.
+
+**Sessions expire and get revoked correctly.**
+
+Ask this: if you manually delete a user's session from the database, will they be logged out on their next request? Or will their existing cookie still work? AI-generated session handling often doesn't account for forced logout, user banning, or credential rotation.
+
+**Password reset tokens are single-use.**
+
+Generate a reset token, use it, and try to use the same link again. It should fail. Many AI-generated flows mark the token as used after the password is changed — but not immediately on click, which opens a small window.
+
+<div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5 my-8">
+  <AlertTriangle className="w-5 h-5 text-amber-300 mb-3" />
+  <p className="mb-0 text-sm text-zinc-300">Auth issues in production are not usually dramatic hacks. They're edge cases that a real user stumbles into — like a session that stays alive after account deletion, or an admin endpoint that returns data to any authenticated user regardless of role.</p>
+</div>
+
+---
+
+## 2. API Routes That Think the Frontend Is the Last Line of Defense
+
+Vibe-coded apps often have validation that only lives in the form — in Zod schemas on the client, in form submission handlers, in UI state. The API route trusts that the frontend already checked everything.
+
+It didn't. Or rather, it did — until someone uses curl.
+
+The fix is simple: every API route that accepts user input validates that input server-side, independently.
+
+```typescript
+// Common in AI-generated code — validation only happens in the form component
+export async function POST(request: NextRequest) {
+  const body = await request.json()
+  // body.amount could be negative, null, a string, or 999999999
+  await createCharge({ amount: body.amount, userId: body.userId })
+}
+
+// What you want
+const createChargeSchema = z.object({
+  amount: z.number().positive().max(100000),
+  userId: z.string().uuid(),
+})
+
+export async function POST(request: NextRequest) {
+  const session = await getServerSession(authOptions)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const parsed = createChargeSchema.safeParse(await request.json())
+  if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 })
+
+  // Now you can trust the data
+  await createCharge({ ...parsed.data })
+}
+```
+
+**Check for mass assignment too.** If you're doing `db.user.update({ data: body })`, a user could pass `{ role: 'admin', stripeCustomerId: 'someone_elses_id' }` in the request body. Never pass user-controlled data directly to a database update without explicitly picking the fields you allow.
+
+```typescript
+// Dangerous
+await db.user.update({ where: { id }, data: body })
+
+// Safe
+await db.user.update({
+  where: { id },
+  data: {
+    name: body.name,
+    bio: body.bio,
+    // role, email, stripeCustomerId — not here
+  }
+})
+```
+
+---
+
+## 3. Error Messages Are Telling People Too Much
+
+In development, you want verbose errors. In production, you do not want stack traces or database errors reaching the browser.
+
+Open your app's network tab and trigger a few errors — a failed form submission, a 404 for a resource that doesn't exist, a request to an endpoint without auth. What does the response body contain?
+
+A typical AI-generated error handler:
+
+```typescript
+} catch (error) {
+  return NextResponse.json({ error: error.message }, { status: 500 })
+}
+```
+
+`error.message` in a database error might be:
+
+```
+Invalid `prisma.user.findUnique()` invocation:
+column "users"."emailAddress" does not exist
+```
+
+That tells an attacker your ORM, your schema shape, and that you have a column naming inconsistency. None of that should leave the server.
+
+```typescript
+} catch (error) {
+  // Log the real error for yourself
+  console.error('API error:', error)
+
+  // Return a safe message to the client
+  return NextResponse.json(
+    { error: 'Something went wrong. Please try again.' },
+    { status: 500 }
+  )
+}
+```
+
+Also check: are you calling `JSON.stringify(error)` anywhere in response bodies? Error objects serialized to JSON can expose a lot of internal state.
+
+---
+
+## 4. Webhook Handlers That Trust Everything
+
+If your app uses Stripe, Clerk, Resend, GitHub, or any other service that sends webhooks, those endpoints need signature verification. Without it, anyone can POST to your webhook URL with fake events.
+
+AI tools often generate the webhook handler but skip the signature check, especially if you're prototyping quickly with Stripe CLI in local dev (which verifies automatically).
+
+```typescript
+// Missing verification — dangerous
+export async function POST(request: NextRequest) {
+  const event = await request.json()
+
+  if (event.type === 'checkout.session.completed') {
+    await activateSubscription(event.data.object.customer)
+  }
+
+  return NextResponse.json({ received: true })
+}
+
+// With Stripe signature verification
+export async function POST(request: NextRequest) {
+  const body = await request.text()
+  const sig = request.headers.get('stripe-signature')
+
+  let event: Stripe.Event
+  try {
+    event = stripe.webhooks.constructEvent(body, sig!, process.env.STRIPE_WEBHOOK_SECRET!)
+  } catch (err) {
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    await activateSubscription(event.data.object.customer)
+  }
+
+  return NextResponse.json({ received: true })
+}
+```
+
+Also check: is your payment webhook handler idempotent? Stripe can send the same event more than once. If `activateSubscription` charges the user again or creates a duplicate record on a second call, that's a real production bug.
+
+<div className="rounded-xl border border-white/10 bg-white/5 p-5 my-8">
+  <ShieldCheck className="w-5 h-5 text-emerald-300 mb-3" />
+  <p className="mb-0 text-sm text-zinc-300">Every webhook handler should do two things before touching your database: verify the signature, and check whether you've already processed this event ID. Both are skippable in dev. Neither is optional in production.</p>
+</div>
+
+---
+
+## 5. Secrets That Ended Up in the Wrong Place
+
+Run this command in your project root:
+
+```bash
+git log --all --full-history -- .env
+git log --all --full-history -- .env.local
+```
+
+If `.env` or `.env.local` ever got committed — even once, even before you added them to `.gitignore` — those secrets are in your git history. GitHub has tooling that detects this, but you should also check manually.
+
+**Check your `.gitignore` is actually working:**
+
+```bash
+git status
+git ls-files .env*
+```
+
+If any `.env` files appear in `ls-files`, they're tracked.
+
+**Check for secrets in your frontend bundle.** If you accidentally used a server-side API key in a client component — passed it as a prop, included it in a `const` in a shared file that got bundled — it'll be visible in the browser's JavaScript. Open DevTools, go to Sources, and search for your key name.
+
+In Next.js, any `process.env.VARIABLE` that doesn't start with `NEXT_PUBLIC_` should never appear in client-side code. If it does, something's wrong.
+
+**Check for missing environment validation.** If your app starts without a required secret, what happens? Ideally it fails loudly at startup. AI-generated apps often let missing env variables surface as confusing errors at runtime — `Cannot read properties of undefined` six layers deep.
+
+```typescript
+// Add this to your app startup or a lib/env.ts
+const requiredVars = [
+  'DATABASE_URL',
+  'NEXTAUTH_SECRET',
+  'STRIPE_SECRET_KEY',
+  'STRIPE_WEBHOOK_SECRET',
+]
+
+for (const key of requiredVars) {
+  if (!process.env[key]) {
+    throw new Error(`Missing required environment variable: ${key}`)
+  }
+}
+```
+
+---
+
+## 6. Data Model Decisions That Will Hurt at 1,000 Users
+
+You don't need to optimize for scale before launch. You do need to avoid decisions that are expensive to undo.
+
+**Check for missing indexes on columns you filter or join on.**
+
+If you're doing `db.post.findMany({ where: { userId: session.user.id } })`, and `userId` doesn't have a database index, that query does a full table scan on every page load. Fine at 100 rows. Brutal at 50,000.
+
+For a Prisma schema, add indexes where you filter:
+
+```prisma
+model Post {
+  id        String   @id @default(cuid())
+  userId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])           // add this
+  @@index([userId, createdAt]) // and this if you sort by date
+}
+```
+
+**Check cascade behavior on deletes.** If you delete a user, what happens to their posts, their payment records, their audit logs? AI-generated schemas often use `onDelete: Cascade` everywhere because it's the simple answer. Sometimes that's right. Sometimes you want `Restrict` (block deletion until child records are removed) or `SetNull` (preserve the records, just remove the user link).
+
+Find every `onDelete` in your Prisma schema and verify each one matches your actual intent.
+
+**Check for missing `updatedAt` timestamps.** You will want to know when records were last modified. Add `updatedAt DateTime @updatedAt` to every table that isn't append-only. Adding it later requires a migration and a backfill.
+
+**Check for soft delete if you need it.** If your product involves anything users create and might want back (documents, workspaces, projects), hard deletes are risky. A `deletedAt DateTime?` column lets you recover from accidental deletions. AI-generated apps almost never include this — they use `db.post.delete()` everywhere.
+
+<div className="rounded-xl border border-white/10 bg-white/5 p-5 my-8">
+  <GitBranch className="w-5 h-5 text-violet-300 mb-3" />
+  <p className="mb-0 text-sm text-zinc-300">Data model mistakes compound. A missing index is a slow query now and a production incident at 10x the users. An accidental hard delete is recoverable until it isn't. Spend 30 minutes reviewing the schema before launch — it's cheaper than a midnight migration.</p>
+</div>
+
+---
+
+## 7. Deployment Assumptions That Break on Vercel or Railway
+
+Vercel and Railway are stateless by default. Your code runs in ephemeral containers that can restart, scale, or be replaced at any time. A lot of vibe-coded apps assume persistent state in ways that fail silently.
+
+**Check for local filesystem usage.** If you're writing files to disk — temporary files, uploaded images, cached data — those don't survive a container restart on Vercel. Switch to object storage (Cloudflare R2, AWS S3, Vercel Blob) before you launch.
+
+```typescript
+// This breaks on Vercel
+import fs from 'fs'
+fs.writeFileSync('/tmp/upload.pdf', buffer)
+
+// This survives
+import { put } from '@vercel/blob'
+const blob = await put('upload.pdf', buffer, { access: 'public' })
+```
+
+**Check for in-memory caching.** If you're caching data in a `Map` or a module-level variable, that cache is per-instance and per-restart. On a platform that spins up multiple instances, each instance has its own cache with no shared state. Use Redis (Upstash is the easy path) for anything you need to cache across requests.
+
+**Check your database connection handling.** Serverless functions open a new connection per invocation. Without connection pooling, you'll hit your database's connection limit fast under load. For Prisma on Vercel, you need either PgBouncer or Prisma Accelerate. For Drizzle, check your connection pool settings.
+
+**Check your cold start behavior.** First request to a new serverless function instance can be slow — sometimes several seconds. If your auth flow or payment flow hits this, users will see an inexplicable delay on the most important interaction in your product. Test the cold path explicitly.
+
+---
+
+## 8. Rate Limiting and Abuse Prevention
+
+Your endpoints have no rate limiting. Every AI-generated app I've reviewed has this gap. It's not dramatic — it just means anyone can hammer your API indefinitely, trigger unlimited password reset emails, or enumerate your users by cycling through email addresses.
+
+The easiest solution in 2026 is [Upstash Ratelimit](https://upstash.com/docs/redis/sdks/ratelimit-ts/overview):
+
+```typescript
+import { Ratelimit } from "@upstash/ratelimit"
+import { Redis } from "@upstash/redis"
+
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(10, "10 s"), // 10 requests per 10 seconds
+})
+
+export async function POST(request: NextRequest) {
+  const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1'
+  const { success } = await ratelimit.limit(ip)
+
+  if (!success) {
+    return NextResponse.json(
+      { error: 'Too many requests' },
+      { status: 429 }
+    )
+  }
+
+  // rest of handler
+}
+```
+
+Apply stricter limits to:
+- Password reset / magic link endpoints (max 3 per hour per email)
+- Auth endpoints (max 10 per minute per IP)
+- Any endpoint that sends email or SMS
+- Any endpoint that triggers a paid action
+
+---
+
+## 9. The Production Basics Nobody Vibe-Coded In
+
+**Error tracking.** You need to know when things break in production before your users tell you. Sentry has a generous free tier and integrates in 5 minutes with Next.js. Without it, your errors exist as silent database errors, half-completed requests, and confused users who stopped using the product.
+
+```bash
+npm install @sentry/nextjs
+npx @sentry/wizard@latest -i nextjs
+```
+
+**Health check endpoint.** If you're on Railway, Render, or any platform that monitors your app's health, you need a route that returns 200 when the app is healthy. Keep it simple:
+
+```typescript
+// app/api/health/route.ts
+export async function GET() {
+  return Response.json({ status: 'ok', timestamp: new Date().toISOString() })
+}
+```
+
+**Logging.** `console.log` in production goes... somewhere. On Vercel, it goes to the function logs. On Railway, it goes to the container logs. Make sure you know where your logs actually are and how to access them when something goes wrong at 2am. For anything beyond simple text, structured logging with something like `pino` makes filtering and searching significantly easier.
+
+**Email deliverability basics.** If your app sends email — welcome emails, password resets, notifications — check that your sending domain has SPF, DKIM, and DMARC configured. Without them, your emails go to spam. Resend's dashboard will show you if these are missing. This is a 20-minute fix that most vibe-coded apps skip.
+
+<div className="rounded-xl border border-white/10 bg-white/5 p-5 my-8">
+  <Workflow className="w-5 h-5 text-blue-300 mb-3" />
+  <p className="mb-0 text-sm text-zinc-300">Error tracking and structured logs are the difference between "something is wrong and I don't know what" and "this API route is failing for users who signed up with a Google account." The first one takes days to debug. The second takes 20 minutes.</p>
+</div>
+
+---
+
+## The 30-Minute Audit Checklist
+
+Work through this before you share the link more widely. Each item is a yes/no — if the answer is no, it goes in the list of things to fix this week.
+
+**Auth**
+- [ ] Every API route independently verifies auth (not just middleware)
+- [ ] Role/permission checks happen server-side, not just in the UI
+- [ ] Deleting a session in the database actually logs the user out
+- [ ] Password reset tokens expire and are single-use
+- [ ] User deletion cleans up sessions properly
+
+**API and Input**
+- [ ] API routes validate all user input server-side with Zod or equivalent
+- [ ] Database updates explicitly pick allowed fields (no mass assignment)
+- [ ] Production error responses don't include stack traces or schema details
+
+**Webhooks**
+- [ ] All webhook endpoints verify the provider signature
+- [ ] Payment webhook handlers are idempotent (safe to call twice)
+
+**Secrets**
+- [ ] `.env` files have never been committed (check git history)
+- [ ] No server-side secrets appear in the browser bundle
+- [ ] App fails with a clear error at startup if required env vars are missing
+
+**Data Model**
+- [ ] Indexes exist on columns used in `where` and `orderBy` clauses
+- [ ] `onDelete` behavior is intentional on every relation
+- [ ] `updatedAt` timestamps exist on mutable tables
+- [ ] Soft deletes are considered for user-created content
+
+**Deployment**
+- [ ] No local filesystem writes (use object storage instead)
+- [ ] No in-memory caches (use Redis for shared state)
+- [ ] Database connection pooling is configured for serverless
+
+**Rate Limiting**
+- [ ] Auth endpoints are rate limited
+- [ ] Email-sending endpoints are rate limited
+- [ ] Any endpoint triggering paid actions is rate limited
+
+**Production Basics**
+- [ ] Error tracking is set up (Sentry or equivalent)
+- [ ] Health check endpoint exists
+- [ ] You know where your production logs live
+- [ ] Email sending domain has SPF, DKIM, DMARC
+
+---
+
+## What to Fix First
+
+If everything on that list is unchecked, you have a day's work — not a week's. Most of these are 30-minute fixes.
+
+The priority order:
+
+1. **Auth gaps** — these have the highest potential for user data exposure
+2. **Server-side input validation** — stops the most common class of attacks
+3. **Webhook signature verification** — especially if payments are involved
+4. **Secrets audit** — check git history, check the browser bundle
+5. **Error tracking** — you're flying blind without it
+6. **Rate limiting** — before you do any marketing or sharing
+7. **Data model review** — before you hit meaningful user numbers
+8. **Deployment assumptions** — before you scale
+
+The good news: most vibe-coded MVPs only have 5–8 actual issues from this list, not all of them. AI tools have gotten genuinely good at the standard patterns. The gaps are almost always in the specific edge cases — what happens when auth is missing, when a secret is wrong, when an input is unexpected.
+
+---
+
+## When to Call In Someone Else
+
+This audit covers the obvious gaps. It doesn't cover:
+
+- Complex multi-tenant data isolation (one tenant seeing another's data)
+- Subtle race conditions in payment and subscription flows
+- Performance issues that only show up at scale
+- Security vulnerabilities in your specific business logic
+
+If you've worked through this list and something still feels wrong — or if any of the above categories are central to your product — that's the point where a technical review from someone outside the build is worth the time.
+
+If you want a second pair of eyes on a vibe-coded codebase before it goes to more users, [see Production Readiness Upgrade](/services/production-readiness-upgrade). If you want to talk through where the risks actually are first, [book a 20-minute call](/book).
+
+---
+
+## Final Thoughts
+
+Vibe-coded MVPs are a real and legitimate way to ship faster in 2026. The AI coding tools are genuinely good. The code they produce is usually fine — clean, readable, structurally sound.
+
+The gaps are almost always in the things that weren't explicitly asked for: what happens on auth failure, what happens to a secret that slipped into client code, what happens when a webhook fires twice.
+
+This audit is not about distrusting AI tools. It's about understanding where the gap between "works in development" and "ready for real users" actually lives — and closing it before someone else finds it for you.
+
+If you found something specific that broke in your vibe-coded build that isn't in this list, the [Production Readiness Upgrade](/services/production-readiness-upgrade) is exactly the service for that kind of targeted cleanup.
