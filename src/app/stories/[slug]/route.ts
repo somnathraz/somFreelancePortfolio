@@ -18,7 +18,8 @@ function renderStoryHtml(slug: string) {
   }
 
   const baseUrl = "https://somanathkhadanga.com";
-  const posterUrl = `${baseUrl}${story.poster}`;
+  // encodeURI preserves slashes but encodes spaces and special chars in filenames
+  const posterUrl = `${baseUrl}${encodeURI(story.poster)}`;
   const canonicalUrl = `${baseUrl}/stories/${story.slug}`;
   const serviceUrl = `${baseUrl}${story.serviceUrl}`;
   const sourceBlogUrl = `${baseUrl}${story.sourceBlogUrl}`;
