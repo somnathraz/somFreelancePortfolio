@@ -2,16 +2,16 @@ import type { Metadata } from "next";
 import { ProductionReadinessClient } from "@/components/services/ProductionReadinessClient";
 
 export const metadata: Metadata = {
-  title: "Production Readiness Upgrade for SaaS MVPs | Somanath Studio",
+  title: "Production Readiness Upgrade for SaaS | Somanath Studio",
   description:
-    "Turn your MVP into a production-ready SaaS product with stronger architecture, better stability, cleaner delivery flow, and practical security improvements.",
+    "Turn a fragile MVP — including vibe-coded and AI-built products — into production-ready SaaS with stronger architecture, real security, and stable delivery.",
   alternates: {
     canonical: "/services/production-readiness-upgrade",
   },
   openGraph: {
-    title: "Production Readiness Upgrade for SaaS MVPs | Somanath Studio",
+    title: "Production Readiness Upgrade for SaaS | Somanath Studio",
     description:
-      "Turn your MVP into a production-ready SaaS product with stronger architecture, better stability, and cleaner delivery flow.",
+      "Turn a fragile MVP — including vibe-coded and AI-built products — into production-ready SaaS with real security and stable delivery.",
     url: "/services/production-readiness-upgrade",
     type: "website",
     images: [
@@ -25,9 +25,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Production Readiness Upgrade for SaaS MVPs | Somanath Studio",
+    title: "Production Readiness Upgrade for SaaS | Somanath Studio",
     description:
-      "Turn your MVP into a production-ready SaaS product with stronger architecture, better stability, and cleaner delivery flow.",
+      "Turn a fragile MVP — including vibe-coded and AI-built products — into production-ready SaaS with real security and stable delivery.",
     images: ["/og?title=Production%20Readiness%20Upgrade"],
   },
 };
@@ -49,7 +49,8 @@ export default function ProductionReadinessPage() {
     url: "https://somanathkhadanga.com/services/production-readiness-upgrade",
     inLanguage: "en",
     description:
-      "Turn your MVP into a production-ready SaaS product with stronger architecture, better stability, cleaner delivery flow, and practical security improvements.",
+      "Turn a fragile MVP — including vibe-coded and AI-built products — into production-ready SaaS with stronger architecture, real security, and stable delivery.",
+    keywords: "production readiness upgrade, SaaS production ready, vibe-coded MVP audit, AI-built MVP review, Cursor MVP security, MVP technical debt, fragile MVP fix, SaaS security audit",
   };
 
   const breadcrumbJsonLd = {

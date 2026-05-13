@@ -4,14 +4,14 @@ import { AiSaasDevelopmentClient } from "@/components/services/AiSaasDevelopment
 export const metadata: Metadata = {
   title: "AI SaaS Development for Founders | Somanath Studio",
   description:
-    "Build practical AI-powered SaaS features like chat, copilots, search, summarization, and automation. Product-focused AI development for founders and startup teams.",
+    "Practical AI SaaS features for founders: MCP servers, AI agents, copilots, and semantic search. Built to work in production, not just demos.",
   alternates: {
     canonical: "/services/ai-saas-development",
   },
   openGraph: {
     title: "AI SaaS Development for Founders | Somanath Studio",
     description:
-      "Build practical AI-powered SaaS features like chat, copilots, search, summarization, and automation.",
+      "Practical AI SaaS features: MCP servers, AI agents, copilots, and semantic search — built for production use, not demos.",
     url: "/services/ai-saas-development",
     type: "website",
     images: [
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "AI SaaS Development for Founders | Somanath Studio",
     description:
-      "Build practical AI-powered SaaS features like chat, copilots, search, summarization, and automation.",
+      "Practical AI SaaS features: MCP servers, AI agents, copilots, and semantic search — built for production use, not demos.",
     images: ["/og?title=AI%20SaaS%20Development"],
   },
 };
@@ -49,7 +49,8 @@ export default function AiSaasDevelopmentPage() {
     url: "https://somanathkhadanga.com/services/ai-saas-development",
     inLanguage: "en",
     description:
-      "Build practical AI-powered SaaS features like chat, copilots, search, summarization, and automation. Product-focused AI development for founders and startup teams.",
+      "Practical AI SaaS features for founders: MCP servers, AI agents, copilots, and semantic search. Built to work in production, not just demos.",
+    keywords: "AI SaaS development, MCP server development, AI agents, AI copilot, semantic search, RAG, AI features for SaaS, AI product for founders, build AI SaaS 2026",
   };
 
   const breadcrumbJsonLd = {
