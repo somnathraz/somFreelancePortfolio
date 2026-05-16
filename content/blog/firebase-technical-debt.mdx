@@ -5,7 +5,7 @@ readTime: "6 min read"
 category: "SaaS Architecture"
 tags: ["Architecture", "SaaS Scaling"]
 intro: "This article is based on patterns I’ve seen repeatedly while helping SaaS teams scale beyond MVP. Firebase is a great tool — but only when used in the right phase."
-description: "Why I migrate most SaaS MVPs off Firebase once they hit specialized data requirements, and what I use instead."
+description: "Why Firebase works for SaaS MVPs but becomes a scaling liability — and how I migrate clients off it once they hit relational data complexity and query needs."
 ---
 
 ---
@@ -50,3 +50,14 @@ I recommend evaluating a migration to a relational database (like PostgreSQL via
 It doesn't have to be a rewrite. I often use **PostgreSQL** for the core data and keep **Firebase Auth** for identity management. This "hybrid" approach gives you the best of SQL querying power with the ease of Firebase's auth SDKs.
 
 The "technical debt" isn't Firebase itself—it's using a document store for relational problems. Recognizing that mismatch is the first step to scaling.
+
+---
+
+## Related Reading
+
+- [Why I Prefer Boring Architecture for SaaS](/blog/boring-architecture-for-saas) — why predictable foundations beat fast early choices
+- [How I Choose Technology for Client Projects](/blog/choosing-technology-for-client-projects) — how to evaluate stacks before committing
+- [What Makes a SaaS MVP Production-Ready](/blog/production-ready-saas-mvp) — the foundation your data layer needs to support
+- [How Much Should a SaaS MVP Cost in 2026?](/blog/saas-mvp-cost-2026) — how architecture decisions shape total build cost
+
+If a Firebase migration is already on your radar, [see the Production Readiness Upgrade service](/services/production-readiness-upgrade) for how I approach it.

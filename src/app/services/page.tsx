@@ -2,16 +2,16 @@ import type { Metadata } from "next";
 import { ServicesIndexClient } from "@/components/services/ServicesIndexClient";
 
 export const metadata: Metadata = {
-  title: "Services | Somanath Studio",
+  title: "SaaS Engineering Services for Founders | Somanath Studio",
   description:
-    "Explore SaaS-focused services: MVP development, Next.js performance optimization, production readiness upgrades, and AI SaaS development.",
+    "SaaS engineering for founders: production-ready MVP builds, Next.js 16 optimization, vibe-coded MVP audits, and AI feature development.",
   alternates: {
     canonical: "/services",
   },
   openGraph: {
-    title: "Services | Somanath Studio",
+    title: "SaaS Engineering Services for Founders | Somanath Studio",
     description:
-      "Explore SaaS-focused services: MVP development, Next.js performance optimization, production readiness upgrades, and AI SaaS development.",
+      "SaaS engineering for founders: production-ready MVP builds, Next.js 16 optimization, vibe-coded MVP audits, and AI feature development.",
     url: "/services",
     type: "website",
     images: [
@@ -25,9 +25,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Services | Somanath Studio",
+    title: "SaaS Engineering Services for Founders | Somanath Studio",
     description:
-      "Explore SaaS-focused services: MVP development, Next.js performance optimization, production readiness upgrades, and AI SaaS development.",
+      "SaaS engineering for founders: production-ready MVP builds, Next.js 16 optimization, vibe-coded MVP audits, and AI feature development.",
     images: ["/og?title=Services"],
   },
 };
@@ -41,7 +41,7 @@ export default function ServicesPage() {
         name: "Services",
         url: "https://somanathkhadanga.com/services",
         description:
-          "Explore SaaS-focused services: MVP development, Next.js performance optimization, production readiness upgrades, and AI SaaS development.",
+          "SaaS engineering for founders: production-ready MVP builds, Next.js 16 optimization, vibe-coded MVP audits, and AI feature development.",
       },
       {
         "@type": "BreadcrumbList",

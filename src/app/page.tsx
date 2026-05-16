@@ -10,16 +10,16 @@ import { LatestPostTiltCard } from "@/components/LatestPostTiltCard"
 import { ArrowRight } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Somanath Studio | SaaS MVP Development and Performance Engineering",
+  title: "Somanath Studio — Senior SaaS Engineer for Founders",
   description:
-    "I help SaaS founders build MVPs fast, optimize slow Next.js products, and upgrade production readiness with senior engineering support.",
+    "Senior SaaS engineer for founders: fast MVP builds, Next.js 16 performance, production readiness, and AI features that actually work in 2026.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
     title: "Somanath Studio | SaaS MVP Development and Performance Engineering",
     description:
-      "Build your SaaS MVP fast, improve performance, and ship production-ready products with a senior technical partner.",
+      "Senior SaaS engineer for founders: fast MVP builds, Next.js 16 performance, production readiness, and AI features that ship in 2026.",
     url: "/",
     siteName: "Somanath Studio",
     type: "website",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Somanath Studio | SaaS MVP Development and Performance Engineering",
     description:
-      "Build your SaaS MVP fast, improve performance, and ship production-ready products with a senior technical partner.",
+      "Senior SaaS engineer for founders: fast MVP builds, Next.js 16 performance, production readiness, and AI features that ship in 2026.",
     images: ["/og?title=Somanath%20Studio"],
   },
 }

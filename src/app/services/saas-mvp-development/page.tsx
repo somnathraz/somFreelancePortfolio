@@ -4,14 +4,14 @@ import { SaasMvpDevelopmentClient } from "@/components/services/SaasMvpDevelopme
 export const metadata: Metadata = {
   title: "SaaS MVP Development for Founders | Somanath Studio",
   description:
-    "Launch your SaaS MVP fast with clean architecture, strong UX, and production-minded engineering. I help founders build MVPs that are ready to grow.",
+    "Ship a production-ready SaaS MVP in weeks — clean architecture, real security, and a codebase you won't regret. Senior engineering for founders.",
   alternates: {
     canonical: "/services/saas-mvp-development",
   },
   openGraph: {
     title: "SaaS MVP Development for Founders | Somanath Studio",
     description:
-      "Launch your SaaS MVP fast with clean architecture, strong UX, and production-minded engineering.",
+      "Ship a production-ready SaaS MVP in weeks — clean architecture, real security, and a codebase you won't regret.",
     url: "/services/saas-mvp-development",
     type: "website",
     images: [
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "SaaS MVP Development for Founders | Somanath Studio",
     description:
-      "Launch your SaaS MVP fast with clean architecture, strong UX, and production-minded engineering.",
+      "Ship a production-ready SaaS MVP in weeks — clean architecture, real security, and a codebase you won't regret.",
     images: ["/og?title=SaaS%20MVP%20Development"],
   },
 };
@@ -49,7 +49,8 @@ export default function SaaSMvpDevelopmentPage() {
     url: "https://somanathkhadanga.com/services/saas-mvp-development",
     inLanguage: "en",
     description:
-      "Launch your SaaS MVP fast with clean architecture, strong UX, and production-minded engineering.",
+      "Ship a production-ready SaaS MVP in weeks — clean architecture, real security, and a codebase you won't regret.",
+    keywords: "SaaS MVP development, production-ready MVP, SaaS founder, MVP for startups, technical partner, senior engineer for founders, build SaaS product 2026",
   };
 
   const faqJsonLd = {

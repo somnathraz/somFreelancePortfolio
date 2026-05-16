@@ -4,14 +4,14 @@ import { NextjsPerformanceClient } from "@/components/services/NextjsPerformance
 export const metadata: Metadata = {
     title: "Next.js Performance Optimization for SaaS | Somanath Studio",
     description:
-        "Fix slow pages, poor Core Web Vitals, and frontend/backend bottlenecks in your Next.js SaaS product. Practical optimization focused on real user experience — LCP, INP, CLS, and page speed.",
+        "Fix slow Next.js 16 pages, poor Core Web Vitals, and App Router bottlenecks in your SaaS. LCP, INP, and React Compiler evaluation for real performance gains.",
     alternates: {
         canonical: "/services/nextjs-performance-optimization",
     },
     openGraph: {
         title: "Next.js Performance Optimization for SaaS | Somanath Studio",
         description:
-            "Fix slow pages, poor Core Web Vitals, and frontend/backend bottlenecks in your Next.js SaaS product.",
+            "Fix slow Next.js 16 pages, poor Core Web Vitals, and App Router bottlenecks. LCP, INP, and React Compiler evaluation included.",
         url: "/services/nextjs-performance-optimization",
         type: "website",
         images: [
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: "Next.js Performance Optimization for SaaS | Somanath Studio",
         description:
-            "Fix slow pages, poor Core Web Vitals, and frontend/backend bottlenecks in your Next.js SaaS product.",
+            "Fix slow Next.js 16 pages, poor Core Web Vitals, and App Router bottlenecks. LCP, INP, and React Compiler evaluation included.",
         images: ["/og?title=Next.js%20Performance%20Optimization"],
     },
 };
@@ -49,7 +49,8 @@ export default function NextjsPerformancePage() {
         url: "https://somanathkhadanga.com/services/nextjs-performance-optimization",
         inLanguage: "en",
         description:
-            "Fix slow pages, poor Core Web Vitals, and frontend/backend bottlenecks in your Next.js SaaS product.",
+            "Fix slow Next.js 16 pages, poor Core Web Vitals, and App Router bottlenecks. LCP, INP, and React Compiler evaluation included.",
+        keywords: "Next.js performance optimization, Next.js 16, Core Web Vitals, LCP INP CLS, App Router performance, React Compiler, SaaS performance, slow Next.js app",
     };
 
     const breadcrumbJsonLd = {
