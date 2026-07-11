@@ -39,9 +39,9 @@ export function SelectedWork({ hideIntro = false }: SelectedWorkProps) {
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                     <div className="flex flex-col items-center text-center gap-1">
-                        <span className="text-3xl font-bold text-white">11 Days</span>
-                        <span className="text-xs text-zinc-500 uppercase tracking-widest font-medium">SaaS Shipped</span>
-                        <span className="text-[11px] text-zinc-400">PaperChai — idea to production</span>
+                        <span className="text-3xl font-bold text-white">Live</span>
+                        <span className="text-xs text-zinc-500 uppercase tracking-widest font-medium">Founder SaaS</span>
+                        <span className="text-[11px] text-zinc-400">PaperChai — profile to website</span>
                     </div>
                     <div className="flex flex-col items-center text-center gap-1">
                         <span className="text-3xl font-bold text-white flex items-center gap-2">
@@ -132,46 +132,39 @@ const data = [
         </ProjectDetail>,
     },
     {
-        category: "Solo SaaS build • Idea to production in 11 days",
-        title: "PaperChai — Invoicing SaaS",
+        category: "Founder Project · SaaS · AI — India-first",
+        title: "PaperChai — Profile to Website",
         src: "/images/Project-1.png",
-        alt: "PaperChai — invoicing and payment tracking SaaS",
+        alt: "PaperChai — Google profile to booking-ready website",
         content: <ProjectDetail
             image="/images/Project-1.png"
             title="PaperChai."
-            description="Invoice and payment tracking SaaS for freelancers and small businesses. Built solo to solve a real problem — scattered invoices, no cash-flow visibility, manual follow-ups. Shipped in 11 days."
-            stack={["Next.js App Router", "TypeScript", "PostgreSQL", "Tailwind CSS"]}
+            description="India-first profile-to-website builder. Turns Google Business profiles, visiting cards, documents and social sources into booking-ready one-page websites — with WhatsApp, scheduling, and review-before-publish."
+            stack={["Next.js", "TypeScript", "PostgreSQL", "AI APIs", "Razorpay"]}
         >
             <div className="mt-8 space-y-6 text-neutral-600 dark:text-neutral-400">
                 <section>
                     <h4 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">The problem</h4>
-                    <p>Freelancers don&apos;t just need invoices — they need clarity. Existing tools were too complex, too expensive, or not designed for early-stage work. I built PaperChai to solve this with a minimal, business-first interface.</p>
+                    <p>Small businesses are online, but their information is scattered across Google Maps, Instagram and WhatsApp. Website builders still start from a blank page. PaperChai starts from what they already have.</p>
                 </section>
 
                 <section>
-                    <h4 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">What shipped</h4>
+                    <h4 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">What it does</h4>
                     <ul className="list-disc pl-5 space-y-1">
-                        <li>Dashboard with key financial metrics</li>
-                        <li>Client management system</li>
-                        <li>Invoice creation and tracking</li>
-                        <li>Payment status — paid / pending / overdue</li>
-                        <li>SEO-ready structure, production routing</li>
+                        <li>Import from Google Business / Maps (primary launch source)</li>
+                        <li>AI-assisted content and multi-template one-page sites</li>
+                        <li>Review-before-publish, edit and republish on the same URL</li>
+                        <li>WhatsApp, email booking, calendar embeds and native scheduling</li>
+                        <li>Wildcard subdomains and owner custom domains</li>
                     </ul>
                 </section>
 
-                <section>
-                    <h4 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">Timeline</h4>
-                    <div className="space-y-1 text-sm font-mono">
-                        <p><span className="text-neutral-900 dark:text-white">Day 1–2</span> — Requirement analysis, data modeling</p>
-                        <p><span className="text-neutral-900 dark:text-white">Day 3–6</span> — Dashboard, client & invoice flows</p>
-                        <p><span className="text-neutral-900 dark:text-white">Day 7–10</span> — Payment tracking, status logic, UI polish</p>
-                        <p><span className="text-neutral-900 dark:text-white">Day 11</span> — SEO, deployment, QA</p>
-                    </div>
-                </section>
-
-                <div className="pt-2">
-                    <a href="/blog/paperchai-from-idea-to-running-saas" className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-medium hover:underline">
+                <div className="pt-2 flex flex-wrap gap-4">
+                    <a href="/projects/paperchai" className="inline-flex items-center gap-2 text-amber-600 dark:text-amber-400 font-medium hover:underline">
                         Read the full case study →
+                    </a>
+                    <a href="https://paperchaiapp.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-neutral-600 dark:text-neutral-300 font-medium hover:underline">
+                        Visit PaperChai →
                     </a>
                 </div>
             </div>

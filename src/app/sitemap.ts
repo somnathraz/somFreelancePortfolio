@@ -26,6 +26,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/blog',
         '/book',
         '/case-studies',
+        '/projects/paperchai',
         '/stories',
         '/services',
         '/services/saas-mvp-development',

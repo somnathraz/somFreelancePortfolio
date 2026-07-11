@@ -1,0 +1,270 @@
+---
+title: "Building PaperChai: Turning Existing Business Information into a Booking-Ready Website"
+metaTitle: "Building PaperChai: Profile to Booking-Ready Website"
+description: "How I'm building PaperChai — an India-first SaaS that turns Google Business profiles, visiting cards and existing business information into booking-ready one-page websites."
+date: "2026-07-11"
+author: "Somanath Khadanga"
+readTime: "8 min read"
+category: "Case Study"
+tags: ["Case Study", "SaaS", "PaperChai", "Next.js", "Product Engineering", "AI"]
+featured: true
+shareImage: "/images/blog/paperchai-booking-ready-website.png"
+---
+
+![PaperChai — Google Business profile to booking-ready website](/images/blog/paperchai-booking-ready-website.png)
+
+Many small businesses already have an online presence.
+
+They may have a Google Business Profile, an Instagram page, a visiting card, a brochure, a Facebook Page or an old website. Their business information is available online, but it is scattered across different platforms.
+
+Customers may need to search several places to find:
+
+- Services and pricing
+- Business hours
+- Customer reviews
+- Photos
+- Contact information
+- Location
+- Appointment availability
+
+At the same time, traditional website builders often expect the business owner to begin with a blank page. They must select a design, write the content, arrange sections, upload images and understand technical settings.
+
+For many small-business owners, this becomes too much work.
+
+That is the problem I am trying to solve with PaperChai.
+
+---
+
+## What is PaperChai?
+
+PaperChai is an India-first website builder that turns information a person or business already has into a polished one-page website.
+
+Instead of asking users to start from an empty template, PaperChai allows them to begin with sources such as:
+
+- Google Business or Maps listing
+- Existing website
+- Instagram or Facebook presence
+- Visiting card
+- Brochure or business document
+- Resume or CV
+- Notion page
+- YouTube or GitHub profile
+- A simple manual business brief
+
+PaperChai extracts the useful information, organises it into website sections and creates a first draft that the owner can review and edit.
+
+The goal is simple:
+
+**Help small businesses launch a useful website without needing design, coding or copywriting knowledge.**
+
+---
+
+## Why I Started Building It
+
+A large number of Indian businesses operate through a combination of Google Maps, Instagram and WhatsApp.
+
+This works for basic discovery, but it creates several problems.
+
+Their services may be buried inside social-media posts. Pricing may be unclear. Customers may not know how to book. Important reviews, photos, opening hours and contact information remain separated across different platforms.
+
+A proper website could solve this, but many small businesses do not have the time or budget to work with an agency.
+
+PaperChai is designed to reduce that gap.
+
+A business owner should be able to provide information they already have, review the generated content and publish a professional website quickly.
+
+---
+
+## More Than an AI Website Generator
+
+Generating a website is only the first part.
+
+A business website should help the owner receive enquiries and bookings. That is why PaperChai also includes practical business features.
+
+### One-page business website
+
+PaperChai can organise business information into sections such as:
+
+- Hero introduction
+- About the business
+- Services
+- Pricing
+- Gallery
+- Reviews and testimonials
+- Opening hours
+- Location and map
+- Frequently asked questions
+- Contact information
+- WhatsApp call to action
+- Booking section
+
+### Booking management
+
+Businesses can enable booking and appointment requests directly from their published website.
+
+Depending on the setup, customers can:
+
+- Select a service
+- Choose a preferred date and time
+- Submit their contact details
+- Book through WhatsApp
+- Use an external calendar
+- Select available native booking slots
+
+The business owner can review upcoming requests from a simple dashboard and update the booking status.
+
+### Post-publish editing
+
+Publishing a website should not make it permanent or difficult to update.
+
+PaperChai allows the owner to reopen the website, edit the information and republish it using the same URL. Updating a website does not create a duplicate site or consume another site slot.
+
+### Subdomains and custom domains
+
+Every generated website can be published on a PaperChai subdomain, such as:
+
+`business-name.paperchaiapp.com`
+
+Paid users can also connect their own custom domain.
+
+---
+
+## Who PaperChai Is For
+
+PaperChai is being designed primarily for small businesses and solo professionals who need a simple online presence with clear business actions.
+
+Potential users include:
+
+- Salons and beauty professionals
+- Makeup artists
+- Clinics and independent doctors
+- Consultants
+- Lawyers
+- Fitness trainers
+- Tutors
+- Photographers
+- Event professionals
+- Restaurants and cafés
+- Freelancers
+- Creators
+- Local service providers
+
+The current product direction is especially focused on businesses that rely on appointments, WhatsApp enquiries or local discovery.
+
+---
+
+## The Initial Product Strategy
+
+It is tempting to support every platform and every business category from the beginning.
+
+However, a focused product is easier to explain, test and improve.
+
+The strongest initial PaperChai workflow is:
+
+1. Paste a Google Business or Maps link.
+2. Import the available business information.
+3. Review and correct the extracted details.
+4. Generate a one-page website.
+5. Add services and booking availability.
+6. Publish the website.
+7. Receive booking requests and WhatsApp enquiries.
+
+Other sources such as Instagram, Facebook, YouTube, Notion and GitHub can be expanded gradually based on real customer demand.
+
+---
+
+## Technical Direction
+
+PaperChai is being developed as a modern web application with a strong focus on reusable website data, publishing and business workflows.
+
+The platform includes:
+
+- Next.js-based application architecture
+- Postgres data persistence
+- AI-assisted content extraction and generation
+- Email verification
+- Multi-source imports
+- Editable generated websites
+- Wildcard subdomain publishing
+- Custom-domain support
+- Email and WhatsApp booking
+- Native scheduling
+- Subscription billing architecture
+
+One of the important architectural decisions is separating the imported source from the final website structure.
+
+Different sources can contain very different information, but PaperChai converts them into a common business profile. That structured profile can then be rendered through different designs without making the website dependent on one particular platform.
+
+---
+
+## Building for Trust
+
+AI-generated content should not be published blindly.
+
+PaperChai includes a review step so users can confirm imported and generated information before publishing.
+
+This is particularly important when AI suggests:
+
+- Services
+- Headlines
+- Business descriptions
+- Frequently asked questions
+- Benefits inferred from reviews
+- Testimonials or trust statements
+
+The owner should always remain in control of what appears on the final website.
+
+---
+
+## What I Am Learning While Building PaperChai
+
+Building PaperChai is not only a website-generation problem.
+
+It involves several connected product challenges:
+
+- Making onboarding understandable for non-technical users
+- Importing information reliably
+- Handling missing or incomplete business data
+- Creating useful content without fabricating details
+- Building editing without breaking published URLs
+- Managing custom domains
+- Preventing double bookings
+- Designing plan restrictions without damaging the user experience
+- Making the generated website valuable enough to pay for
+
+The biggest lesson is that the website itself is not the final outcome.
+
+**The real outcome is helping a business appear professional, communicate clearly and receive more enquiries or bookings.**
+
+---
+
+## Current Direction
+
+The immediate focus is to release a clear and useful first version around:
+
+- Google Business and manual-data import
+- AI-generated one-page websites
+- Editing and republishing
+- PaperChai subdomains
+- WhatsApp and contact actions
+- Service listings
+- Booking management
+- Subscription billing
+
+More advanced integrations can be introduced after observing how real businesses use the product.
+
+---
+
+## Final Thought
+
+Small businesses should not need to become designers, developers or marketers just to create a useful website.
+
+Their business information already exists.
+
+PaperChai’s job is to turn that existing information into a clear, professional and actionable online presence.
+
+PaperChai is currently under development and will initially focus on helping Indian small businesses turn their existing business information into booking-ready websites.
+
+**Visit:** [paperchaiapp.com](https://paperchaiapp.com)
+
+**Full case study:** [PaperChai on somanathkhadanga.com](/projects/paperchai)
