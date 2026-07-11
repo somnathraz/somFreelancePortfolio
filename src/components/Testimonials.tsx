@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
@@ -16,23 +17,27 @@ const proofProjects = [
         metric: "Live & taking orders",
         metricColor: "text-emerald-400",
         borderAccent: "before:bg-emerald-500",
+        image: "/images/project-7.png",
+        imageAlt: "LocalBoyNani Seafoods mobile storefront",
         link: "https://localboynaniseafoods.com",
         linkLabel: "localboynaniseafoods.com",
         external: true,
     },
     {
         index: "02",
-        label: "Personal SaaS — Full Case Study",
+        label: "Founder Project · SaaS · AI",
         project: "PaperChai",
-        tagline: "Invoice & payment tracking for freelancers",
+        tagline: "Turn a Google Business profile into a booking-ready website",
         description:
-            "Invoicing SaaS built to solve a real pain: scattered invoices, no cash-flow visibility, manual follow-ups. Dashboard with financial metrics, client management, invoice creation, payment status (paid / pending / overdue). Built solo in 11 days with production-grade architecture.",
-        stack: ["Next.js App Router", "TypeScript", "PostgreSQL"],
-        metric: "Shipped in 11 days",
-        metricColor: "text-blue-400",
-        borderAccent: "before:bg-blue-500",
-        link: "/blog/paperchai-from-idea-to-running-saas",
-        linkLabel: "Read the full build story",
+            "India-first profile-to-website builder for small businesses and solo professionals. Imports existing information — Google Maps, visiting cards, documents, social profiles — then generates a polished one-page site with booking, WhatsApp, and review-before-publish. Built solo as a real product.",
+        stack: ["Next.js", "TypeScript", "PostgreSQL", "AI APIs"],
+        metric: "In active development",
+        metricColor: "text-amber-400",
+        borderAccent: "before:bg-amber-500",
+        image: "/images/Project-1.png",
+        imageAlt: "PaperChai — Google profile to booking-ready website",
+        link: "/projects/paperchai",
+        linkLabel: "Read the full case study",
         external: false,
     },
 ];
@@ -96,19 +101,33 @@ export function Testimonials() {
                             initial="hidden"
                             whileInView="show"
                             viewport={{ once: true }}
-                            className="group relative flex flex-col rounded-2xl border border-white/[0.07] bg-white/[0.02] p-8 overflow-hidden transition-all duration-500 hover:border-white/[0.14] hover:bg-white/[0.04]"
+                            className="group relative flex flex-col rounded-2xl border border-white/[0.07] bg-white/[0.02] overflow-hidden transition-all duration-500 hover:border-white/[0.14] hover:bg-white/[0.04]"
                         >
                             {/* Top accent line */}
                             <div
-                                className={`absolute top-0 left-8 right-8 h-px ${
+                                className={`absolute top-0 left-8 right-8 h-px z-10 ${
                                     i === 0
                                         ? "bg-gradient-to-r from-transparent via-emerald-500/60 to-transparent"
-                                        : "bg-gradient-to-r from-transparent via-blue-500/60 to-transparent"
+                                        : "bg-gradient-to-r from-transparent via-amber-500/60 to-transparent"
                                 }`}
                             />
 
+                            {/* Mobile screenshot — tall source (~680×1472), crop to hero */}
+                            <div className="relative mx-5 mt-5 aspect-[4/5] overflow-hidden rounded-xl border border-white/[0.08] bg-zinc-950">
+                                <Image
+                                    src={item.image}
+                                    alt={item.imageAlt}
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, 40vw"
+                                    className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
+                                    priority={i === 0}
+                                />
+                                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent" />
+                            </div>
+
+                            <div className="flex flex-1 flex-col p-8 pt-6">
                             {/* Index + Label row */}
-                            <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center justify-between mb-6">
                                 <span className="font-mono text-[11px] text-zinc-600 border border-white/[0.07] px-2.5 py-1 rounded-md">
                                     {item.label}
                                 </span>
@@ -153,7 +172,7 @@ export function Testimonials() {
                                 className={`inline-flex items-center gap-2 text-sm font-semibold transition-colors group/link ${
                                     i === 0
                                         ? "text-emerald-400 hover:text-emerald-300"
-                                        : "text-blue-400 hover:text-blue-300"
+                                        : "text-amber-400 hover:text-amber-300"
                                 }`}
                             >
                                 {item.linkLabel}
@@ -163,6 +182,7 @@ export function Testimonials() {
                                     <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
                                 )}
                             </Link>
+                            </div>
                         </motion.div>
                     ))}
                 </div>

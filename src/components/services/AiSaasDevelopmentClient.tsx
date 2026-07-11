@@ -313,8 +313,8 @@ export function AiSaasDevelopmentClient() {
             <Link href="/case-studies" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">
               Case Studies
             </Link>
-            <Link href="/blog/paperchai-from-idea-to-running-saas" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">
-              AI SaaS Case Story
+            <Link href="/projects/paperchai" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">
+              PaperChai case study
             </Link>
           </div>
         </div>

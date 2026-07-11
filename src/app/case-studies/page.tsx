@@ -94,7 +94,7 @@ export default function CaseStudiesPage() {
                             <Link href="/book">Book a 20-minute strategy call</Link>
                         </Button>
                         <Button asChild variant="outline" className="border-white/10 hover:bg-white/5 hover:text-white">
-                            <Link href="/blog">Read the blog</Link>
+                            <Link href="/projects/paperchai">PaperChai case study</Link>
                         </Button>
                     </div>
                 </div>
