@@ -2,7 +2,7 @@ import Script from "next/script";
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
-/** Loads after hydration — required so ad conversion events are not missed. */
+/** Loads afterInteractive so ads/conversion events are not missed without blocking LCP. */
 export function GoogleAnalytics() {
   if (!GA_ID) return null;
 
@@ -15,7 +15,7 @@ export function GoogleAnalytics() {
       <Script id="google-analytics" strategy="afterInteractive">
         {`
           window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
+          window.gtag = function gtag(){window.dataLayer.push(arguments);};
           gtag('js', new Date());
           gtag('config', '${GA_ID}', {
             send_page_view: false,

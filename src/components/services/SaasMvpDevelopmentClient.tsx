@@ -18,14 +18,13 @@ import {
   Wrench,
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { DeferredParticles } from "@/components/DeferredParticles";
 import { DeferredSection } from "@/components/DeferredSection";
 import { ClientMobileNav } from "@/components/ClientMobileNav";
 import { ServiceSectionCard } from "@/components/services/ServiceSectionCard";
 import { AnimatedSectionHeading } from "@/components/services/AnimatedSectionHeading";
 import { MvpEnquiryForm } from "@/components/services/MvpEnquiryForm";
-import { TrackedBookCallButton, TrackedWhatsAppButton } from "@/components/services/MvpTrackedCtas";
+import { TrackedBookCallButton, TrackedWhatsAppButton, MvpMobileStickyCtas } from "@/components/services/MvpTrackedCtas";
 import {
   CONTACT_EMAIL,
   GITHUB_URL,
@@ -238,7 +237,7 @@ function BrowserMockup({
 
 export function SaasMvpDevelopmentClient() {
   return (
-    <main className="min-h-screen bg-black text-foreground selection:bg-white/20">
+    <main className="min-h-screen bg-black pb-36 text-foreground selection:bg-white/20 md:pb-0">
       <Navbar />
 
       {/* 1. Hero — offer + product visual */}
@@ -669,7 +668,13 @@ export function SaasMvpDevelopmentClient() {
         </section>
       </DeferredSection>
 
-      <Footer />
+      {/* No site footer on this ads landing page — avoids leaking clicks to other routes. */}
+      <div className="border-t border-white/5 bg-black px-4 py-8 text-center">
+        <p className="font-mono text-xs text-zinc-600">
+          &copy; {new Date().getFullYear()} Somanath Studio
+        </p>
+      </div>
+      <MvpMobileStickyCtas />
       <ClientMobileNav />
     </main>
   );

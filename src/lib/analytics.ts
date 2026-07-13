@@ -12,17 +12,40 @@ declare global {
   }
 }
 
+function withGtag(run: (gtag: NonNullable<Window["gtag"]>) => void) {
+  if (!GA_ID || typeof window === "undefined") return;
+
+  if (window.gtag) {
+    run(window.gtag);
+    return;
+  }
+
+  // Inline GA boot may still be pending afterInteractive — retry briefly.
+  let attempts = 0;
+  const id = window.setInterval(() => {
+    attempts += 1;
+    if (window.gtag) {
+      window.clearInterval(id);
+      run(window.gtag);
+      return;
+    }
+    if (attempts >= 40) window.clearInterval(id);
+  }, 50);
+}
+
 export function trackPageView(url: string) {
-  if (!GA_ID || typeof window === "undefined" || !window.gtag) return;
-  window.gtag("config", GA_ID, { page_path: url });
+  withGtag((gtag) => {
+    gtag("config", GA_ID, { page_path: url });
+  });
 }
 
 export function trackEvent(
   action: string,
   params?: Record<string, string | number | boolean | undefined>
 ) {
-  if (!GA_ID || typeof window === "undefined" || !window.gtag) return;
-  window.gtag("event", action, params);
+  withGtag((gtag) => {
+    gtag("event", action, params);
+  });
 }
 
 /** Fires on App Router client navigations */
