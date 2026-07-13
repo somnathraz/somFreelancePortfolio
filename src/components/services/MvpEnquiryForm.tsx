@@ -14,14 +14,6 @@ const STAGES = [
   "Need to rebuild / fix an MVP",
 ] as const;
 
-const BUDGETS = [
-  "Under ₹75,000",
-  "₹75,000 – ₹1.5L",
-  "₹1.5L – ₹3L",
-  "₹3L+",
-  "Not sure yet",
-] as const;
-
 const fieldClass =
   "h-11 border-white/10 bg-white/[0.03] text-white placeholder:text-zinc-600 focus-visible:border-white/25 focus-visible:ring-white/10";
 
@@ -32,7 +24,7 @@ export function MvpEnquiryForm() {
   const [contact, setContact] = useState("");
   const [building, setBuilding] = useState("");
   const [stage, setStage] = useState<string>(STAGES[1]);
-  const [budget, setBudget] = useState<string>(BUDGETS[1]);
+  const [budget, setBudget] = useState("");
   const [launchDate, setLaunchDate] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [error, setError] = useState("");
@@ -78,7 +70,7 @@ export function MvpEnquiryForm() {
       setContact("");
       setBuilding("");
       setStage(STAGES[1]);
-      setBudget(BUDGETS[1]);
+      setBudget("");
       setLaunchDate("");
     } catch (err) {
       setStatus("error");
@@ -171,19 +163,14 @@ export function MvpEnquiryForm() {
           <label htmlFor="mvp-budget" className={labelClass}>
             Approximate budget
           </label>
-          <select
+          <Input
             id="mvp-budget"
             required
             value={budget}
             onChange={(e) => setBudget(e.target.value)}
-            className={`${fieldClass} w-full rounded-md px-3 text-sm outline-none`}
-          >
-            {BUDGETS.map((b) => (
-              <option key={b} value={b} className="bg-zinc-950 text-white">
-                {b}
-              </option>
-            ))}
-          </select>
+            placeholder="e.g. ₹1L / $2,000 / flexible"
+            className={fieldClass}
+          />
         </div>
       </div>
 
