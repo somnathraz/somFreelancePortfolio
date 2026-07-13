@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createCalendarEvent, getBusyTimes } from '@/lib/google-calendar';
+import { createCalendarEvent, getBusyTimes, getGoogleApiErrorMessage } from '@/lib/google-calendar';
 import { sendBookingConfirmation } from '@/lib/email';
 import { addMinutes } from 'date-fns';
 
@@ -18,11 +18,15 @@ export async function POST(request: NextRequest) {
         }
 
         const start = new Date(startTime);
+        if (Number.isNaN(start.getTime())) {
+            return NextResponse.json({ error: 'Invalid start time' }, { status: 400 });
+        }
         const end = addMinutes(start, MEETING_DURATION);
 
         // Double-check availability before booking
         const busySlots = await getBusyTimes(start, end);
-        const isStillAvailable = !busySlots.some((busy: any) => {
+        const isStillAvailable = !busySlots.some((busy: { start?: string | null; end?: string | null }) => {
+            if (!busy.start || !busy.end) return false;
             const busyStart = new Date(busy.start);
             const busyEnd = new Date(busy.end);
             return start < busyEnd && end > busyStart;
@@ -35,7 +39,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Create the calendar event
         const summary = `Project Discussion: ${name}`;
         const description = `
 📋 Project Meeting
@@ -62,7 +65,6 @@ ${process.env.NEXT_PUBLIC_MEETING_URL ? `🔗 Meeting Link: ${process.env.NEXT_P
 
         const meetingUrl = event.hangoutLink || process.env.NEXT_PUBLIC_MEETING_URL;
 
-        // Send confirmation email to client via Resend
         try {
             await sendBookingConfirmation({
                 clientName: name,
@@ -90,9 +92,13 @@ ${process.env.NEXT_PUBLIC_MEETING_URL ? `🔗 Meeting Link: ${process.env.NEXT_P
             },
         });
     } catch (error) {
-        console.error('Error creating booking:', error);
+        const detail = getGoogleApiErrorMessage(error);
+        console.error('Error creating booking:', detail, error);
         return NextResponse.json(
-            { error: 'Failed to create booking. Please try again.' },
+            {
+                error: 'Failed to create booking. Please try again.',
+                ...(process.env.NODE_ENV !== 'production' ? { detail } : {}),
+            },
             { status: 500 }
         );
     }

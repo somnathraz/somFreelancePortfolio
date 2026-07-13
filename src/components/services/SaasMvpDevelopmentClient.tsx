@@ -35,7 +35,7 @@ import {
 
 const proofMetrics = [
   { value: "4+ years", label: "Building products" },
-  { value: "4 live apps", label: "In production" },
+  { value: "5 live apps", label: "In production" },
   { value: "21 days", label: "MVP delivery example" },
   { value: "Direct", label: "Founder ↔ engineer" },
 ];
@@ -62,6 +62,25 @@ const caseStudyCards = [
     href: "/case-studies",
     hrefLabel: "View case study",
     liveHref: "https://localboynaniseafoods.com",
+  },
+  {
+    name: "VGT Transport",
+    badge: "Fleet & logistics SaaS",
+    description:
+      "End-to-end transport management system for trucking and logistics companies — fleet, shipments, routes and role-based operations in one dashboard.",
+    points: [
+      "Fleet management — track trucks and drivers in real time",
+      "Shipment tracking from pickup to destination",
+      "Route optimization for efficient deliveries",
+      "Role-based access for employees, ops and admins",
+      "Built for 24/7 transport company workflows",
+    ],
+    image: "/images/project-10.png",
+    imageAlt: "VGT Transport Management System login and product interface",
+    href: "https://vgt-silk.vercel.app/login",
+    hrefLabel: "Open live demo",
+    hrefExternal: true,
+    liveHref: "https://vgt-silk.vercel.app/login",
   },
 ];
 
@@ -332,21 +351,35 @@ export function SaasMvpDevelopmentClient() {
                     ))}
                   </ul>
                   <div className="mt-5 flex flex-wrap gap-4">
-                    <Link
-                      href={card.href}
-                      className="inline-flex items-center gap-1.5 text-sm font-medium text-white underline underline-offset-4 hover:text-zinc-300"
-                    >
-                      {card.hrefLabel}
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </Link>
-                    <a
-                      href={card.liveHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-sm text-zinc-500 underline underline-offset-4 hover:text-white"
-                    >
-                      Visit live
-                    </a>
+                    {card.hrefExternal ? (
+                      <a
+                        href={card.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-white underline underline-offset-4 hover:text-zinc-300"
+                      >
+                        {card.hrefLabel}
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </a>
+                    ) : (
+                      <Link
+                        href={card.href}
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-white underline underline-offset-4 hover:text-zinc-300"
+                      >
+                        {card.hrefLabel}
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </Link>
+                    )}
+                    {card.liveHref && card.liveHref !== card.href ? (
+                      <a
+                        href={card.liveHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-sm text-zinc-500 underline underline-offset-4 hover:text-white"
+                      >
+                        Visit live
+                      </a>
+                    ) : null}
                   </div>
                 </div>
               </article>
