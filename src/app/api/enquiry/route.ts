@@ -8,14 +8,6 @@ const STAGES = new Set([
   "Need to rebuild / fix an MVP",
 ]);
 
-const BUDGETS = new Set([
-  "Under ₹75,000",
-  "₹75,000 – ₹1.5L",
-  "₹1.5L – ₹3L",
-  "₹3L+",
-  "Not sure yet",
-]);
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -35,12 +27,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (name.length > 120 || contact.length > 160 || building.length > 2000) {
+    if (
+      name.length > 120 ||
+      contact.length > 160 ||
+      building.length > 2000 ||
+      budget.length > 120
+    ) {
       return NextResponse.json({ error: "One or more fields are too long." }, { status: 400 });
     }
 
-    if (!STAGES.has(stage) || !BUDGETS.has(budget)) {
-      return NextResponse.json({ error: "Invalid stage or budget selection." }, { status: 400 });
+    if (!STAGES.has(stage)) {
+      return NextResponse.json({ error: "Invalid stage selection." }, { status: 400 });
     }
 
     await sendEnquiryNotification({
