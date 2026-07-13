@@ -14,10 +14,12 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Calendar, Mail, MessageCircle, Linkedin } from "lucide-react";
-
-const CONTACT_EMAIL = "somnathkhadanga@gmail.com";
-const WHATSAPP_NUMBER = "917008257342";
-const LINKEDIN_URL = "https://www.linkedin.com/in/somnath-khadanga";
+import {
+    CONTACT_EMAIL,
+    LINKEDIN_URL,
+    MVP_WHATSAPP_MESSAGE,
+    whatsappUrl,
+} from "@/lib/contact";
 
 interface ContactSheetProps {
     children: React.ReactNode;
@@ -39,10 +41,7 @@ export function ContactSheet({ children }: ContactSheetProps) {
     };
 
     const handleWhatsApp = () => {
-        const message = encodeURIComponent(
-            "Hi Somanath! I'd like to discuss a project with you."
-        );
-        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
+        window.open(whatsappUrl(MVP_WHATSAPP_MESSAGE), "_blank");
     };
 
     const handleLinkedIn = () => {

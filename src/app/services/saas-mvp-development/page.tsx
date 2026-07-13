@@ -4,14 +4,14 @@ import { SaasMvpDevelopmentClient } from "@/components/services/SaasMvpDevelopme
 export const metadata: Metadata = {
   title: "SaaS MVP Development for Founders | Somanath Studio",
   description:
-    "Ship a production-ready SaaS MVP in weeks — clean architecture, real security, and a codebase you won't regret. Senior engineering for founders.",
+    "Build and launch your SaaS MVP with an experienced full-stack engineer. Next.js, Node.js, PostgreSQL and practical AI — from scope to production launch.",
   alternates: {
     canonical: "/services/saas-mvp-development",
   },
   openGraph: {
     title: "SaaS MVP Development for Founders | Somanath Studio",
     description:
-      "Ship a production-ready SaaS MVP in weeks — clean architecture, real security, and a codebase you won't regret.",
+      "Build and launch your SaaS MVP with an experienced full-stack engineer. Next.js, Node.js, PostgreSQL and practical AI integrations.",
     url: "/services/saas-mvp-development",
     type: "website",
     images: [
@@ -27,10 +27,77 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "SaaS MVP Development for Founders | Somanath Studio",
     description:
-      "Ship a production-ready SaaS MVP in weeks — clean architecture, real security, and a codebase you won't regret.",
+      "Build and launch your SaaS MVP with an experienced full-stack engineer. Next.js, Node.js, PostgreSQL and practical AI integrations.",
     images: ["/og?title=SaaS%20MVP%20Development"],
   },
 };
+
+const faqMainEntity = [
+  {
+    "@type": "Question",
+    name: "How much does an MVP cost?",
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: "It depends on scope. Typical SaaS MVP engagements start from ₹75,000 for a focused first version. Auth, billing, admin tools, AI features, and multi-role workflows change the budget. We pin a clear scope before any build starts.",
+    },
+  },
+  {
+    "@type": "Question",
+    name: "How long does development take?",
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: "Many focused MVPs ship in a few weeks. Timeline depends on the core workflow, integrations, and how decided the product already is. The goal is the smallest version that is useful and launchable — not overbuilding version one.",
+    },
+  },
+  {
+    "@type": "Question",
+    name: "Do you work with non-technical founders?",
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: "Yes. A large part of the work is translating product goals into scope, architecture, and weekly progress you can understand without writing code.",
+    },
+  },
+  {
+    "@type": "Question",
+    name: "Will I own the source code?",
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: "Yes. You own the codebase, accounts, and infrastructure used for the project. Handover includes repositories, deployment access, and enough documentation to continue without me if needed.",
+    },
+  },
+  {
+    "@type": "Question",
+    name: "Can you improve an existing product?",
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: "Yes. I can harden fragile MVPs, improve performance, clean architecture, add features, or prepare an existing product for real users and growth.",
+    },
+  },
+  {
+    "@type": "Question",
+    name: "Do you handle deployment?",
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: "Yes. Deployment, environment setup, and launch support are part of the engagement — not an afterthought left to the founder.",
+    },
+  },
+  {
+    "@type": "Question",
+    name: "How will project communication work?",
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: "You work directly with me. Updates happen over WhatsApp or email plus short check-ins as needed. No account manager layer, no handoff to juniors mid-project.",
+    },
+  },
+  {
+    "@type": "Question",
+    name: "Do you provide post-launch support?",
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: "Yes. After launch I can continue with bug fixes, performance work, production-readiness upgrades, feature development, and technical guidance.",
+    },
+  },
+];
 
 export default function SaaSMvpDevelopmentPage() {
   const serviceJsonLd = {
@@ -39,57 +106,30 @@ export default function SaaSMvpDevelopmentPage() {
     name: "SaaS MVP Development",
     serviceType: "SaaS MVP Development",
     provider: {
-      "@type": "Organization",
-      "@id": "https://somanathkhadanga.com/#organization",
-      name: "Somanath Studio",
-      url: "https://somanathkhadanga.com",
-      logo: "https://somanathkhadanga.com/icon.svg",
+      "@type": "Person",
+      name: "Somanath Khadanga",
+      url: "https://somanathkhadanga.com/about",
+      jobTitle: "Senior full-stack and SaaS engineer",
+      worksFor: {
+        "@type": "Organization",
+        "@id": "https://somanathkhadanga.com/#organization",
+        name: "Somanath Studio",
+        url: "https://somanathkhadanga.com",
+      },
     },
     areaServed: "Worldwide",
     url: "https://somanathkhadanga.com/services/saas-mvp-development",
     inLanguage: "en",
     description:
-      "Ship a production-ready SaaS MVP in weeks — clean architecture, real security, and a codebase you won't regret.",
-    keywords: "SaaS MVP development, production-ready MVP, SaaS founder, MVP for startups, technical partner, senior engineer for founders, build SaaS product 2026",
+      "Build and launch your SaaS MVP with an experienced full-stack engineer. Next.js, Node.js, PostgreSQL and practical AI — from scope to production launch.",
+    keywords:
+      "SaaS MVP development, hire MVP developer, startup MVP development, SaaS development company India, software development for startups, technical partner, senior engineer for founders",
   };
 
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: "How fast can you build an MVP?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Timeline depends on scope, but the focus is shipping the smallest version that solves a real user problem instead of overbuilding version one.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Can you help with product planning too?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Yes. I help shape scope, decide what belongs in the MVP, and avoid technical choices that create expensive rework.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Do you only work with SaaS founders?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Mostly, yes. This service is designed for SaaS founders and startup teams building or validating product ideas.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Can you improve the product after launch?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Yes. I can continue with performance improvements, production-readiness upgrades, feature development, and technical guidance after the MVP is live.",
-        },
-      },
-    ],
+    mainEntity: faqMainEntity,
   };
 
   const breadcrumbJsonLd = {

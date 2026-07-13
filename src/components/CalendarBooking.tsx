@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { format, addDays } from "date-fns";
 import { Calendar as CalendarIcon, Clock, Loader2 } from "lucide-react";
+import { saveBookingConfirmation } from "@/lib/booking-confirmation";
+import { trackEvent } from "@/lib/analytics";
 
 interface CalendarBookingProps {
     open: boolean;
@@ -79,11 +81,20 @@ export function CalendarBooking({ open, onOpenChange }: CalendarBookingProps) {
             });
 
             if (response.ok) {
-                setSuccess(true);
-                setTimeout(() => {
-                    onOpenChange(false);
-                    resetForm();
-                }, 3000);
+                const result = await response.json();
+                saveBookingConfirmation({
+                    name,
+                    email,
+                    date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : "",
+                    timeDisplay: selectedSlot.display,
+                    hangoutLink: result.event?.hangoutLink,
+                });
+                trackEvent("begin_checkout", {
+                    event_category: "engagement",
+                    event_label: "strategy_call_confirmed",
+                });
+                window.location.href = "/book/thank-you";
+                return;
             } else {
                 const error = await response.json();
                 alert(error.error || 'Failed to book slot');
