@@ -165,3 +165,121 @@ somanathkhadanga.com
         text,
     });
 }
+
+export interface EnquiryEmailParams {
+    name: string;
+    contact: string;
+    building: string;
+    stage: string;
+    budget: string;
+    launchDate: string;
+    source?: string;
+}
+
+function escapeHtml(value: string): string {
+    return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+export async function sendEnquiryNotification(params: EnquiryEmailParams) {
+    const name = escapeHtml(params.name.trim());
+    const contact = escapeHtml(params.contact.trim());
+    const building = escapeHtml(params.building.trim());
+    const stage = escapeHtml(params.stage.trim());
+    const budget = escapeHtml(params.budget.trim());
+    const launchDate = escapeHtml(params.launchDate.trim());
+    const source = escapeHtml((params.source || 'saas-mvp-development').trim());
+
+    const to = process.env.ENQUIRY_TO_EMAIL || process.env.GOOGLE_CALENDAR_ID || 'somnathkhadanga@gmail.com';
+
+    const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0; padding:0; background:#09090b; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#09090b; padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
+          <tr>
+            <td style="padding:0 0 24px 0;">
+              <p style="margin:0; font-size:13px; color:#52525b; letter-spacing:2px; text-transform:uppercase;">SOMANATH STUDIO</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 0 8px 0;">
+              <h1 style="margin:0; font-size:24px; font-weight:700; color:#ffffff;">New MVP project enquiry</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 0 28px 0;">
+              <p style="margin:0; font-size:14px; color:#a1a1aa;">Source: ${source}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 0 12px 0;">
+              <p style="margin:0 0 4px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">Name</p>
+              <p style="margin:0; font-size:15px; color:#ffffff;">${name}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 0 12px 0;">
+              <p style="margin:0 0 4px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">Email / WhatsApp</p>
+              <p style="margin:0; font-size:15px; color:#ffffff;">${contact}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 0 12px 0;">
+              <p style="margin:0 0 4px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">What are they building?</p>
+              <p style="margin:0; font-size:15px; color:#a1a1aa; line-height:1.6;">${building}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 0 12px 0;">
+              <p style="margin:0 0 4px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">Current stage</p>
+              <p style="margin:0; font-size:15px; color:#ffffff;">${stage}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 0 12px 0;">
+              <p style="margin:0 0 4px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">Approximate budget</p>
+              <p style="margin:0; font-size:15px; color:#ffffff;">${budget}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 0 12px 0;">
+              <p style="margin:0 0 4px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">Expected launch date</p>
+              <p style="margin:0; font-size:15px; color:#ffffff;">${launchDate}</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+    const text = `
+New MVP project enquiry
+
+Name: ${params.name}
+Contact: ${params.contact}
+Building: ${params.building}
+Stage: ${params.stage}
+Budget: ${params.budget}
+Launch date: ${params.launchDate}
+Source: ${params.source || 'saas-mvp-development'}
+`.trim();
+
+    return transporter.sendMail({
+        from: `"Somanath Studio" <${process.env.SES_FROM_EMAIL || 'dev@somanathkhadanga.com'}>`,
+        to,
+        replyTo: params.contact.includes('@') ? params.contact.trim() : undefined,
+        subject: `MVP enquiry: ${params.name.trim()}`,
+        html,
+        text,
+    });
+}

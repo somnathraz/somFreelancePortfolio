@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,15 +12,14 @@ import {
     Globe,
     Video,
     Loader2,
-    Calendar as CalendarIcon,
-    Check,
     ArrowLeft,
-    Copy,
-    CheckCheck,
     MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ContactSheet } from "@/components/ContactSheet";
+import { saveBookingConfirmation } from "@/lib/booking-confirmation";
+import { trackEvent } from "@/lib/analytics";
 
 interface TimeSlot {
     start: string;
@@ -64,16 +63,15 @@ const TIMEZONE_OPTIONS = [
 ];
 
 export function BookingPage() {
+    const router = useRouter();
     const [weekStart, setWeekStart] = useState<Date>(new Date());
     const [availability, setAvailability] = useState<AvailabilityResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
     const [selectedDate, setSelectedDate] = useState<string>("");
     const [timezone, setTimezone] = useState<string>("");
-    const [step, setStep] = useState<"select" | "details" | "success">("select");
+    const [step, setStep] = useState<"select" | "details">("select");
     const [booking, setBooking] = useState(false);
-    const [bookingResult, setBookingResult] = useState<any>(null);
-    const [copied, setCopied] = useState(false);
 
     // Form state
     const [name, setName] = useState("");
@@ -153,8 +151,20 @@ export function BookingPage() {
 
             if (response.ok) {
                 const result = await response.json();
-                setBookingResult(result.event);
-                setStep("success");
+                saveBookingConfirmation({
+                    name,
+                    email,
+                    date: selectedDate,
+                    timeDisplay: selectedSlot.display,
+                    hangoutLink: result.event?.hangoutLink,
+                    timezone,
+                });
+                trackEvent("begin_checkout", {
+                    event_category: "engagement",
+                    event_label: "strategy_call_confirmed",
+                });
+                router.push("/book/thank-you");
+                return;
             } else {
                 const error = await response.json();
                 alert(error.error || 'Failed to book. Please try again.');
@@ -171,121 +181,7 @@ export function BookingPage() {
         setStep("select");
         setSelectedSlot(null);
         setSelectedDate("");
-        setCopied(false);
     };
-
-    const handleCopy = async () => {
-        if (bookingResult?.hangoutLink) {
-            try {
-                await navigator.clipboard.writeText(bookingResult.hangoutLink);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-            } catch (err) {
-                console.error('Failed to copy text: ', err);
-            }
-        }
-    };
-
-    // Get timezone display name
-    const timezoneDisplay = useMemo(() => {
-        try {
-            const now = new Date();
-            const formatter = new Intl.DateTimeFormat('en-US', {
-                timeZone: timezone,
-                timeZoneName: 'long',
-            });
-            const parts = formatter.formatToParts(now);
-            const tzName = parts.find(p => p.type === 'timeZoneName')?.value || timezone;
-
-            const offset = new Intl.DateTimeFormat('en-US', {
-                timeZone: timezone,
-                timeZoneName: 'shortOffset',
-            }).formatToParts(now).find(p => p.type === 'timeZoneName')?.value || '';
-
-            return `(${offset}) ${tzName}`;
-        } catch {
-            return timezone;
-        }
-    }, [timezone]);
-
-    if (step === "success") {
-        return (
-            <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
-                <div className="max-w-md w-full text-center space-y-6">
-                    <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto">
-                        <Check className="w-10 h-10 text-green-400" />
-                    </div>
-                    <h1 className="text-3xl font-bold">You&apos;re in.</h1>
-                    <p className="text-zinc-400">
-                        A confirmation email has been sent to <span className="text-white">{email}</span>. See you on the call.
-                    </p>
-
-                    <div className="bg-zinc-900 rounded-xl p-6 text-left space-y-4 border border-zinc-800">
-                        <div className="flex items-center gap-3">
-                            <CalendarIcon className="w-5 h-5 text-zinc-400" />
-                            <div>
-                                <p className="text-sm text-zinc-400">Date & Time</p>
-                                <p className="font-medium">
-                                    {selectedDate && format(new Date(selectedDate), 'EEEE, MMMM d, yyyy')}
-                                </p>
-                                <p className="text-zinc-300">{selectedSlot?.display}</p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                            <Clock className="w-5 h-5 text-zinc-400" />
-                            <div>
-                                <p className="text-sm text-zinc-400">Duration</p>
-                                <p className="font-medium">20 minutes</p>
-                            </div>
-                        </div>
-
-                        {bookingResult?.hangoutLink && (
-                            <div className="flex items-center gap-3">
-                                <Video className="w-5 h-5 text-zinc-400" />
-                                <div className="flex-1 flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm text-zinc-400">Video Conference</p>
-                                        <a
-                                            href={bookingResult.hangoutLink}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-blue-400 hover:underline font-medium"
-                                        >
-                                            Join Meeting
-                                        </a>
-                                    </div>
-                                    <button
-                                        onClick={handleCopy}
-                                        className="p-2 hover:bg-zinc-800 rounded-lg transition-colors group relative"
-                                        title="Copy meeting link"
-                                    >
-                                        {copied ? (
-                                            <CheckCheck className="w-4 h-4 text-green-400" />
-                                        ) : (
-                                            <Copy className="w-4 h-4 text-zinc-400 group-hover:text-white" />
-                                        )}
-                                        {copied && (
-                                            <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-zinc-800 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap">
-                                                Copied!
-                                            </span>
-                                        )}
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    <Link href="/">
-                        <Button variant="outline" className="border-zinc-700 text-white hover:bg-zinc-800">
-                            <ArrowLeft className="w-4 h-4 mr-2" />
-                            Back to Home
-                        </Button>
-                    </Link>
-                </div>
-            </div>
-        );
-    }
 
     if (step === "details") {
         return (
