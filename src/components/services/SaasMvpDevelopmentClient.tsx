@@ -4,9 +4,7 @@ import {
   ArrowRight,
   Check,
   Code2,
-  Compass,
   Github,
-  Lightbulb,
   Linkedin,
   Mail,
   MapPin,
@@ -15,16 +13,18 @@ import {
   ShieldCheck,
   Target,
   Users,
-  Wrench,
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { DeferredParticles } from "@/components/DeferredParticles";
 import { DeferredSection } from "@/components/DeferredSection";
-import { ClientMobileNav } from "@/components/ClientMobileNav";
 import { ServiceSectionCard } from "@/components/services/ServiceSectionCard";
 import { AnimatedSectionHeading } from "@/components/services/AnimatedSectionHeading";
 import { MvpEnquiryForm } from "@/components/services/MvpEnquiryForm";
 import { TrackedBookCallButton, TrackedWhatsAppButton, MvpMobileStickyCtas } from "@/components/services/MvpTrackedCtas";
+import { MvpHeroJourney } from "@/components/services/MvpHeroJourney";
+import { MvpWhoItsForJourney } from "@/components/services/MvpWhoItsForJourney";
+import { MvpTechStackMotion } from "@/components/services/MvpTechStackMotion";
+import { MvpTestimonials } from "@/components/services/MvpTestimonials";
 import {
   CONTACT_EMAIL,
   GITHUB_URL,
@@ -42,20 +42,26 @@ const proofMetrics = [
 const caseStudyCards = [
   {
     name: "PaperChai",
-    badge: "Founder-built SaaS",
-    description: "AI website and booking platform for small businesses",
-    points: ["Next.js · PostgreSQL · AI APIs", "Google profile → live site", "Booking, WhatsApp, custom domains"],
+    industry: "AI website builder",
+    solves: "Turn Google / social business profiles into booking-ready websites",
+    timeline: "Founder-built SaaS MVP",
+    role: "Solo product + engineering",
+    result: "Live: AI generation, booking, domains, payments",
+    stack: "Next.js · PostgreSQL · AI APIs · Razorpay",
     image: "/images/blog/paperchai-booking-ready-website.png",
-    imageAlt: "PaperChai product interface — Google profile to booking-ready website",
+    imageAlt: "PaperChai — booking-ready website product",
     href: "/projects/paperchai",
     hrefLabel: "View case study",
     liveHref: "https://paperchaiapp.com",
   },
   {
     name: "LocalBoyNani",
-    badge: "Live commerce",
-    description: "Production seafood delivery platform with real orders",
-    points: ["Next.js · payments · admin", "Multi-city live operations", "120-min delivery UX"],
+    industry: "Commerce / delivery",
+    solves: "Take seafood orders online with real multi-city operations",
+    timeline: "Production commerce platform",
+    role: "Full-stack product build",
+    result: "Live orders · payments · admin · 120-min delivery UX",
+    stack: "Next.js · payments · admin",
     image: "/images/project-7.png",
     imageAlt: "LocalBoyNani Seafoods storefront",
     href: "/case-studies",
@@ -64,18 +70,14 @@ const caseStudyCards = [
   },
   {
     name: "VGT Transport",
-    badge: "Fleet & logistics SaaS",
-    description:
-      "End-to-end transport management system for trucking and logistics companies — fleet, shipments, routes and role-based operations in one dashboard.",
-    points: [
-      "Fleet management — track trucks and drivers in real time",
-      "Shipment tracking from pickup to destination",
-      "Route optimization for efficient deliveries",
-      "Role-based access for employees, ops and admins",
-      "Built for 24/7 transport company workflows",
-    ],
+    industry: "Fleet & logistics SaaS",
+    solves: "Run fleet, shipments, routes and roles in one operations dashboard",
+    timeline: "End-to-end transport management",
+    role: "Full product architecture + build",
+    result: "Live demo: tracking, routes, role-based access",
+    stack: "Next.js · ops dashboard · auth",
     image: "/images/project-10.png",
-    imageAlt: "VGT Transport Management System login and product interface",
+    imageAlt: "VGT Transport Management System",
     href: "https://vgt-silk.vercel.app/login",
     hrefLabel: "Open live demo",
     hrefExternal: true,
@@ -86,8 +88,8 @@ const caseStudyCards = [
 const moreProofCards = [
   {
     name: "PaperChai Invoice",
-    badge: "AI invoicing",
-    description: "Invoice generator with AI Slack/WhatsApp reminders, Notion import and payment tracking.",
+    industry: "AI invoicing",
+    solves: "Generate invoices and chase payments via Slack / WhatsApp",
     image: "/images/project-8.png",
     imageAlt: "PaperChai Invoice app",
     href: "https://app.paperchaiapp.com/",
@@ -95,36 +97,13 @@ const moreProofCards = [
   },
   {
     name: "Outspokn",
-    badge: "AI education",
-    description: "Mobile English learning app with course modules and an AI teacher.",
+    industry: "AI education",
+    solves: "Mobile English learning with course modules and an AI teacher",
     image: "/images/project-9.webp",
     imageAlt: "Outspokn AI English learning app",
     href: "https://play.google.com/store/apps/details?id=com.outspokn&hl=en_IN",
     external: true,
     hrefLabel: "Get on Google Play",
-  },
-];
-
-const fitCards = [
-  {
-    icon: Lightbulb,
-    title: "Validated startup idea",
-    body: "Need a technical partner to scope and build the first release.",
-  },
-  {
-    icon: Users,
-    title: "Existing startup team",
-    body: "Need experienced full-stack execution without hiring a full team.",
-  },
-  {
-    icon: Compass,
-    title: "Non-technical founder",
-    body: "Need clear technical guidance and transparent delivery.",
-  },
-  {
-    icon: Wrench,
-    title: "Existing MVP",
-    body: "Need architecture, performance or production improvements.",
   },
 ];
 
@@ -178,6 +157,18 @@ const trustPoints = [
   { icon: Check, label: "International availability" },
 ];
 
+/** Highlights pulled from the About page — proof founders scan under the profile. */
+const profileAchievements = [
+  { value: "4+", label: "Years experience" },
+  { value: "3", label: "Companies shipped at" },
+  { value: "1000+", label: "Concurrent users supported" },
+  { value: "50+", label: "Production pages built" },
+  { value: "~90%", label: "Billing accuracy (invoice SaaS)" },
+  { value: "+25%", label: "User engagement (AI app)" },
+  { value: "~40%", label: "Faster SQL / less downtime" },
+  { value: "~35%", label: "Fewer React re-renders" },
+];
+
 const faqItems = [
   {
     q: "How much does an MVP cost?",
@@ -205,45 +196,15 @@ const faqItems = [
   },
 ];
 
-function BrowserMockup({
-  src,
-  alt,
-  url = "paperchaiapp.com",
-  className = "",
-}: {
-  src: string;
-  alt: string;
-  url?: string;
-  className?: string;
-}) {
-  return (
-    <div
-      className={`overflow-hidden rounded-xl border border-white/10 bg-zinc-950 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] ${className}`}
-    >
-      <div className="flex items-center gap-2 border-b border-white/5 bg-zinc-900/80 px-4 py-3">
-        <span className="h-2.5 w-2.5 rounded-full bg-zinc-600" />
-        <span className="h-2.5 w-2.5 rounded-full bg-zinc-600" />
-        <span className="h-2.5 w-2.5 rounded-full bg-zinc-600" />
-        <span className="ml-2 truncate rounded-md bg-black/40 px-3 py-1 font-mono text-[10px] text-zinc-500">
-          {url}
-        </span>
-      </div>
-      <div className="relative aspect-[16/10]">
-        <Image src={src} alt={alt} fill className="object-cover object-top" sizes="(max-width: 1024px) 100vw, 50vw" priority />
-      </div>
-    </div>
-  );
-}
-
 export function SaasMvpDevelopmentClient() {
   return (
-    <main className="min-h-screen bg-black pb-36 text-foreground selection:bg-white/20 md:pb-0">
+    <main className="min-h-screen bg-black pb-28 text-foreground selection:bg-white/20 md:pb-0">
       <Navbar />
 
-      {/* 1. Hero — offer + product visual */}
+      {/* 1. Hero — offer + product-building journey */}
       <section className="relative overflow-hidden border-b border-white/5 px-4 pb-16 pt-28 md:pb-24 md:pt-32">
         <div className="absolute inset-0 z-0 bg-grid-white pointer-events-none [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
-        <div className="pointer-events-none absolute right-0 top-20 h-[28rem] w-[28rem] rounded-full bg-indigo-500/15 blur-[100px]" />
+        <div className="pointer-events-none absolute right-0 top-20 h-[28rem] w-[28rem] rounded-full bg-emerald-500/10 blur-[100px]" />
 
         <div className="relative z-10 container mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2 lg:gap-14">
           <div className="text-center lg:text-left">
@@ -255,11 +216,11 @@ export function SaasMvpDevelopmentClient() {
               Ship the version of your SaaS that&apos;s worth shipping.
             </h1>
             <p className="mt-5 max-w-xl text-lg text-zinc-400 lg:mx-0 mx-auto">
-              Build and launch a production-ready SaaS MVP with an experienced full-stack engineer —
-              Next.js, Node.js, PostgreSQL and practical AI.
+              I build production SaaS MVPs end-to-end — product scope, full-stack
+              engineering, AI features, payments and launch. Not brochure sites.
             </p>
             <p className="mt-3 text-sm text-zinc-500">
-              Work directly with Somanath — from product scope to deployment and launch.
+              Work directly with Somanath — from idea to a product real users can use.
             </p>
 
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row lg:justify-start">
@@ -268,7 +229,7 @@ export function SaasMvpDevelopmentClient() {
                 href="#proof"
                 className="inline-flex h-12 min-w-[200px] items-center justify-center rounded-md border border-white/10 px-6 text-base font-medium text-white transition-colors hover:bg-white/5"
               >
-                See live products
+                See shipped products
               </Link>
             </div>
 
@@ -278,17 +239,7 @@ export function SaasMvpDevelopmentClient() {
             </p>
           </div>
 
-          <div className="relative">
-            <div className="pointer-events-none absolute -inset-4 rounded-3xl bg-indigo-500/10 blur-2xl" />
-            <BrowserMockup
-              src="/images/blog/paperchai-booking-ready-website.png"
-              alt="PaperChai SaaS — Google profile to booking-ready website"
-              url="paperchaiapp.com"
-            />
-            <p className="mt-3 text-center text-xs text-zinc-500 lg:text-left">
-              Real product: PaperChai — founder-built SaaS MVP
-            </p>
-          </div>
+          <MvpHeroJourney />
         </div>
       </section>
 
@@ -309,15 +260,17 @@ export function SaasMvpDevelopmentClient() {
         </div>
       </section>
 
-      {/* 2. Visual case studies */}
+      <MvpTechStackMotion />
+
+      {/* Product-building portfolio */}
       <section id="proof" className="scroll-mt-24 border-b border-white/5 px-4 py-20">
         <div className="container mx-auto max-w-6xl">
           <AnimatedSectionHeading className="text-3xl font-bold tracking-tight text-white md:text-5xl">
-            Live products, not slide decks
+            I don&apos;t build pages. I build products.
           </AnimatedSectionHeading>
           <p className="mt-3 max-w-2xl text-zinc-400">
-            Paid visitors should see real interfaces first. These are production apps with real
-            users and workflows.
+            Proof that matters to founders: real problems solved, live systems in production,
+            and the engineering judgment behind them — not a gallery of pretty screenshots.
           </p>
 
           <div className="mt-10 grid gap-6 lg:grid-cols-2">
@@ -334,21 +287,48 @@ export function SaasMvpDevelopmentClient() {
                     className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
                     sizes="(max-width: 1024px) 100vw, 50vw"
                   />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent px-5 pb-4 pt-16">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-400">
+                      {card.industry}
+                    </p>
+                    <h3 className="mt-1 text-2xl font-bold text-white">{card.name}</h3>
+                  </div>
                 </div>
                 <div className="p-6">
-                  <p className="text-xs font-medium uppercase tracking-widest text-zinc-500">
-                    {card.badge}
-                  </p>
-                  <h3 className="mt-2 text-2xl font-bold text-white">{card.name}</h3>
-                  <p className="mt-2 text-zinc-400">{card.description}</p>
-                  <ul className="mt-4 space-y-1.5">
-                    {card.points.map((point) => (
-                      <li key={point} className="flex items-start gap-2 text-sm text-zinc-400">
-                        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />
-                        {point}
-                      </li>
-                    ))}
-                  </ul>
+                  <dl className="space-y-3 text-sm">
+                    <div>
+                      <dt className="font-mono text-[10px] uppercase tracking-widest text-zinc-600">
+                        What it solves
+                      </dt>
+                      <dd className="mt-1 text-zinc-300">{card.solves}</dd>
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div>
+                        <dt className="font-mono text-[10px] uppercase tracking-widest text-zinc-600">
+                          My role
+                        </dt>
+                        <dd className="mt-1 text-zinc-400">{card.role}</dd>
+                      </div>
+                      <div>
+                        <dt className="font-mono text-[10px] uppercase tracking-widest text-zinc-600">
+                          Timeline
+                        </dt>
+                        <dd className="mt-1 text-zinc-400">{card.timeline}</dd>
+                      </div>
+                    </div>
+                    <div>
+                      <dt className="font-mono text-[10px] uppercase tracking-widest text-zinc-600">
+                        Result
+                      </dt>
+                      <dd className="mt-1 text-emerald-400/90">{card.result}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-mono text-[10px] uppercase tracking-widest text-zinc-600">
+                        Stack
+                      </dt>
+                      <dd className="mt-1 font-mono text-xs text-zinc-500">{card.stack}</dd>
+                    </div>
+                  </dl>
                   <div className="mt-5 flex flex-wrap gap-4">
                     {card.hrefExternal ? (
                       <a
@@ -402,10 +382,10 @@ export function SaasMvpDevelopmentClient() {
                 </div>
                 <div className="flex flex-1 flex-col justify-center p-5">
                   <p className="text-[10px] font-medium uppercase tracking-widest text-zinc-500">
-                    {card.badge}
+                    {card.industry}
                   </p>
                   <h3 className="mt-1 text-lg font-semibold text-white">{card.name}</h3>
-                  <p className="mt-1.5 text-sm text-zinc-400">{card.description}</p>
+                  <p className="mt-1.5 text-sm text-zinc-400">{card.solves}</p>
                   {card.href ? (
                     <a
                       href={card.href}
@@ -425,27 +405,79 @@ export function SaasMvpDevelopmentClient() {
         </div>
       </section>
 
-      {/* 3. Who this is for — icon cards */}
-      <section className="relative border-b border-white/5 px-4 py-20">
+      {/* Conversion — right after proof so ads traffic can act immediately */}
+      <section id="enquire" className="relative scroll-mt-24 border-b border-white/5 px-4 py-20">
         <div className="pointer-events-none absolute inset-0 bg-grid-white/[0.02]" />
         <div className="container relative z-10 mx-auto max-w-6xl">
-          <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">Who this is for</h2>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2">
-            {fitCards.map((card, i) => (
-              <ServiceSectionCard key={card.title} delay={i * 0.05} className="p-6">
-                <card.icon className="h-5 w-5 text-zinc-400" />
-                <h3 className="mt-4 text-lg font-semibold text-white">{card.title}</h3>
-                <p className="mt-2 text-sm text-zinc-400">{card.body}</p>
-              </ServiceSectionCard>
-            ))}
-          </div>
-          <p className="mt-6 text-sm text-zinc-500">
-            Not intended for basic template or brochure websites.
+          <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">
+            Choose how you want to start
+          </h2>
+          <p className="mt-3 max-w-2xl text-zinc-400">
+            Best suited for SaaS products, custom web applications and AI-enabled platforms. Not
+            intended for basic template or brochure websites. Typical projects start from ₹75,000.
           </p>
+
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            <div className="rounded-xl border border-white/10 bg-zinc-950/40 p-6">
+              <h3 className="text-lg font-semibold text-white">Book a free 20-minute call</h3>
+              <p className="mt-2 text-sm text-zinc-400">
+                Best when you want to scope the product live and get a clear next step.
+              </p>
+              <div className="mt-5">
+                <TrackedBookCallButton
+                  location="mvp_conversion_book"
+                  className="h-11 min-w-0 w-full text-sm"
+                  label="Book a free call"
+                />
+              </div>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-zinc-950/40 p-6">
+              <h3 className="text-lg font-semibold text-white">Discuss on WhatsApp</h3>
+              <p className="mt-2 text-sm text-zinc-400">
+                Useful for quick questions, India-timezone chats and early fit checks.
+              </p>
+              <div className="mt-5">
+                <TrackedWhatsAppButton
+                  location="mvp_conversion_whatsapp"
+                  className="h-11 min-w-0 w-full text-sm"
+                />
+              </div>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-zinc-950/40 p-6">
+              <h3 className="text-lg font-semibold text-white">Send project requirements</h3>
+              <p className="mt-2 text-sm text-zinc-400">
+                Prefer async? Use the form below — I reply within one business day.
+              </p>
+              <a
+                href="#project-form"
+                className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-md border border-white/10 text-sm font-medium text-white transition-colors hover:bg-white/5"
+              >
+                Jump to form
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </a>
+            </div>
+          </div>
+
+          <div
+            id="project-form"
+            className="mt-12 scroll-mt-28 rounded-xl border border-white/10 bg-black/40 p-6 md:p-8"
+          >
+            <h3 className="text-xl font-semibold text-white">Send project requirements</h3>
+            <p className="mt-2 text-sm text-zinc-400">
+              Name, contact, what you&apos;re building, stage, budget and launch timing.
+            </p>
+            <div className="mt-6">
+              <MvpEnquiryForm />
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* 4. Problems — three cards */}
+      <MvpTestimonials />
+
+      <MvpWhoItsForJourney />
+
+      {/* Problems — three cards */}
       <section className="border-b border-white/5 px-4 py-20">
         <div className="container mx-auto max-w-6xl">
           <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">
@@ -549,78 +581,43 @@ export function SaasMvpDevelopmentClient() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* 7. Conversion options */}
-      <section id="enquire" className="relative scroll-mt-24 border-b border-white/5 px-4 py-20">
-        <div className="pointer-events-none absolute inset-0 bg-grid-white/[0.02]" />
-        <div className="container relative z-10 mx-auto max-w-6xl">
-          <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">
-            Choose how you want to start
-          </h2>
-          <p className="mt-3 max-w-2xl text-zinc-400">
-            Best suited for SaaS products, custom web applications and AI-enabled platforms. Not
-            intended for basic template or brochure websites. Typical projects start from ₹75,000.
-          </p>
-
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
-            <div className="rounded-xl border border-white/10 bg-zinc-950/40 p-6">
-              <h3 className="text-lg font-semibold text-white">Book a free 20-minute call</h3>
-              <p className="mt-2 text-sm text-zinc-400">
-                Best when you want to scope the product live and get a clear next step.
-              </p>
-              <div className="mt-5">
-                <TrackedBookCallButton
-                  location="mvp_conversion_book"
-                  className="h-11 min-w-0 w-full text-sm"
-                  label="Book a free call"
-                />
+          <div className="mt-10 border-t border-white/5 pt-8">
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">
+                  Achievements
+                </p>
+                <p className="mt-1 text-sm text-zinc-400">
+                  Results from production work across SaaS, AI and commerce products.
+                </p>
               </div>
-            </div>
-            <div className="rounded-xl border border-white/10 bg-zinc-950/40 p-6">
-              <h3 className="text-lg font-semibold text-white">Discuss on WhatsApp</h3>
-              <p className="mt-2 text-sm text-zinc-400">
-                Useful for quick questions, India-timezone chats and early fit checks.
-              </p>
-              <div className="mt-5">
-                <TrackedWhatsAppButton
-                  location="mvp_conversion_whatsapp"
-                  className="h-11 min-w-0 w-full text-sm"
-                />
-              </div>
-            </div>
-            <div className="rounded-xl border border-white/10 bg-zinc-950/40 p-6">
-              <h3 className="text-lg font-semibold text-white">Send project requirements</h3>
-              <p className="mt-2 text-sm text-zinc-400">
-                Prefer async? Use the form below — I reply within one business day.
-              </p>
-              <a
-                href="#project-form"
-                className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-md border border-white/10 text-sm font-medium text-white transition-colors hover:bg-white/5"
+              <Link
+                href="/about"
+                className="inline-flex items-center gap-1.5 text-sm text-zinc-500 underline underline-offset-4 hover:text-white"
               >
-                Jump to form
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </a>
+                Full about page
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
             </div>
-          </div>
-
-          <div
-            id="project-form"
-            className="mt-12 scroll-mt-28 rounded-xl border border-white/10 bg-black/40 p-6 md:p-8"
-          >
-            <h3 className="text-xl font-semibold text-white">Send project requirements</h3>
-            <p className="mt-2 text-sm text-zinc-400">
-              Name, contact, what you&apos;re building, stage, budget and launch timing.
-            </p>
-            <div className="mt-6">
-              <MvpEnquiryForm />
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {profileAchievements.map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-xl border border-white/10 bg-zinc-950/40 px-4 py-3"
+                >
+                  <p className="text-xl font-bold tabular-nums text-white md:text-2xl">
+                    {item.value}
+                  </p>
+                  <p className="mt-1 text-[11px] leading-snug text-zinc-500">{item.label}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* 8. FAQ */}
+      {/* FAQ */}
       <DeferredSection minHeightClassName="h-[420px]">
         <section className="border-b border-white/5 px-4 py-20">
           <div className="container mx-auto max-w-6xl">
@@ -675,7 +672,6 @@ export function SaasMvpDevelopmentClient() {
         </p>
       </div>
       <MvpMobileStickyCtas />
-      <ClientMobileNav />
     </main>
   );
 }

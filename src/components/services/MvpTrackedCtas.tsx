@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight, Calendar, MessageCircle, Phone } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
-import { MVP_WHATSAPP_MESSAGE, whatsappUrl } from "@/lib/contact";
+import { MVP_WHATSAPP_MESSAGE, telUrl, whatsappUrl } from "@/lib/contact";
 import { cn } from "@/lib/utils";
 
 type TrackedBookCallButtonProps = {
@@ -73,38 +73,90 @@ function WhatsAppGlyph({ className }: { className?: string }) {
   );
 }
 
-/** Mobile-only floating CTAs, sits just above the bottom dock. */
+const iconBtnClass =
+  "inline-flex h-11 w-11 items-center justify-center rounded-xl transition-transform active:scale-[0.96]";
+
+/** Mobile-only floating CTAs — ads page has no site bottom nav. */
 export function MvpMobileStickyCtas() {
   return (
-    <div className="fixed inset-x-4 bottom-[5.75rem] z-[490] flex items-center gap-2 md:hidden">
-      <Link
-        href="/book"
-        onClick={() =>
-          trackEvent("book_call_click", {
-            event_category: "engagement",
-            event_label: "mvp_mobile_sticky",
-          })
-        }
-        className="inline-flex h-11 flex-1 items-center justify-center rounded-full bg-white px-4 text-sm font-semibold text-black shadow-[0_8px_30px_-8px_rgba(0,0,0,0.65)] transition-transform active:scale-[0.98]"
-      >
-        Book a call
-        <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-      </Link>
-      <a
-        href={whatsappUrl(MVP_WHATSAPP_MESSAGE)}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Chat on WhatsApp"
-        onClick={() =>
-          trackEvent("whatsapp_click", {
-            event_category: "engagement",
-            event_label: "mvp_mobile_sticky",
-          })
-        }
-        className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_8px_30px_-8px_rgba(37,211,102,0.55)] transition-transform active:scale-[0.98]"
-      >
-        <WhatsAppGlyph className="h-5 w-5" />
-      </a>
+    <div className="fixed inset-x-4 bottom-5 z-[490] flex items-center gap-2 pb-[env(safe-area-inset-bottom)] md:hidden">
+      <div className="flex min-w-0 flex-1 items-center rounded-2xl border border-white/10 bg-zinc-950/95 px-3 py-2.5 shadow-[0_8px_30px_-8px_rgba(0,0,0,0.75)] backdrop-blur-md">
+        <div className="min-w-0 flex-1 pr-2">
+          <p className="truncate text-xs font-semibold text-white">
+            Building a SaaS or web app?
+          </p>
+          <p className="truncate text-[10px] text-zinc-500">
+            Talk to the engineer — not a sales desk
+          </p>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <a
+            href={telUrl()}
+            aria-label="Call Somanath now"
+            onClick={() =>
+              trackEvent("phone_click", {
+                event_category: "engagement",
+                event_label: "mvp_mobile_sticky",
+              })
+            }
+            className="flex flex-col items-center gap-1"
+          >
+            <span
+              className={cn(
+                iconBtnClass,
+                "bg-white text-black shadow-[0_6px_20px_-8px_rgba(255,255,255,0.35)]"
+              )}
+            >
+              <Phone className="h-4 w-4" />
+            </span>
+            <span className="text-[9px] font-medium text-zinc-400">Call</span>
+          </a>
+          <a
+            href={whatsappUrl(MVP_WHATSAPP_MESSAGE)}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Chat on WhatsApp"
+            onClick={() =>
+              trackEvent("whatsapp_click", {
+                event_category: "engagement",
+                event_label: "mvp_mobile_sticky",
+              })
+            }
+            className="flex flex-col items-center gap-1"
+          >
+            <span
+              className={cn(
+                iconBtnClass,
+                "bg-[#25D366] text-white shadow-[0_6px_20px_-8px_rgba(37,211,102,0.55)]"
+              )}
+            >
+              <WhatsAppGlyph className="h-5 w-5" />
+            </span>
+            <span className="text-[9px] font-medium text-zinc-400">WhatsApp</span>
+          </a>
+          <Link
+            href="/book"
+            aria-label="Book a strategy call"
+            onClick={() =>
+              trackEvent("book_call_click", {
+                event_category: "engagement",
+                event_label: "mvp_mobile_sticky",
+              })
+            }
+            className="flex flex-col items-center gap-1"
+          >
+            <span
+              className={cn(
+                iconBtnClass,
+                "border border-white/15 bg-zinc-900 text-white shadow-[0_6px_20px_-8px_rgba(0,0,0,0.5)]"
+              )}
+            >
+              <Calendar className="h-4 w-4" />
+            </span>
+            <span className="text-[9px] font-medium text-zinc-400">Book</span>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
