@@ -2,33 +2,47 @@ import type { Metadata } from "next";
 import { SaasMvpDevelopmentClient } from "@/components/services/SaasMvpDevelopmentClient";
 
 export const metadata: Metadata = {
-  title: "SaaS MVP Development for Founders | Somanath Studio",
+  title: "SaaS MVP Development Services for Startups | Somanath Studio",
   description:
-    "Ship a production-ready SaaS MVP with an experienced full-stack engineer. Next.js, Node.js, PostgreSQL and practical AI — from scope to launch.",
+    "Hire a senior SaaS developer to build your startup MVP using Next.js, Node.js and practical AI integrations. Custom SaaS development from product scoping to launch.",
+  keywords: [
+    "SaaS MVP development",
+    "SaaS MVP Development Services",
+    "startup MVP development",
+    "custom SaaS development",
+    "custom SaaS product development",
+    "SaaS app development",
+    "MVP software development",
+    "hire SaaS developer",
+    "senior SaaS developer",
+    "Next.js SaaS MVP",
+    "Node.js SaaS development",
+    "AI SaaS development",
+  ],
   alternates: {
     canonical: "/services/saas-mvp-development",
   },
   openGraph: {
-    title: "SaaS MVP Development for Founders | Somanath Studio",
+    title: "SaaS MVP Development Services for Startups | Somanath Studio",
     description:
-      "Ship a production-ready SaaS MVP with an experienced full-stack engineer. Next.js, Node.js, PostgreSQL and practical AI.",
+      "Hire a senior SaaS developer to build your startup MVP using Next.js, Node.js and practical AI integrations. Custom SaaS development from product scoping to launch.",
     url: "/services/saas-mvp-development",
     type: "website",
     images: [
       {
-        url: "/og?title=SaaS%20MVP%20Development",
+        url: "/og?title=SaaS%20MVP%20Development%20Services",
         width: 1200,
         height: 630,
-        alt: "SaaS MVP Development for Founders",
+        alt: "SaaS MVP Development Services for Startups",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "SaaS MVP Development for Founders | Somanath Studio",
+    title: "SaaS MVP Development Services for Startups | Somanath Studio",
     description:
-      "Ship a production-ready SaaS MVP with an experienced full-stack engineer. Next.js, Node.js, PostgreSQL and practical AI.",
-    images: ["/og?title=SaaS%20MVP%20Development"],
+      "Hire a senior SaaS developer to build your startup MVP using Next.js, Node.js and practical AI integrations. Custom SaaS development from product scoping to launch.",
+    images: ["/og?title=SaaS%20MVP%20Development%20Services"],
   },
 };
 
@@ -105,9 +119,9 @@ export default function SaaSMvpDevelopmentPage() {
     url: "https://somanathkhadanga.com/services/saas-mvp-development",
     inLanguage: "en",
     description:
-      "Ship a production-ready SaaS MVP with an experienced full-stack engineer. Next.js, Node.js, PostgreSQL and practical AI — from scope to launch.",
+      "Hire a senior SaaS developer to build your startup MVP using Next.js, Node.js and practical AI integrations. Custom SaaS development from product scoping to launch.",
     keywords:
-      "SaaS MVP development, hire MVP developer, startup MVP development, SaaS development company India, software development for startups",
+      "SaaS MVP development, SaaS MVP Development Services, startup MVP development, custom SaaS development, custom SaaS product development, SaaS app development, MVP software development, hire SaaS developer, senior SaaS developer, Next.js SaaS MVP, Node.js SaaS development",
   };
 
   const faqJsonLd = {

@@ -489,6 +489,23 @@ export function SaasMvpDevelopmentClient() {
 
       <MvpWhoItsForJourney />
 
+      {/* Custom SaaS / MVP services — natural SEO copy */}
+      <section className="border-b border-white/5 px-4 py-20">
+        <div className="container mx-auto max-w-6xl">
+          <div className="max-w-3xl">
+            <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">
+              Custom SaaS and MVP development services
+            </h2>
+            <p className="mt-6 text-lg leading-relaxed text-zinc-400">
+              Work directly with a senior SaaS developer to scope, design, build and launch
+              your startup MVP. I support custom SaaS product development, SaaS app
+              development and MVP software development from architecture through production
+              deployment.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Problems — three cards */}
       <section
         id="improve-product"
