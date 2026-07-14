@@ -227,7 +227,7 @@ export function SaasMvpDevelopmentClient() {
               Work directly with Somanath — from idea to a product real users can use.
             </p>
 
-            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row lg:justify-start">
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
               <TrackedBookCallButton location="mvp_hero" label="Book a free 20-minute call" />
               <Link
                 href="#proof"
