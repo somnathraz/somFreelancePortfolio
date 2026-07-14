@@ -25,6 +25,7 @@ import { MvpHeroJourney } from "@/components/services/MvpHeroJourney";
 import { MvpWhoItsForJourney } from "@/components/services/MvpWhoItsForJourney";
 import { MvpTechStackMotion } from "@/components/services/MvpTechStackMotion";
 import { MvpTestimonials } from "@/components/services/MvpTestimonials";
+import { MvpPageHelper } from "@/components/services/MvpPageHelper";
 import {
   CONTACT_EMAIL,
   GITHUB_URL,
@@ -202,7 +203,10 @@ export function SaasMvpDevelopmentClient() {
       <Navbar />
 
       {/* 1. Hero — offer + product-building journey */}
-      <section className="relative overflow-hidden border-b border-white/5 px-4 pb-16 pt-28 md:pb-24 md:pt-32">
+      <section
+        id="saas-mvp"
+        className="relative scroll-mt-24 overflow-hidden border-b border-white/5 px-4 pb-16 pt-28 md:pb-24 md:pt-32"
+      >
         <div className="absolute inset-0 z-0 bg-grid-white pointer-events-none [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
         <div className="pointer-events-none absolute right-0 top-20 h-[28rem] w-[28rem] rounded-full bg-emerald-500/10 blur-[100px]" />
 
@@ -478,7 +482,10 @@ export function SaasMvpDevelopmentClient() {
       <MvpWhoItsForJourney />
 
       {/* Problems — three cards */}
-      <section className="border-b border-white/5 px-4 py-20">
+      <section
+        id="improve-product"
+        className="scroll-mt-24 border-b border-white/5 px-4 py-20"
+      >
         <div className="container mx-auto max-w-6xl">
           <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">
             The problems I solve
@@ -672,6 +679,7 @@ export function SaasMvpDevelopmentClient() {
         </p>
       </div>
       <MvpMobileStickyCtas />
+      <MvpPageHelper />
     </main>
   );
 }

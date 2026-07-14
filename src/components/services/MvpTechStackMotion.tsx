@@ -166,7 +166,11 @@ export function MvpTechStackMotion() {
   const inView = useInView(ref, { once: true, margin: "-40px" });
 
   return (
-    <section ref={ref} className="relative overflow-hidden border-b border-white/5 py-14">
+    <section
+      id="stack"
+      ref={ref}
+      className="relative scroll-mt-24 overflow-hidden border-b border-white/5 py-14"
+    >
       <div className="pointer-events-none absolute inset-0 bg-grid-white/[0.02]" />
       <div className="container relative z-10 mx-auto mb-8 max-w-6xl px-4 text-center">
         <motion.p
