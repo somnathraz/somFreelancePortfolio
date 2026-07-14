@@ -1,8 +1,9 @@
 "use client";
 
-import React, { forwardRef, useRef, Suspense } from "react";
+import React, { forwardRef, useRef, Suspense, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { BentoGrid, BentoCard } from "@/components/ui/bento-grid";
+import { useHelperStore } from "@/features/visitor-guide/helper-store";
 import { AnimatedBeam } from "@/components/ui/animated-beam";
 import { BorderBeam } from "@/components/magicui/border-beam";
 import Ripple from "@/components/magicui/ripple";
@@ -358,6 +359,27 @@ export function BentoServices() {
         },
     ];
 
+    const [mounted, setMounted] = useState(false);
+    const selectedJourneyId = useHelperStore((state) => state.selectedJourneyId);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const isRecommended = (name: string) => {
+        if (!mounted || !selectedJourneyId) return false;
+        if (selectedJourneyId === "build-saas") {
+            return name === "SaaS MVP Build";
+        }
+        if (selectedJourneyId === "add-ai") {
+            return name === "Ongoing Technical Partner";
+        }
+        if (selectedJourneyId === "improve-product") {
+            return name === "Performance Optimization" || name === "Production Readiness Upgrade" || name === "Architecture & Security Hardening";
+        }
+        return false;
+    };
+
     return (
         <div className="w-full">
             <div className="mx-auto max-w-3xl px-4 pt-24 pb-10 text-center">
@@ -367,7 +389,11 @@ export function BentoServices() {
             </div>
             <BentoGrid className="max-w-6xl mx-auto px-4 pb-24 pt-0">
                 {features.map((feature) => (
-                    <BentoCard key={feature.name} {...feature} />
+                    <BentoCard 
+                        key={feature.name} 
+                        {...feature} 
+                        recommended={isRecommended(feature.name)}
+                    />
                 ))}
             </BentoGrid>
         </div>

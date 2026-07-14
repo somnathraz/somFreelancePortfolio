@@ -6,7 +6,7 @@ export function Footer() {
     const year = new Date().getFullYear();
 
     return (
-        <footer id="contact" className="relative z-10 w-full overflow-x-hidden border-t border-white/5 bg-black pb-28 pt-12">
+        <footer id="footer" className="relative z-10 w-full overflow-x-hidden border-t border-white/5 bg-black pb-28 pt-12">
             <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
                 <div className="flex flex-col items-center gap-8 text-center">
                     {/* Brand + tagline + socials */}
@@ -18,7 +18,7 @@ export function Footer() {
                             </div>
                         </div>
                         <p className="text-sm font-medium text-zinc-500">
-                            Senior SaaS engineering for founders who want to ship without regretting it later.
+                            SaaS development partner for founders, agencies, freelancers and consultants.
                         </p>
                         <div className="mt-1 flex items-center justify-center gap-4">
                             <a
@@ -59,6 +59,8 @@ export function Footer() {
                     <div className="flex max-w-3xl flex-wrap justify-center gap-x-5 gap-y-2 text-sm font-medium tracking-wide text-zinc-500">
                         <Link href="/" className="hover:text-white transition-colors">Home</Link>
                         <Link href="/services" className="hover:text-white transition-colors">Services</Link>
+                        <Link href="/agency-development-partner" className="hover:text-white transition-colors">For Agencies</Link>
+                        <Link href="/hire-saas-mvp-developer" className="hover:text-white transition-colors">Hire MVP Dev</Link>
                         <Link href="/case-studies" className="hover:text-white transition-colors">Case Studies</Link>
                         <Link href="/blog" className="hover:text-white transition-colors">Writing</Link>
                         <Link href="/services/saas-mvp-development" className="hover:text-white transition-colors">SaaS MVP Development</Link>

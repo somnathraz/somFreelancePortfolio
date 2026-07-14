@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect } from "react";
+import { trackViewedService } from "@/features/visitor-guide/visitor-memory";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -113,6 +117,10 @@ const faqItems = [
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function ProductionReadinessClient() {
+  useEffect(() => {
+    trackViewedService("production-readiness");
+  }, []);
+
   return (
     <main className="min-h-screen bg-black text-foreground selection:bg-white/20">
       <Navbar />

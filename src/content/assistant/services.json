@@ -1,0 +1,85 @@
+[
+  {
+    "id": "saas-mvp",
+    "title": "SaaS MVP Development",
+    "summary": "Go from idea to a working, deployed SaaS product. I handle architecture, development, and launch so you can focus on your business.",
+    "audience": ["founder", "startup", "product-owner"],
+    "problems": ["need-mvp", "need-technical-partner"],
+    "tags": ["mvp", "saas", "startup", "launch", "product"],
+    "sectionId": "services",
+    "pageUrl": "/services/saas-mvp-development",
+    "relatedProjects": ["paperchai"],
+    "relatedBlogs": [
+      "saas-mvp-cost-2026",
+      "from-saas-idea-to-production",
+      "building-paperchai-booking-ready-website"
+    ],
+    "primaryCTA": "Discuss your SaaS MVP"
+  },
+  {
+    "id": "nextjs-performance",
+    "title": "Next.js Performance Optimization",
+    "summary": "Diagnose and fix performance bottlenecks in your Next.js application. Improve Lighthouse scores, reduce latency, and deliver a faster user experience.",
+    "audience": ["technical-founder", "cto", "engineering-lead"],
+    "problems": ["slow-app", "poor-lighthouse", "high-latency"],
+    "tags": ["performance", "nextjs", "lighthouse", "latency", "speed"],
+    "sectionId": "services",
+    "pageUrl": "/services/nextjs-performance-optimization",
+    "relatedProjects": ["localboynaniseafoods"],
+    "relatedBlogs": [
+      "why-your-nextjs-app-feels-slow-after-launch",
+      "reducing-latency-without-rewrites",
+      "nextjs-16-app-router-caching-changes-saas"
+    ],
+    "primaryCTA": "Get a performance audit"
+  },
+  {
+    "id": "production-readiness",
+    "title": "Production Readiness Upgrade",
+    "summary": "Audit and upgrade your application for production. Fix stability issues, address security concerns, and ensure your product is ready for real users.",
+    "audience": ["founder", "cto", "product-team"],
+    "problems": ["unstable-app", "not-production-ready", "security-concerns"],
+    "tags": ["production", "security", "stability", "audit", "upgrade"],
+    "sectionId": "services",
+    "pageUrl": "/services/production-readiness-upgrade",
+    "relatedProjects": ["paperchai", "localboynaniseafoods"],
+    "relatedBlogs": [
+      "5-signs-your-mvp-is-not-production-ready",
+      "production-ready-saas-mvp",
+      "what-to-audit-in-a-vibe-coded-mvp-before-real-users-see-it"
+    ],
+    "primaryCTA": "Request a production audit"
+  },
+  {
+    "id": "ai-saas",
+    "title": "AI SaaS Development",
+    "summary": "Build AI-powered features and products. From integrating large language models to shipping complete AI SaaS applications.",
+    "audience": ["founder", "product-owner", "startup"],
+    "problems": ["need-ai-features", "ai-integration", "ai-product"],
+    "tags": ["ai", "llm", "openai", "machine-learning", "saas"],
+    "sectionId": "services",
+    "pageUrl": "/services/ai-saas-development",
+    "relatedProjects": ["paperchai", "ai-code-review"],
+    "relatedBlogs": [
+      "which-ai-features-are-worth-building-in-saas",
+      "openai-aws-bedrock-ai-saas-provider-shift"
+    ],
+    "primaryCTA": "Discuss your AI product"
+  },
+  {
+    "id": "ongoing-partner",
+    "title": "Ongoing Technical Partner",
+    "summary": "Get a dedicated technical partner for your startup. Continuous development, architecture decisions, and technical leadership without hiring full-time.",
+    "audience": ["founder", "startup"],
+    "problems": ["need-developer", "need-technical-cofounder", "ongoing-support"],
+    "tags": ["partner", "cto", "fractional", "ongoing", "support"],
+    "sectionId": "services",
+    "pageUrl": "/services/ai-saas-development",
+    "relatedProjects": ["paperchai", "localboynaniseafoods"],
+    "relatedBlogs": [
+      "when-a-founder-needs-a-technical-partner",
+      "choosing-technology-for-client-projects"
+    ],
+    "primaryCTA": "Book intro call"
+  }
+]

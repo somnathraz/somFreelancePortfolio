@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { trackViewedProject } from "@/features/visitor-guide/visitor-memory";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -250,6 +251,10 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
 
 export function PaperChaiCaseStudy() {
   const [active, setActive] = useState<string>(TOC[0].id);
+
+  useEffect(() => {
+    trackViewedProject("paperchai");
+  }, []);
 
   useEffect(() => {
     const els = TOC.map((t) => document.getElementById(t.id)).filter(Boolean) as HTMLElement[];

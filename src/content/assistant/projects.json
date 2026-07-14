@@ -1,0 +1,45 @@
+[
+  {
+    "id": "paperchai",
+    "title": "PaperChai",
+    "description": "India-first AI-powered newspaper booking SaaS platform.",
+    "tech": ["Next.js", "TypeScript", "PostgreSQL", "AI APIs", "Razorpay"],
+    "role": "Founder & Full-stack Developer",
+    "serviceId": "saas-mvp",
+    "url": "https://paperchaiapp.com",
+    "caseStudyUrl": "/projects/paperchai"
+  },
+  {
+    "id": "localboynaniseafoods",
+    "title": "LocalBoyNani Seafoods",
+    "description": "Production e-commerce platform with real-time delivery tracking across 3 cities.",
+    "tech": ["Next.js", "Tailwind CSS", "Cloudflare R2", "Node.js"],
+    "role": "Full-stack Developer",
+    "serviceId": "production-readiness",
+    "url": "https://localboynaniseafoods.com"
+  },
+  {
+    "id": "ai-tools-directory",
+    "title": "AI Tools Directory",
+    "description": "Curated discovery platform for AI tools with advanced search.",
+    "tech": ["React", "Framer Motion", "Algolia", "Vercel Edge"],
+    "role": "Developer",
+    "serviceId": "ai-saas"
+  },
+  {
+    "id": "ai-code-review",
+    "title": "AI Code Review Assistant",
+    "description": "Automated AI-powered code review integrated with GitHub Actions.",
+    "tech": ["Python", "GitHub Actions", "OpenAI API", "Redis"],
+    "role": "Developer",
+    "serviceId": "ai-saas"
+  },
+  {
+    "id": "image-wall",
+    "title": "High-Throughput Image Wall",
+    "description": "WebGL-powered virtualized image gallery handling thousands of images.",
+    "tech": ["React Virtualized", "WebGL", "Next.js", "CDN"],
+    "role": "Developer",
+    "serviceId": "nextjs-performance"
+  }
+]

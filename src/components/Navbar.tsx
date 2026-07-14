@@ -19,6 +19,12 @@ export function Navbar() {
                 <Link href="/services" className="text-sm font-medium text-muted-foreground transition-colors hover:text-white">
                     Services
                 </Link>
+                <Link
+                    href="/agency-development-partner"
+                    className="text-sm font-medium text-muted-foreground transition-colors hover:text-white"
+                >
+                    For Agencies
+                </Link>
                 <Link href="/case-studies" className="text-sm font-medium text-muted-foreground transition-colors hover:text-white">
                     Case Studies
                 </Link>

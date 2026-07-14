@@ -44,11 +44,13 @@ export function HomeDeferredContent() {
         </DeferredSection>
       </section>
 
-      <DeferredSection minHeightClassName="h-64">
-        <Suspense fallback={<div className="h-64" />}>
-          <ClientFit />
-        </Suspense>
-      </DeferredSection>
+      <section id="who-i-work-with" className="relative z-10">
+        <DeferredSection minHeightClassName="h-64">
+          <Suspense fallback={<div className="h-64" />}>
+            <ClientFit />
+          </Suspense>
+        </DeferredSection>
+      </section>
 
       <section id="work" className="relative z-10 bg-black">
         <DeferredSection minHeightClassName="h-96">
@@ -64,7 +66,7 @@ export function HomeDeferredContent() {
         </Suspense>
       </DeferredSection>
 
-      <section className="relative z-10 bg-black">
+      <section id="testimonials" className="relative z-10 bg-black">
         <DeferredSection minHeightClassName="h-96">
           <Suspense fallback={<div className="h-96 flex items-center justify-center"><div className="animate-pulse text-zinc-500">Loading testimonials...</div></div>}>
             <Testimonials />

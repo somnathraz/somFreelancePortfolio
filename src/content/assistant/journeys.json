@@ -1,0 +1,95 @@
+[
+  {
+    "id": "build-saas",
+    "title": "Build a SaaS MVP",
+    "label": "Build a SaaS MVP",
+    "icon": "Rocket",
+    "serviceIds": ["saas-mvp"],
+    "projectIds": ["paperchai"],
+    "blogSlugs": [
+      "saas-mvp-cost-2026",
+      "from-saas-idea-to-production",
+      "building-paperchai-booking-ready-website"
+    ],
+    "firstSectionId": "services",
+    "message": "I'll show you how I help founders turn an idea into a working SaaS product.",
+    "primaryCTA": {
+      "label": "Discuss your SaaS idea",
+      "action": "open-booking"
+    }
+  },
+  {
+    "id": "add-ai",
+    "title": "Add AI to a product",
+    "label": "Add AI to a product",
+    "icon": "Brain",
+    "serviceIds": ["ai-saas"],
+    "projectIds": ["paperchai", "ai-code-review"],
+    "blogSlugs": [
+      "which-ai-features-are-worth-building-in-saas",
+      "openai-aws-bedrock-ai-saas-provider-shift",
+      "first-mcp-server-saas-founder-guide"
+    ],
+    "firstSectionId": "services",
+    "message": "I'll show you the projects and services most relevant to AI product development.",
+    "primaryCTA": {
+      "label": "Discuss your AI product",
+      "action": "open-booking"
+    }
+  },
+  {
+    "id": "improve-product",
+    "title": "Improve an existing application",
+    "label": "Improve an existing application",
+    "icon": "Gauge",
+    "serviceIds": ["nextjs-performance", "production-readiness"],
+    "projectIds": ["localboynaniseafoods", "paperchai"],
+    "blogSlugs": [
+      "why-your-nextjs-app-feels-slow-after-launch",
+      "5-signs-your-mvp-is-not-production-ready",
+      "reducing-latency-without-rewrites"
+    ],
+    "firstSectionId": "services",
+    "message": "Your product may need a performance or production-readiness review. I'll show you the relevant options.",
+    "primaryCTA": {
+      "label": "Request an audit",
+      "action": "open-booking"
+    }
+  },
+  {
+    "id": "evaluate-experience",
+    "title": "Evaluate my experience",
+    "label": "Evaluate my experience",
+    "icon": "Briefcase",
+    "serviceIds": ["saas-mvp", "ai-saas", "nextjs-performance", "production-readiness"],
+    "projectIds": ["paperchai", "localboynaniseafoods", "ai-code-review"],
+    "blogSlugs": [
+      "building-paperchai-booking-ready-website",
+      "paperchai-from-idea-to-running-saas"
+    ],
+    "firstSectionId": "work",
+    "message": "I'll show you the most relevant experience, projects and technology skills.",
+    "primaryCTA": {
+      "label": "Get in touch",
+      "action": "open-booking"
+    }
+  },
+  {
+    "id": "explore",
+    "title": "Just exploring",
+    "label": "Just exploring",
+    "icon": "Compass",
+    "serviceIds": ["saas-mvp", "ai-saas"],
+    "projectIds": ["paperchai", "localboynaniseafoods"],
+    "blogSlugs": [
+      "from-saas-idea-to-production",
+      "choosing-technology-for-client-projects"
+    ],
+    "firstSectionId": "services",
+    "message": "I can help you identify the most suitable service based on your current problem.",
+    "primaryCTA": {
+      "label": "Book a call to discuss",
+      "action": "open-booking"
+    }
+  }
+]

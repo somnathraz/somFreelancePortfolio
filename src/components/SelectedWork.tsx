@@ -1,7 +1,10 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { Carousel, Card } from "@/components/ui/apple-cards-carousel";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { ProjectDetail } from "@/components/showcase/ProjectDetail";
+import { useHelperStore } from "@/features/visitor-guide/helper-store";
 
 type SelectedWorkProps = {
     /** When true, omits the section title and intro (e.g. case-studies page provides its own hero). */
@@ -9,7 +12,42 @@ type SelectedWorkProps = {
 };
 
 export function SelectedWork({ hideIntro = false }: SelectedWorkProps) {
-    const cards = data.map((card, index) => (
+    const [mounted, setMounted] = useState(false);
+    const selectedJourneyId = useHelperStore((state) => state.selectedJourneyId);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const getSortedData = () => {
+        if (!mounted || !selectedJourneyId) return data;
+
+        let priorityIds: string[] = [];
+        if (selectedJourneyId === "build-saas") {
+            priorityIds = ["paperchai"];
+        } else if (selectedJourneyId === "add-ai") {
+            priorityIds = ["ai-code-review", "ai-tools-directory"];
+        } else if (selectedJourneyId === "improve-product") {
+            priorityIds = ["localboynaniseafoods", "image-wall"];
+        } else if (selectedJourneyId === "evaluate-experience") {
+            priorityIds = ["paperchai", "localboynaniseafoods", "ai-code-review"];
+        } else if (selectedJourneyId === "explore") {
+            priorityIds = ["paperchai", "localboynaniseafoods"];
+        }
+
+        return [...data].sort((a, b) => {
+            const indexA = priorityIds.indexOf(a.projectId);
+            const indexB = priorityIds.indexOf(b.projectId);
+
+            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+            if (indexA !== -1) return -1;
+            if (indexB !== -1) return 1;
+            return 0;
+        });
+    };
+
+    const sortedData = getSortedData();
+    const cards = sortedData.map((card, index) => (
         <Card key={card.src ?? `${card.title}-${index}`} card={card} index={index} />
     ));
 
@@ -82,6 +120,7 @@ export function SelectedWork({ hideIntro = false }: SelectedWorkProps) {
 
 const data = [
     {
+        projectId: "localboynaniseafoods",
         category: "Full-stack • Live production app — real business, real orders",
         title: "LocalBoyNani Seafoods",
         src: "/images/project-7.png",
@@ -132,6 +171,7 @@ const data = [
         </ProjectDetail>,
     },
     {
+        projectId: "paperchai",
         category: "Founder Project · SaaS · AI — India-first",
         title: "PaperChai — Profile to Website",
         src: "/images/Project-1.png",
@@ -171,6 +211,7 @@ const data = [
         </ProjectDetail>,
     },
     {
+        projectId: "ai-tools-directory",
         category: "Personal project • Frontend engineering, search UX",
         title: "AI tools directory",
         src: "/images/project-2.png",
@@ -183,6 +224,7 @@ const data = [
         />,
     },
     {
+        projectId: "ai-code-review",
         category: "Personal project • AI-assisted developer tooling",
         title: "AI code review assistant",
         src: "/images/project-3.png",
@@ -195,6 +237,7 @@ const data = [
         />,
     },
     {
+        projectId: "image-wall",
         category: "Personal project • Rendering performance, large-scale galleries",
         title: "High-throughput image wall",
         src: "/images/project-4.png",

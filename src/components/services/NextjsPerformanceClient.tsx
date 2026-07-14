@@ -3,6 +3,7 @@
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
+import { trackViewedService } from "@/features/visitor-guide/visitor-memory";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -583,6 +584,10 @@ const differentiators = [
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 
 export function NextjsPerformanceClient() {
+    useEffect(() => {
+        trackViewedService("nextjs-performance");
+    }, []);
+
     return (
         <main className="min-h-screen bg-black text-foreground selection:bg-white/20">
             <Navbar />

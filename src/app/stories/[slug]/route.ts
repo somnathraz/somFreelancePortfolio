@@ -53,8 +53,9 @@ function renderStoryHtml(slug: string) {
           `
           : "";
 
-      // Only the cover page gets <h1>; all other pages use <h2> to keep one <h1> per document
+      // Exactly one <h1> per document: first page only (cover). Everything else is <h2>.
       const headingTag = index === 0 ? "h1" : "h2";
+      const headingClass = index === 0 ? ' class="story-h1"' : ' class="story-h2"';
 
       return `
         <amp-story-page id="${escapeHtml(page.id)}">
@@ -63,7 +64,7 @@ function renderStoryHtml(slug: string) {
           </amp-story-grid-layer>
           <amp-story-grid-layer template="vertical" class="content-layer">
             <div class="eyebrow">${escapeHtml(page.kicker)}</div>
-            <${headingTag}>${escapeHtml(page.headline)}</${headingTag}>
+            <${headingTag}${headingClass}>${escapeHtml(page.headline)}</${headingTag}>
             <p>${escapeHtml(page.body)}</p>
             ${bullets}
             ${ctaMarkup}
@@ -73,7 +74,7 @@ function renderStoryHtml(slug: string) {
     })
     .join("");
 
-  return `<!doctype html>
+  const html = `<!doctype html>
 <html amp lang="en">
   <head>
     <meta charset="utf-8">
@@ -122,7 +123,7 @@ function renderStoryHtml(slug: string) {
         color: white;
         background: #050505;
       }
-      h1, h2 {
+      h1.story-h1, h2.story-h2 {
         margin: 0;
         font-size: 2.05rem;
         font-weight: 700;
@@ -227,6 +228,14 @@ function renderStoryHtml(slug: string) {
     </amp-story>
   </body>
 </html>`;
+
+  // Guard: never ship a story document with 0 or 2+ <h1> tags
+  const h1Count = (html.match(/<h1[\s>]/g) || []).length;
+  if (h1Count !== 1) {
+    console.error(`[web-story] ${slug} expected 1 <h1>, found ${h1Count}`);
+  }
+
+  return html;
 }
 
 export async function GET(

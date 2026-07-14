@@ -10,16 +10,16 @@ import { LatestPostTiltCard } from "@/components/LatestPostTiltCard"
 import { ArrowRight } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Somanath Studio — Senior SaaS Engineer for Founders",
+  title: "Somanath Studio — SaaS Partner for Founders, Agencies & Freelancers",
   description:
-    "Senior SaaS engineer for founders: fast MVP builds, Next.js 16 performance, production readiness, and AI features that actually work in 2026.",
+    "SaaS development partner for founders, agencies, freelancers and consultants. Next.js, Node.js, AI SaaS. White-label, NDA-friendly, remote international.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "Somanath Studio | SaaS MVP Development and Performance Engineering",
+    title: "Somanath Studio | SaaS Development Partner",
     description:
-      "Senior SaaS engineer for founders: fast MVP builds, Next.js 16 performance, production readiness, and AI features that ship in 2026.",
+      "For founders, agencies, freelancers and consultants — Next.js, Node.js, AI. White-label and referral-friendly.",
     url: "/",
     siteName: "Somanath Studio",
     type: "website",
@@ -28,15 +28,15 @@ export const metadata: Metadata = {
         url: "/og?title=Somanath%20Studio",
         width: 1200,
         height: 630,
-        alt: "Somanath Studio | SaaS MVP Development and Performance Engineering",
+        alt: "Somanath Studio | SaaS Development Partner",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Somanath Studio | SaaS MVP Development and Performance Engineering",
+    title: "Somanath Studio | SaaS Development Partner",
     description:
-      "Senior SaaS engineer for founders: fast MVP builds, Next.js 16 performance, production readiness, and AI features that ship in 2026.",
+      "For founders, agencies, freelancers and consultants — Next.js, Node.js, AI. White-label and referral-friendly.",
     images: ["/og?title=Somanath%20Studio"],
   },
 }
@@ -118,7 +118,7 @@ export default function Home() {
       <Hero />
 
       {/* Trusted By Marquee */}
-      <section className="relative z-10 mt-32 border-b border-white/5 bg-black/50 py-12 backdrop-blur-sm">
+      <section id="tech-stack" className="relative z-10 mt-32 border-b border-white/5 bg-black/50 py-12 backdrop-blur-sm">
         <div className="container mx-auto px-4 mb-8 text-center">
           <span className="text-sm font-medium uppercase tracking-widest text-muted-foreground/50">
             Trusted stack for shipping modern SaaS products fast
@@ -135,7 +135,7 @@ export default function Home() {
         </Marquee>
       </section>
 
-      <section className="relative z-10 border-y border-white/5 bg-black/40 py-10">
+      <section id="explore-services" className="relative z-10 border-y border-white/5 bg-black/40 py-10">
         <div className="container mx-auto px-4 text-center">
           <p className="text-sm uppercase tracking-widest text-zinc-500">Explore Services</p>
           <div className="mt-4 flex flex-wrap justify-center gap-3">

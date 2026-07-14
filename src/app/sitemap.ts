@@ -23,9 +23,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     const routes = [
         '',
+        '/about',
         '/blog',
         '/book',
         '/case-studies',
+        '/case-studies/paperchai',
+        '/case-studies/studio-booking-platform',
+        '/hire-saas-mvp-developer',
+        '/agency-development-partner',
+        '/saas-mvp-audit',
         '/projects/paperchai',
         '/stories',
         '/services',

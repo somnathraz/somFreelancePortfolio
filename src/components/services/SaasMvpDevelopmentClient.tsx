@@ -1,5 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect } from "react";
+import { trackViewedService } from "@/features/visitor-guide/visitor-memory";
 import {
   ArrowRight,
   Check,
@@ -198,6 +202,10 @@ const faqItems = [
 ];
 
 export function SaasMvpDevelopmentClient() {
+  useEffect(() => {
+    trackViewedService("saas-mvp");
+  }, []);
+
   return (
     <main className="min-h-screen bg-black pb-28 text-foreground selection:bg-white/20 md:pb-0">
       <Navbar />

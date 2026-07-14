@@ -8,6 +8,7 @@ import { BlogCTA } from '@/components/BlogCTA';
 import { Footer } from '@/components/Footer';
 import { getPostBySlug, getPostSlugs } from '@/lib/blog';
 import { MDXRemote } from 'next-mdx-remote/rsc';
+import { BlogTracker } from '@/components/ai-helper/BlogTracker';
 
 const siteUrl = 'https://somanathkhadanga.com';
 
@@ -127,6 +128,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
     return (
         <main className="min-h-screen bg-black text-foreground selection:bg-white/20">
             <Navbar />
+            <BlogTracker slug={post.slug} />
 
             <script
                 type="application/ld+json"

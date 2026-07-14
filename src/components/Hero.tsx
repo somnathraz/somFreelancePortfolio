@@ -1,11 +1,42 @@
+"use client";
+
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Terminal } from "lucide-react"
 import Link from "next/link"
 import { BorderBeam } from "./ui/border-beam"
+import { useHelperStore } from "@/features/visitor-guide/helper-store"
 
 export function Hero() {
+    const [mounted, setMounted] = useState(false);
+    const selectedJourneyId = useHelperStore((state) => state.selectedJourneyId);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    let headlineMain = "SaaS development partner";
+    let headlineAccent = "for founders, agencies and freelancers.";
+    let descriptionText = "I build and upgrade SaaS products with Next.js, Node.js and practical AI — white-label friendly, NDA-ready, remote for international clients.";
+
+    if (mounted && selectedJourneyId) {
+        if (selectedJourneyId === "build-saas") {
+            headlineMain = "SaaS MVP development partner";
+            headlineAccent = "launch your product to production in 21 days.";
+            descriptionText = "I build high-quality SaaS MVPs with Next.js, Node.js, and clean architecture so you can get user feedback and iterate fast.";
+        } else if (selectedJourneyId === "add-ai") {
+            headlineMain = "AI SaaS engineering partner";
+            headlineAccent = "add AI features that earn their place in the product.";
+            descriptionText = "I implement AI-assisted workflows, copilot interfaces, and document understanding pipelines that solve real user problems.";
+        } else if (selectedJourneyId === "improve-product") {
+            headlineMain = "SaaS upgrade partner";
+            headlineAccent = "optimize Next.js and secure your architecture.";
+            descriptionText = "Fix latency problems, optimize Core Web Vitals, upgrade MVPs to production readiness, and scale your tech stack.";
+        }
+    }
+
     return (
-        <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background pt-24 text-center md:pt-32">
+        <section id="hero" className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background pt-24 text-center md:pt-32">
             {/* Grid Background */}
             <div className="absolute inset-0 z-0 bg-grid-white pointer-events-none [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
 
@@ -18,20 +49,19 @@ export function Hero() {
                 <header className="space-y-4">
                     <div className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900/50 px-3 py-1 text-sm text-zinc-400 backdrop-blur-sm">
                         <span className="flex h-2 w-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
-                        Accepting New SaaS Projects
+                        For founders · agencies · freelancers · consultants
                     </div>
 
                     <h1 className="text-4xl font-bold tracking-tighter text-white sm:text-5xl xl:text-6xl">
-                    Built in 21 days.
-                    <br className="hidden md:block" />
+                        {headlineMain}
+                        <br className="hidden md:block" />
                         <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40">
-                        Still running in production.
+                            {" "}{headlineAccent}
                         </span>
                     </h1>
 
                     <p className="mx-auto max-w-3xl text-lg text-zinc-400 sm:text-xl">
-                        I&apos;m a senior engineer who builds and ships SaaS products for founders —
-                        Next.js, Node.js, AI features, and the boring production work that keeps it all running after launch.
+                        {descriptionText}
                     </p>
                 </header>
 
@@ -42,9 +72,9 @@ export function Hero() {
                             <ArrowRight className="ml-2 h-4 w-4" />
                         </Link>
                     </Button>
-                    <Link href="#work">
+                    <Link href="/agency-development-partner">
                         <Button variant="outline" size="lg" className="h-12 min-w-[220px] text-base border-white/10 hover:bg-white/5 hover:text-white">
-                            See case studies
+                            For agencies
                         </Button>
                     </Link>
                 </div>

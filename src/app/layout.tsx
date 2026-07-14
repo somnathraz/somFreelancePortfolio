@@ -4,6 +4,7 @@ import "./globals.css";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { MicrosoftClarity } from "@/components/MicrosoftClarity";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
+import { SiteHelper } from "@/components/ai-helper";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -21,15 +22,23 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://somanathkhadanga.com"),
-  title: "Somanath Studio — High-Performance SaaS Engineering & Development",
-  description: "Senior freelance engineer specializing in building and scaling production SaaS systems, performance optimization, and AI-powered applications. 4+ years of industry experience.",
+  title: "Somanath Studio — SaaS Development Partner for Founders & Agencies",
+  description:
+    "SaaS development partner for founders, agencies, freelancers and consultants. Next.js, Node.js, AI SaaS. White-label, NDA-friendly, remote international.",
   alternates: {
     canonical: "/",
   },
-  keywords: ["saas development", "high performance web applications", "freelance saas engineer", "scalable software architecture", "ai powered applications", "next.js node.js mongodb"],
+  keywords: [
+    "saas development partner",
+    "hire saas mvp developer",
+    "agency white label development",
+    "next.js node.js ai saas",
+    "freelance saas engineer",
+  ],
   openGraph: {
-    title: "High-Performance SaaS Engineering — Somanath Studio",
-    description: "Technical partner for founders building production-grade SaaS systems. Performance-focused, scalable, and built to last.",
+    title: "SaaS Development Partner — Somanath Studio",
+    description:
+      "For founders, agencies, freelancers and consultants. Next.js, Node.js, AI. White-label and NDA-friendly.",
     type: "website",
     locale: "en_US",
     url: "https://somanathkhadanga.com",
@@ -39,14 +48,15 @@ export const metadata: Metadata = {
         url: "/og?title=Somanath%20Studio",
         width: 1200,
         height: 630,
-        alt: "Somanath Studio — High-Performance SaaS Engineering",
+        alt: "Somanath Studio — SaaS development partner",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "High-Performance SaaS Engineering — Somanath Studio",
-    description: "Senior freelance engineer helping founders build fast, scalable SaaS products.",
+    title: "SaaS Development Partner — Somanath Studio",
+    description:
+      "For founders, agencies, freelancers and consultants. Next.js, Node.js, AI. White-label and NDA-friendly.",
     images: ["/og?title=Somanath%20Studio"],
   },
   icons: {
@@ -63,7 +73,7 @@ const jsonLd = {
       "name": "Somanath Studio",
       "url": "https://somanathkhadanga.com",
       "logo": "https://somanathkhadanga.com/icon.svg",
-      "description": "High-performance SaaS engineering studio specializing in scalable, production-grade software.",
+      "description": "SaaS development partner for founders, agencies, freelancers and consultants. Next.js, Node.js and AI SaaS. White-label and NDA-friendly.",
       "founder": {
         "@type": "Person",
         "name": "Somanath Khadanga"
@@ -73,7 +83,7 @@ const jsonLd = {
       "@type": "Person",
       "name": "Somanath Khadanga",
       "url": "https://somanathkhadanga.com",
-      "jobTitle": "Full Stack Developer"
+      "jobTitle": "SaaS Development Partner"
     },
     {
       "@type": "WebSite",
@@ -103,7 +113,10 @@ export default function RootLayout({
         />
         <GoogleAnalytics />
         <MicrosoftClarity />
-        <AnalyticsProvider>{children}</AnalyticsProvider>
+        <AnalyticsProvider>
+          {children}
+          <SiteHelper />
+        </AnalyticsProvider>
       </body>
     </html>
   );
