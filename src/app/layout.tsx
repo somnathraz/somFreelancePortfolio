@@ -83,7 +83,11 @@ const jsonLd = {
       "@type": "Person",
       "name": "Somanath Khadanga",
       "url": "https://somanathkhadanga.com",
-      "jobTitle": "SaaS Development Partner"
+      "jobTitle": "Software Development Engineer 4",
+      "worksFor": {
+        "@type": "Organization",
+        "name": "IQVIA"
+      }
     },
     {
       "@type": "WebSite",

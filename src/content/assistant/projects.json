@@ -41,5 +41,23 @@
     "tech": ["React Virtualized", "WebGL", "Next.js", "CDN"],
     "role": "Developer",
     "serviceId": "nextjs-performance"
+  },
+  {
+    "id": "outspokn",
+    "title": "Outspokn",
+    "description": "AI English learning app with open LLMs, tuned RAG retrieval, and adaptive learning tracks.",
+    "tech": ["React Native", "Python", "Django", "Open LLMs", "RAG", "Adaptive Learning Tracks"],
+    "role": "Full-stack Developer",
+    "serviceId": "ai-saas",
+    "caseStudyUrl": "/case-studies/outspokn"
+  },
+  {
+    "id": "vgt",
+    "title": "VGT",
+    "description": "Truck logistics ticketing, challans, payments, and driver cash flow management platform.",
+    "tech": ["Ticketing", "Challans", "Payments", "Tracking", "Operations Dashboards"],
+    "role": "Full-stack Developer",
+    "serviceId": "saas-mvp",
+    "caseStudyUrl": "/case-studies/vgt"
   }
 ]

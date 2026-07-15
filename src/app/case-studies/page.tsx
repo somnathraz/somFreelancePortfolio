@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { SelectedWork } from "@/components/SelectedWork";
+import { CurrentlyWorkingOn } from "@/components/CurrentlyWorkingOn";
+import { ProfessionalExperience } from "@/components/ProfessionalExperience";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { MobileNav } from "@/components/MobileNav";
@@ -82,12 +84,37 @@ export default function CaseStudiesPage() {
                         Case studies
                     </p>
                     <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl mb-6">
-                        Two live products. A few experiments. No fluff.
+                        Live products. Real client work. No fluff.
                     </h1>
                     <p className="text-zinc-400 text-lg leading-relaxed mb-8">
-                        I&apos;m early in my freelance journey and I&apos;m not going to pad this page with
-                        fictional case studies. Here&apos;s what&apos;s actually shipped and what I&apos;m working on.
-                        For the most relevant examples to your project, the call is faster than a portfolio.
+                        Open them yourself:{" "}
+                        <a
+                            href="https://play.google.com/store/apps/details?id=com.outspokn&hl=en_IN"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-white underline underline-offset-4"
+                        >
+                            Outspokn on Google Play
+                        </a>
+                        ,{" "}
+                        <a
+                            href="https://vgt-silk.vercel.app/login"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-white underline underline-offset-4"
+                        >
+                            VGT live demo
+                        </a>
+                        ,{" "}
+                        <a
+                            href="https://app.paperchaiapp.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-white underline underline-offset-4"
+                        >
+                            PaperChai Invoice
+                        </a>
+                        — plus more case studies below.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Button asChild className="bg-white text-black hover:bg-zinc-200">
@@ -97,10 +124,58 @@ export default function CaseStudiesPage() {
                             <Link href="/projects/paperchai">PaperChai case study</Link>
                         </Button>
                     </div>
+                    <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-sm">
+                        <Link
+                            href="/case-studies/outspokn"
+                            className="rounded-full border border-white/10 px-4 py-2 text-zinc-300 transition-colors hover:border-white/25 hover:text-white"
+                        >
+                            Outspokn — AI English learning
+                        </Link>
+                        <Link
+                            href="/case-studies/vgt"
+                            className="rounded-full border border-white/10 px-4 py-2 text-zinc-300 transition-colors hover:border-white/25 hover:text-white"
+                        >
+                            VGT — Truck logistics &amp; payments
+                        </Link>
+                        <Link
+                            href="/case-studies/paperchai-invoice"
+                            className="rounded-full border border-white/10 px-4 py-2 text-zinc-300 transition-colors hover:border-white/25 hover:text-white"
+                        >
+                            PaperChai Invoice
+                        </Link>
+                        <Link
+                            href="/case-studies/studio-booking-platform"
+                            className="rounded-full border border-white/10 px-4 py-2 text-zinc-300 transition-colors hover:border-white/25 hover:text-white"
+                        >
+                            Calendar booking
+                        </Link>
+                        <Link
+                            href="#professional-experience"
+                            className="rounded-full border border-white/10 px-4 py-2 text-zinc-300 transition-colors hover:border-white/25 hover:text-white"
+                        >
+                            Professional experience
+                        </Link>
+                        <Link
+                            href="#adaptive-agent-ui"
+                            className="rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-2 text-violet-300 transition-colors hover:border-violet-400/50 hover:text-violet-200"
+                        >
+                            Building: Adaptive Agent UI
+                        </Link>
+                        <Link
+                            href="#ai-booking-inventory"
+                            className="rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-2 text-violet-300 transition-colors hover:border-violet-400/50 hover:text-violet-200"
+                        >
+                            Building: AI Booking &amp; Inventory
+                        </Link>
+                    </div>
                 </div>
             </section>
 
+            <CurrentlyWorkingOn />
+
             <SelectedWork hideIntro />
+
+            <ProfessionalExperience />
 
             <Footer />
             <MobileNav />

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import NextImage from "next/image";
 import { Carousel, Card } from "@/components/ui/apple-cards-carousel";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { ProjectDetail } from "@/components/showcase/ProjectDetail";
@@ -24,15 +25,15 @@ export function SelectedWork({ hideIntro = false }: SelectedWorkProps) {
 
         let priorityIds: string[] = [];
         if (selectedJourneyId === "build-saas") {
-            priorityIds = ["paperchai"];
+            priorityIds = ["paperchai", "paperchai-invoice", "vgt", "outspokn"];
         } else if (selectedJourneyId === "add-ai") {
-            priorityIds = ["ai-code-review", "ai-tools-directory"];
+            priorityIds = ["outspokn", "paperchai-invoice", "ai-code-review", "ai-tools-directory"];
         } else if (selectedJourneyId === "improve-product") {
-            priorityIds = ["localboynaniseafoods", "image-wall"];
+            priorityIds = ["vgt", "studio-booking", "localboynaniseafoods", "image-wall"];
         } else if (selectedJourneyId === "evaluate-experience") {
-            priorityIds = ["paperchai", "localboynaniseafoods", "ai-code-review"];
+            priorityIds = ["paperchai", "paperchai-invoice", "outspokn", "vgt", "studio-booking"];
         } else if (selectedJourneyId === "explore") {
-            priorityIds = ["paperchai", "localboynaniseafoods"];
+            priorityIds = ["paperchai", "paperchai-invoice", "outspokn", "vgt", "studio-booking"];
         }
 
         return [...data].sort((a, b) => {
@@ -60,7 +61,8 @@ export function SelectedWork({ hideIntro = false }: SelectedWorkProps) {
                     </h2>
                     <p className="text-zinc-400 max-w-lg">
                         <span className="font-semibold text-white">
-                            Two live projects — one real client app, one personal SaaS — plus a few personal builds exploring AI and performance.
+                            Live products you can open today — Google Play, demos and production
+                            apps — plus a few personal experiments.
                         </span>
                         <br />
                         Click any card for the full breakdown.
@@ -95,10 +97,10 @@ export function SelectedWork({ hideIntro = false }: SelectedWorkProps) {
                     </div>
                     <div className="flex flex-col items-center text-center gap-1">
                         <span className="text-3xl font-bold text-white flex items-center gap-2">
-                            2 <ArrowUp className="w-5 h-5 text-emerald-500" />
+                            5+ <ArrowUp className="w-5 h-5 text-emerald-500" />
                         </span>
-                        <span className="text-xs text-zinc-500 uppercase tracking-widest font-medium">Live Projects</span>
-                        <span className="text-[11px] text-zinc-400">Real products, real users</span>
+                        <span className="text-xs text-zinc-500 uppercase tracking-widest font-medium">Live products</span>
+                        <span className="text-[11px] text-zinc-400">Play Store · demos · production apps</span>
                     </div>
                 </div>
             </div>
@@ -119,6 +121,218 @@ export function SelectedWork({ hideIntro = false }: SelectedWorkProps) {
 }
 
 const data = [
+    {
+        projectId: "paperchai-invoice",
+        category: "Live · Chat-to-invoice · WhatsApp / Slack",
+        title: "PaperChai Invoice — Money Autopilot",
+        src: "/images/project-8.png",
+        alt: "PaperChai Invoice — create invoices from chat and track payments",
+        content: (
+            <ProjectDetail
+                image="/images/project-8.png"
+                imageAspect="phone"
+                title="PaperChai Invoice."
+                description="Message the bot on WhatsApp, Slack or chat — it creates the invoice, queues it, tracks payment, sends reminders and keeps projects organised."
+                stack={["WhatsApp", "Slack", "Invoice queue", "Payment tracking", "Reminders"]}
+            >
+                <div className="mt-8 space-y-6 text-neutral-600 dark:text-neutral-400">
+                    <section>
+                        <h4 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-white">
+                            What it does
+                        </h4>
+                        <ul className="list-disc space-y-1 pl-5">
+                            <li>Create invoices from WhatsApp, Slack or a normal message</li>
+                            <li>Queue invoices and track payment status</li>
+                            <li>Smart reminders — and project billing in one place</li>
+                        </ul>
+                    </section>
+                    <div className="flex flex-wrap gap-4 pt-2">
+                        <a
+                            href="/case-studies/paperchai-invoice"
+                            className="inline-flex items-center gap-2 font-medium text-emerald-600 hover:underline dark:text-emerald-400"
+                        >
+                            Read the full case study →
+                        </a>
+                        <a
+                            href="https://app.paperchaiapp.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 font-medium text-neutral-600 hover:underline dark:text-neutral-300"
+                        >
+                            Open live app → app.paperchaiapp.com
+                        </a>
+                    </div>
+                </div>
+            </ProjectDetail>
+        ),
+    },
+    {
+        projectId: "studio-booking",
+        category: "Client · Calendar booking SaaS",
+        title: "Calendar Booking System",
+        src: "/images/project-11.png",
+        alt: "Calendar booking system — scheduling dashboard",
+        content: (
+            <ProjectDetail
+                image="/images/project-11.png"
+                images={[
+                    {
+                        src: "/images/project-11.png",
+                        alt: "Calendar booking — scheduling dashboard",
+                    },
+                    {
+                        src: "/images/project-11-part-1.png",
+                        alt: "Calendar booking — admin and booking views",
+                    },
+                ]}
+                title="Calendar booking system."
+                description="Real-time slot availability, Stripe checkout and admin dashboard — fewer scheduling errors and clearer payment tracking for studios."
+                stack={["Next.js", "Node.js", "TypeScript", "MongoDB", "Stripe"]}
+            >
+                <div className="mt-8 space-y-6 text-neutral-600 dark:text-neutral-400">
+                    <section>
+                        <h4 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-white">
+                            What it does
+                        </h4>
+                        <p>
+                            Replaces WhatsApp + spreadsheet scheduling with one booking surface —
+                            availability, payments and day-to-day admin.
+                        </p>
+                    </section>
+                    <div className="pt-2">
+                        <a
+                            href="/case-studies/studio-booking-platform"
+                            className="inline-flex items-center gap-2 font-medium text-sky-600 hover:underline dark:text-sky-400"
+                        >
+                            Read the full case study →
+                        </a>
+                    </div>
+                </div>
+            </ProjectDetail>
+        ),
+    },
+    {
+        projectId: "outspokn",
+        category: "Live on Google Play · AI learning · React Native",
+        title: "Outspokn — AI English Learning",
+        src: "/images/outspokn-1.webp",
+        alt: "Outspokn — AI English learning mobile app",
+        content: (
+            <ProjectDetail
+                image="/images/outspokn-1.webp"
+                imageAspect="phone"
+                images={[
+                    {
+                        src: "/images/outspokn-1.webp",
+                        alt: "Outspokn — home and lesson flow",
+                    },
+                    {
+                        src: "/images/outspokn2.webp",
+                        alt: "Outspokn — practice and speaking",
+                    },
+                    {
+                        src: "/images/outspokn3.webp",
+                        alt: "Outspokn — learning tracks and courses",
+                    },
+                ]}
+                title="Outspokn."
+                description="AI English learning app with React Native and Django. Open LLMs, tuned RAG retrieval and courses tailored to each student’s learning tracks."
+                stack={["React Native", "Python", "Django", "Open LLMs", "RAG"]}
+            >
+                <div className="mt-8 space-y-6 text-neutral-600 dark:text-neutral-400">
+                    <section>
+                        <h4 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-white">
+                            What it does
+                        </h4>
+                        <p>
+                            Adaptive English practice powered by open models and retrieval over course
+                            content — so lessons follow the student’s learning track instead of a
+                            static syllabus.
+                        </p>
+                    </section>
+                    <div className="flex flex-wrap gap-4 pt-2">
+                        <a
+                            href="/case-studies/outspokn"
+                            className="inline-flex items-center gap-2 font-medium text-violet-600 hover:underline dark:text-violet-400"
+                        >
+                            Read the full case study →
+                        </a>
+                        <a
+                            href="https://play.google.com/store/apps/details?id=com.outspokn&hl=en_IN"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 font-medium text-neutral-600 hover:underline dark:text-neutral-300"
+                        >
+                            Get on Google Play →
+                        </a>
+                    </div>
+                </div>
+            </ProjectDetail>
+        ),
+    },
+    {
+        projectId: "vgt",
+        category: "Live demo · Logistics · Payments & tracking",
+        title: "VGT — Truck Logistics Ops",
+        src: "/images/project-10.png",
+        alt: "VGT — truck logistics and payment management",
+        content: (
+            <ProjectDetail
+                image="/images/vgt-1.png"
+                imageAspect="phone"
+                images={[
+                    {
+                        src: "/images/vgt-1.png",
+                        alt: "VGT — ticketing and operations",
+                    },
+                    {
+                        src: "/images/vgt-2.png",
+                        alt: "VGT — payments, challan and tracking",
+                    },
+                ]}
+                title="VGT."
+                description="Ticketing, challans and payment management for delivery fleets — truck tracking, drivers and money inflow/outflow in one ops product."
+                stack={["Ticketing", "Challans", "Payments", "Truck tracking", "Driver cash flow"]}
+            >
+                <div className="mt-8 space-y-6 text-neutral-600 dark:text-neutral-400">
+                    <section>
+                        <h4 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-white">
+                            What it does
+                        </h4>
+                        <p>
+                            Field and finance share one system for tickets, challans, truck status and
+                            payment movement — instead of WhatsApp reconciliations.
+                        </p>
+                    </section>
+                    <div className="relative mt-4 aspect-video w-full overflow-hidden rounded-xl border border-neutral-200 dark:border-white/10">
+                        <NextImage
+                            src="/images/project-10.png"
+                            alt="VGT Transport Management System — desktop"
+                            fill
+                            className="object-cover object-top"
+                            sizes="(max-width: 768px) 100vw, 640px"
+                        />
+                    </div>
+                    <div className="flex flex-wrap gap-4 pt-2">
+                        <a
+                            href="/case-studies/vgt"
+                            className="inline-flex items-center gap-2 font-medium text-emerald-600 hover:underline dark:text-emerald-400"
+                        >
+                            Read the full case study →
+                        </a>
+                        <a
+                            href="https://vgt-silk.vercel.app/login"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 font-medium text-neutral-600 hover:underline dark:text-neutral-300"
+                        >
+                            Open live demo →
+                        </a>
+                    </div>
+                </div>
+            </ProjectDetail>
+        ),
+    },
     {
         projectId: "localboynaniseafoods",
         category: "Full-stack • Live production app — real business, real orders",

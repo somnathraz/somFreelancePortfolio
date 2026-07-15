@@ -6,9 +6,17 @@ import { HelperLauncher } from "./HelperLauncher";
 import { HelperPanel } from "./HelperPanel";
 import { useHelperAutoOpen } from "./HelperAutoOpen";
 
+import { usePathname } from "next/navigation";
+
 export function SiteHelper() {
-  const { initFromMemory, isOpen, buttonVisible, dismissed } = useHelperStore();
+  const { initFromMemory, isOpen, buttonVisible, dismissed, close } = useHelperStore();
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
+
+  // Close the helper panel on client-side page navigation
+  useEffect(() => {
+    close();
+  }, [pathname, close]);
 
   // Initialize store from localStorage on mount
   useEffect(() => {

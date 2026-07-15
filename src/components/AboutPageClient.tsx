@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion, useInView, useMotionValue, useSpring, useTransform } from "motion/react";
 import { BorderBeam } from "@/components/ui/border-beam";
 import { ArrowRight, MapPin, Calendar, ExternalLink, Pencil, Cpu, GraduationCap, ArrowUpRight, Zap, Bot, Globe, Code2 } from "lucide-react";
+import { TechToolsSlider } from "@/components/TechToolsSlider";
 
 // ─── Social icons ─────────────────────────────────────────────────────────────
 
@@ -62,7 +63,16 @@ const SKILLS = [
     {
         category: "Cloud & DevOps",
         color: "amber",
-        items: ["AWS EC2", "Docker", "CI/CD", "Nginx"],
+        items: [
+            "AWS",
+            "GCP",
+            "Docker",
+            "Kubernetes",
+            "CI/CD pipelines",
+            "GitHub Actions",
+            "Nginx",
+            "EC2",
+        ],
     },
     {
         category: "AI & Integrations",
@@ -87,23 +97,47 @@ const SKILL_COLOR_MAP: Record<string, string> = {
 
 const EXPERIENCE = [
     {
-        company: "ABInBev",
-        role: "Full-Stack Software Developer",
-        period: "June 2025 – Present",
+        company: "IQVIA",
+        role: "Software Development Engineer 4 (SDE4)",
+        period: "May 2025 – Present",
         current: true,
         accent: "cyan",
+        highlights: [
+            { metric: "SDE4", label: "current role", detail: "Building analytics-heavy backends and product surfaces for healthcare / life-sciences workflows" },
+            { metric: "AI + data", label: "product focus", detail: "Data visualisation, Chart.js-style dashboards, and AI-related application features in production systems" },
+            { metric: "Scale", label: "enterprise apps", detail: "Performance, reliability and API work on operational platforms used by large healthcare clients" },
+            { metric: "Full-stack", label: "delivery", detail: "React / Next.js frontends with Node.js services, caching and secure release practices" },
+        ],
+        extra: [
+            "Joined after ABInBev",
+            "Healthcare and life-sciences domain systems under production load",
+            "Collaboration across product, analytics and engineering teams in Agile delivery",
+        ],
+    },
+    {
+        company: "ABInBev",
+        role: "Full-Stack Software Developer",
+        period: "June 2025 (prior to IQVIA)",
+        current: false,
+        accent: "amber",
         highlights: [
             { metric: "~35%", label: "fewer re-renders", detail: "Refactored 15+ React pages with Redux, useCallback, useMemo" },
             { metric: "~30%", label: "faster API responses", detail: "Reduced Node.js event loop blocking with async handlers and query caching" },
             { metric: "~40%", label: "faster SQL queries", detail: "Resolved deadlocks with restructured transactions and proper indexing" },
             { metric: "~25%", label: "fewer DB hits", detail: "Redis caching and rate limiting across critical endpoints" },
         ],
-        extra: ["Containerized apps with Docker for consistent dev/staging/prod environments", "Applied CORS, cookie policies, and header-level security checks", "100% sprint delivery in Agile/Scrum, boosted team performance ~20%"],
+        extra: [
+            "Brewery & commercial ops — analytics-heavy backends for production and distribution teams",
+            "Containerized apps with Docker for consistent dev/staging/prod environments",
+            "Applied CORS, cookie policies, and header-level security checks",
+            "100% sprint delivery in Agile/Scrum, boosted team performance ~20%",
+            "Moved to IQVIA as SDE4 after ABInBev",
+        ],
     },
     {
         company: "Learnbay",
         role: "Full-Stack Software Developer",
-        period: "Mar 2024 – June 2025",
+        period: "Mar 2024 – Apr 2025",
         current: false,
         accent: "violet",
         highlights: [
@@ -178,23 +212,42 @@ const PERSONAL_PROJECTS = [
         icon: <Zap className="w-5 h-5" />,
     },
     {
-        id: "ai-agents",
+        id: "adaptive-agent-ui",
         featured: false,
         status: "building",
         statusLabel: "Building now",
-        name: "AI Agent Platform",
-        tagline: "Multi-step agents for SaaS automation",
+        name: "Adaptive Agent UI",
+        tagline: "AI agent that reshapes UI around visitor intent",
         description:
-            "Orchestrating AI agents that automate repetitive SaaS workflows — document processing, data extraction, smart routing, and async task queues. Built on OpenAI function calling with a Next.js control plane and Node.js workers.",
-        stack: ["Next.js", "OpenAI API", "Node.js", "Redis", "TypeScript"],
+            "Productising the dynamic site-agent pattern — intent detection, journey-based UI, session memory and guided CTAs so every visitor sees the path that matches their problem, not a static homepage.",
+        stack: ["Next.js", "TypeScript", "LLM routing", "Session memory"],
         metrics: [
-            { value: "∞", unit: "", label: "automation potential" },
+            { value: "Live", unit: "", label: "pattern on this site" },
         ],
         accent: "#a78bfa",
         accentClass: "violet",
         image: null,
-        href: null,
+        href: "/case-studies#adaptive-agent-ui",
         icon: <Bot className="w-5 h-5" />,
+    },
+    {
+        id: "ai-booking-inventory",
+        featured: false,
+        status: "building",
+        statusLabel: "Building now",
+        name: "AI Booking & Inventory",
+        tagline: "Automated booking that manages inventory with AI",
+        description:
+            "AI-enabled booking that checks availability, books or reschedules, and keeps inventory in sync — so calendars and stock stop fighting each other over WhatsApp and spreadsheets.",
+        stack: ["Next.js", "Node.js", "AI agents", "Inventory sync"],
+        metrics: [
+            { value: "WIP", unit: "", label: "booking + stock loop" },
+        ],
+        accent: "#34d399",
+        accentClass: "emerald",
+        image: null,
+        href: "/case-studies#ai-booking-inventory",
+        icon: <Calendar className="w-5 h-5" />,
     },
     {
         id: "seafoods",
@@ -690,8 +743,8 @@ export function AboutPageClient() {
                         className="text-zinc-300 text-lg leading-relaxed max-w-xl mb-8"
                     >
                         I build high-performance SaaS products — from early architecture to production scale.
-                        Currently engineering at <span className="text-white font-semibold">ABInBev</span>,
-                        and freelancing for founders who need real product engineering, not just code.
+                        Currently SDE4 at <span className="text-white font-semibold">IQVIA</span>
+                        {" "}(after ABInBev), and freelancing for founders who need real product engineering, not just code.
                     </motion.p>
 
                     {/* Social links */}
@@ -737,7 +790,7 @@ export function AboutPageClient() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-0">
                         {[
                             { value: "4+", label: "Years experience" },
-                            { value: "3", label: "Companies shipped at" },
+                            { value: "4", label: "Companies shipped at" },
                             { value: "1000+", label: "Concurrent users supported" },
                             { value: "50+", label: "Production pages built" },
                         ].map((stat, i) => (
@@ -784,6 +837,10 @@ export function AboutPageClient() {
                     </div>
                 </section>
 
+                <section className="pb-20">
+                    <TechToolsSlider />
+                </section>
+
                 <div className="border-t border-white/5" />
 
                 {/* ── Experience ── */}
@@ -797,6 +854,7 @@ export function AboutPageClient() {
                                     <div className={`absolute top-0 left-0 w-48 h-1 rounded-t-2xl bg-gradient-to-r ${
                                         job.accent === "cyan" ? "from-cyan-500/60 to-transparent" :
                                         job.accent === "violet" ? "from-violet-500/60 to-transparent" :
+                                        job.accent === "amber" ? "from-amber-500/60 to-transparent" :
                                         "from-emerald-500/60 to-transparent"
                                     }`} />
 
@@ -826,6 +884,7 @@ export function AboutPageClient() {
                                                 <p className={`text-2xl font-bold tabular-nums mb-0.5 ${
                                                     job.accent === "cyan" ? "text-cyan-400" :
                                                     job.accent === "violet" ? "text-violet-400" :
+                                                    job.accent === "amber" ? "text-amber-400" :
                                                     "text-emerald-400"
                                                 }`}>
                                                     {h.metric}
@@ -843,6 +902,7 @@ export function AboutPageClient() {
                                                 <span className={`mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 ${
                                                     job.accent === "cyan" ? "bg-cyan-500" :
                                                     job.accent === "violet" ? "bg-violet-500" :
+                                                    job.accent === "amber" ? "bg-amber-500" :
                                                     "bg-emerald-500"
                                                 }`} />
                                                 {item}

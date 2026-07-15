@@ -8,7 +8,7 @@
     "tags": ["mvp", "saas", "startup", "launch", "product"],
     "sectionId": "services",
     "pageUrl": "/services/saas-mvp-development",
-    "relatedProjects": ["paperchai"],
+    "relatedProjects": ["paperchai", "vgt"],
     "relatedBlogs": [
       "saas-mvp-cost-2026",
       "from-saas-idea-to-production",
@@ -59,7 +59,7 @@
     "tags": ["ai", "llm", "openai", "machine-learning", "saas"],
     "sectionId": "services",
     "pageUrl": "/services/ai-saas-development",
-    "relatedProjects": ["paperchai", "ai-code-review"],
+    "relatedProjects": ["paperchai", "ai-code-review", "outspokn"],
     "relatedBlogs": [
       "which-ai-features-are-worth-building-in-saas",
       "openai-aws-bedrock-ai-saas-provider-shift"

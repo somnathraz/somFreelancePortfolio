@@ -5,7 +5,7 @@
     "label": "Build a SaaS MVP",
     "icon": "Rocket",
     "serviceIds": ["saas-mvp"],
-    "projectIds": ["paperchai"],
+    "projectIds": ["paperchai", "vgt"],
     "blogSlugs": [
       "saas-mvp-cost-2026",
       "from-saas-idea-to-production",
@@ -24,7 +24,7 @@
     "label": "Add AI to a product",
     "icon": "Brain",
     "serviceIds": ["ai-saas"],
-    "projectIds": ["paperchai", "ai-code-review"],
+    "projectIds": ["paperchai", "ai-code-review", "outspokn"],
     "blogSlugs": [
       "which-ai-features-are-worth-building-in-saas",
       "openai-aws-bedrock-ai-saas-provider-shift",
@@ -62,7 +62,7 @@
     "label": "Evaluate my experience",
     "icon": "Briefcase",
     "serviceIds": ["saas-mvp", "ai-saas", "nextjs-performance", "production-readiness"],
-    "projectIds": ["paperchai", "localboynaniseafoods", "ai-code-review"],
+    "projectIds": ["paperchai", "localboynaniseafoods", "ai-code-review", "outspokn", "vgt"],
     "blogSlugs": [
       "building-paperchai-booking-ready-website",
       "paperchai-from-idea-to-running-saas"
@@ -80,7 +80,7 @@
     "label": "Just exploring",
     "icon": "Compass",
     "serviceIds": ["saas-mvp", "ai-saas"],
-    "projectIds": ["paperchai", "localboynaniseafoods"],
+    "projectIds": ["paperchai", "localboynaniseafoods", "vgt"],
     "blogSlugs": [
       "from-saas-idea-to-production",
       "choosing-technology-for-client-projects"

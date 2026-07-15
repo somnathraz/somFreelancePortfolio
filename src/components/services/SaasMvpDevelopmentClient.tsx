@@ -29,7 +29,6 @@ import { MvpHeroJourney } from "@/components/services/MvpHeroJourney";
 import { MvpWhoItsForJourney } from "@/components/services/MvpWhoItsForJourney";
 import { MvpTechStackMotion } from "@/components/services/MvpTechStackMotion";
 import { MvpTestimonials } from "@/components/services/MvpTestimonials";
-import { MvpPageHelper } from "@/components/services/MvpPageHelper";
 import {
   CONTACT_EMAIL,
   GITHUB_URL,
@@ -75,7 +74,7 @@ const caseStudyCards = [
   },
   {
     name: "VGT Transport",
-    industry: "Fleet & logistics SaaS",
+    industry: "Live · Fleet & logistics SaaS",
     solves: "Run fleet, shipments, routes and roles in one operations dashboard",
     timeline: "End-to-end transport management",
     role: "Full product architecture + build",
@@ -83,9 +82,9 @@ const caseStudyCards = [
     stack: "Next.js · ops dashboard · auth",
     image: "/images/project-10.png",
     imageAlt: "VGT Transport Management System",
-    href: "https://vgt-silk.vercel.app/login",
-    hrefLabel: "Open live demo",
-    hrefExternal: true,
+    href: "/case-studies/vgt",
+    hrefLabel: "View case study",
+    hrefExternal: false,
     liveHref: "https://vgt-silk.vercel.app/login",
   },
 ];
@@ -93,22 +92,25 @@ const caseStudyCards = [
 const moreProofCards = [
   {
     name: "PaperChai Invoice",
-    industry: "AI invoicing",
+    industry: "Live · AI invoicing",
     solves: "Generate invoices and chase payments via Slack / WhatsApp",
     image: "/images/project-8.png",
     imageAlt: "PaperChai Invoice app",
     href: "https://app.paperchaiapp.com/",
     external: true,
+    hrefLabel: "Open live app",
+    caseStudyHref: "/case-studies/paperchai-invoice",
   },
   {
     name: "Outspokn",
-    industry: "AI education",
+    industry: "Live · AI education",
     solves: "Mobile English learning with course modules and an AI teacher",
     image: "/images/project-9.webp",
     imageAlt: "Outspokn AI English learning app",
     href: "https://play.google.com/store/apps/details?id=com.outspokn&hl=en_IN",
     external: true,
     hrefLabel: "Get on Google Play",
+    caseStudyHref: "/case-studies/outspokn",
   },
 ];
 
@@ -398,18 +400,28 @@ export function SaasMvpDevelopmentClient() {
                   </p>
                   <h3 className="mt-1 text-lg font-semibold text-white">{card.name}</h3>
                   <p className="mt-1.5 text-sm text-zinc-400">{card.solves}</p>
-                  {card.href ? (
-                    <a
-                      href={card.href}
-                      {...(card.external
-                        ? { target: "_blank", rel: "noopener noreferrer" }
-                        : {})}
-                      className="mt-3 inline-flex items-center gap-1 text-sm text-white underline underline-offset-4 hover:text-zinc-300"
-                    >
-                      {card.hrefLabel ?? "Open live app"}
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </a>
-                  ) : null}
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    {card.href ? (
+                      <a
+                        href={card.href}
+                        {...(card.external
+                          ? { target: "_blank", rel: "noopener noreferrer" }
+                          : {})}
+                        className="inline-flex items-center gap-1 text-sm text-white underline underline-offset-4 hover:text-zinc-300"
+                      >
+                        {card.hrefLabel ?? "Open live app"}
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </a>
+                    ) : null}
+                    {"caseStudyHref" in card && card.caseStudyHref ? (
+                      <Link
+                        href={card.caseStudyHref}
+                        className="inline-flex items-center gap-1 text-sm text-zinc-500 underline underline-offset-4 hover:text-white"
+                      >
+                        Case study
+                      </Link>
+                    ) : null}
+                  </div>
                 </div>
               </article>
             ))}
@@ -704,7 +716,6 @@ export function SaasMvpDevelopmentClient() {
         </p>
       </div>
       <MvpMobileStickyCtas />
-      <MvpPageHelper />
     </main>
   );
 }

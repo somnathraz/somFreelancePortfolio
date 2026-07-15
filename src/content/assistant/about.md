@@ -5,9 +5,11 @@ Senior full-stack engineer and founder of Somanath Studio. I build and ship SaaS
 
 ## Experience
 - 4+ years of SaaS development experience
+- Currently SDE4 at IQVIA (May 2025 – Present) — after ABInBev; healthcare / life-sciences, analytics-heavy backends
+- Previously ABInBev (full-stack), Learnbay and Skillslash
 - Shipped production MVPs in as little as 21 days
 - Achieved 60% latency reduction on client projects
-- Currently running 2 live production products
+- Live products including Outspokn, VGT, PaperChai and commerce platforms
 
 ## What I Build
 - SaaS MVPs from idea to production
@@ -19,7 +21,7 @@ Senior full-stack engineer and founder of Somanath Studio. I build and ship SaaS
 - **Frontend**: React, Next.js, TypeScript, Tailwind CSS, Framer Motion
 - **Backend**: Node.js, Express, PostgreSQL, MongoDB
 - **AI**: OpenAI API, AI APIs, prompt engineering
-- **Infrastructure**: AWS, Docker, Vercel, Cloudflare
+- **Infrastructure**: AWS, GCP, Docker, Kubernetes, CI/CD native pipelines, Nginx, Vercel, Cloudflare
 - **Payments**: Razorpay, Stripe
 
 ## Availability
