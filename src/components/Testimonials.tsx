@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, ExternalLink } from "lucide-react";
+import { ArrowUpRight, Check, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
 
 const proofProjects = [
@@ -11,10 +11,14 @@ const proofProjects = [
         label: "Live Production App",
         project: "LocalBoyNani Seafoods",
         tagline: "Premium seafood delivery — shore to door in 120 mins",
-        description:
-            "Full-stack e-commerce platform for a real business. Chemical-free seafood sourced directly from coastal fishermen, delivered across Bangalore, Hyderabad & Chennai. Built solo — storefront, admin dashboard, order lifecycle, secure payments, B2B bulk ordering.",
+        highlights: [
+            "Live & taking orders across 3 cities",
+            "120-min delivery SLA UX",
+            "Payments + admin + B2B bulk flow",
+            "Cloudflare R2 image delivery",
+        ],
         stack: ["Next.js", "Tailwind CSS", "Cloudflare R2", "Node.js"],
-        metric: "Live & taking orders",
+        metric: "3 cities live",
         metricColor: "text-emerald-400",
         borderAccent: "before:bg-emerald-500",
         image: "/images/project-7.png",
@@ -28,16 +32,20 @@ const proofProjects = [
         label: "Founder Project · SaaS · AI",
         project: "PaperChai",
         tagline: "Turn a Google Business profile into a booking-ready website",
-        description:
-            "India-first profile-to-website builder for small businesses and solo professionals. Imports existing information — Google Maps, visiting cards, documents, social profiles — then generates a polished one-page site with booking, WhatsApp, and review-before-publish. Built solo as a real product.",
+        highlights: [
+            "AI-powered website generation",
+            "Booking + WhatsApp enquiries",
+            "Auth, domains & Razorpay-ready",
+            "SEO-ready one-page sites",
+        ],
         stack: ["Next.js", "TypeScript", "PostgreSQL", "AI APIs"],
-        metric: "In active development",
+        metric: "Live SaaS",
         metricColor: "text-amber-400",
         borderAccent: "before:bg-amber-500",
         image: "/images/Project-1.png",
         imageAlt: "PaperChai — Google profile to booking-ready website",
         link: "/projects/paperchai",
-        linkLabel: "Read the full case study",
+        linkLabel: "View architecture →",
         external: false,
     },
 ];
@@ -147,10 +155,15 @@ export function Testimonials() {
                             </h3>
                             <p className="text-sm text-zinc-500 italic mb-5">{item.tagline}</p>
 
-                            {/* Description */}
-                            <p className="text-sm text-zinc-400 leading-relaxed mb-7 flex-1">
-                                {item.description}
-                            </p>
+                            {/* Measurable highlights — convert better than long blurbs */}
+                            <ul className="mb-7 flex-1 space-y-2">
+                                {item.highlights.map((h) => (
+                                    <li key={h} className="flex items-start gap-2 text-sm text-zinc-300">
+                                        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />
+                                        {h}
+                                    </li>
+                                ))}
+                            </ul>
 
                             {/* Stack pills */}
                             <div className="flex flex-wrap gap-2 mb-8">

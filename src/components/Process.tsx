@@ -3,43 +3,50 @@ import React from "react";
 export function Process() {
     const steps = [
         {
-            title: "1. Discovery",
-            description: "Get clear on the product, the users, and what version one really needs.",
+            title: "1. Discovery call",
+            description: "Clarify the product, users, risks and what version one actually needs.",
         },
         {
-            title: "2. Scoping & Architecture",
-            description: "Define the build plan, stack decisions, and milestones.",
+            title: "2. MVP scope",
+            description: "Lock features, stack, milestones and a fixed build plan you can trust.",
         },
         {
-            title: "3. Build & Iterate",
-            description: "Ship in small iterations with regular updates and feedback.",
+            title: "3. Weekly builds",
+            description: "Ship in small iterations with demos, feedback and visible progress every week.",
         },
         {
-            title: "4. Launch & Improve",
-            description: "Deploy, monitor, fix issues, and support next priorities.",
+            title: "4. Production launch",
+            description: "Deploy, monitor, harden auth/payments/ops and get real users on the product.",
+        },
+        {
+            title: "5. Support",
+            description: "Handover, documentation and optional post-launch improvements.",
         },
     ];
 
     return (
-        <section id="process" className="relative z-10 bg-black py-20 md:py-32 px-4 border-t border-white/5">
+        <section id="process" className="relative z-10 border-t border-white/5 bg-black px-4 py-20 md:py-32">
             <div className="container mx-auto max-w-7xl px-4 md:px-0">
                 <div className="mb-16 text-left">
+                    <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">
+                        — What happens next
+                    </p>
                     <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">
-                        How I work
+                        How delivery works
                     </h2>
-                    <p className="mt-4 text-zinc-500 max-w-xl text-lg">
-                        You always know what is being built, why it matters, and what comes next.
+                    <p className="mt-4 max-w-xl text-lg text-zinc-500">
+                        Clear steps so a $5k–20k project never feels like a black box.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+                <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-5 lg:gap-6">
                     {steps.map((step, index) => (
-                        <div key={index} className="flex flex-col gap-3 group">
-                            <h3 className="text-lg font-bold text-white uppercase tracking-widest text-zinc-100 group-hover:text-white transition-colors">
+                        <div key={index} className="group flex flex-col gap-3">
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-100 transition-colors group-hover:text-white md:text-base">
                                 {step.title}
                             </h3>
-                            <div className="h-0.5 w-12 bg-white/10 group-hover:w-full group-hover:bg-white/30 transition-all duration-500" />
-                            <p className="text-zinc-500 text-sm md:text-base leading-relaxed">
+                            <div className="h-0.5 w-12 bg-white/10 transition-all duration-500 group-hover:w-full group-hover:bg-emerald-500/40" />
+                            <p className="text-sm leading-relaxed text-zinc-500 md:text-base">
                                 {step.description}
                             </p>
                         </div>

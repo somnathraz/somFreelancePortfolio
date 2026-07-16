@@ -50,12 +50,19 @@ const caseStudyCards = [
     solves: "Turn Google / social business profiles into booking-ready websites",
     timeline: "Founder-built SaaS MVP",
     role: "Solo product + engineering",
-    result: "Live: AI generation, booking, domains, payments",
+    result: "Live AI generation · booking · domains · payments architecture",
+    highlights: [
+      "AI-powered site generation",
+      "Booking + WhatsApp enquiries",
+      "Auth & multi-source import",
+      "SEO-ready publishing",
+      "Subdomain + custom domains",
+    ],
     stack: "Next.js · PostgreSQL · AI APIs · Razorpay",
     image: "/images/blog/paperchai-booking-ready-website.png",
     imageAlt: "PaperChai — booking-ready website product",
     href: "/projects/paperchai",
-    hrefLabel: "View case study",
+    hrefLabel: "View architecture",
     liveHref: "https://paperchaiapp.com",
   },
   {
@@ -64,7 +71,13 @@ const caseStudyCards = [
     solves: "Take seafood orders online with real multi-city operations",
     timeline: "Production commerce platform",
     role: "Full-stack product build",
-    result: "Live orders · payments · admin · 120-min delivery UX",
+    result: "Live orders · 3 cities · 120-min delivery UX",
+    highlights: [
+      "Live production commerce",
+      "3-city coverage",
+      "Payments + admin dashboard",
+      "120-min delivery SLA UX",
+    ],
     stack: "Next.js · payments · admin",
     image: "/images/project-7.png",
     imageAlt: "LocalBoyNani Seafoods storefront",
@@ -79,6 +92,12 @@ const caseStudyCards = [
     timeline: "End-to-end transport management",
     role: "Full product architecture + build",
     result: "Live demo: tracking, routes, role-based access",
+    highlights: [
+      "Fleet + shipment ops",
+      "Role-based access",
+      "Route management",
+      "Production demo live",
+    ],
     stack: "Next.js · ops dashboard · auth",
     image: "/images/project-10.png",
     imageAlt: "VGT Transport Management System",
@@ -186,16 +205,20 @@ const faqItems = [
     a: "Many focused MVPs ship in a few weeks. Timeline depends on the core workflow and how decided the product already is.",
   },
   {
+    q: "Is it fixed price?",
+    a: "Yes for a defined MVP scope. You get a feature list, timeline and price before work starts. New requests are handled as separate changes — not silent scope creep.",
+  },
+  {
+    q: "Who owns the IP and source code?",
+    a: "You do. Repositories, accounts, infrastructure and documentation are yours. Handover is designed so you can continue without me if needed.",
+  },
+  {
+    q: "Do you sign NDAs?",
+    a: "Yes. NDA-friendly engagement is standard for founder and agency work, including white-label arrangements.",
+  },
+  {
     q: "Can you work with a non-technical founder?",
     a: "Yes. A large part of the work is translating product goals into scope, architecture and weekly progress you can understand without writing code.",
-  },
-  {
-    q: "Will I own the source code?",
-    a: "Yes. You own the codebase, accounts and infrastructure. Handover includes repositories, deployment access and enough documentation to continue without me if needed.",
-  },
-  {
-    q: "Can you improve an existing MVP?",
-    a: "Yes. I can harden fragile MVPs, improve performance, clean architecture, add features, or prepare an existing product for real users and growth.",
   },
   {
     q: "What happens after launch?",
@@ -336,6 +359,16 @@ export function SaasMvpDevelopmentClient() {
                       </dt>
                       <dd className="mt-1 text-emerald-400/90">{card.result}</dd>
                     </div>
+                    {"highlights" in card && card.highlights && (
+                      <ul className="mt-2 space-y-1.5">
+                        {card.highlights.map((h) => (
+                          <li key={h} className="flex items-start gap-2 text-sm text-zinc-300">
+                            <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />
+                            {h}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                     <div>
                       <dt className="font-mono text-[10px] uppercase tracking-widest text-zinc-600">
                         Stack

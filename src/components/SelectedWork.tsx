@@ -55,17 +55,22 @@ export function SelectedWork({ hideIntro = false }: SelectedWorkProps) {
     return (
         <div className="relative w-full py-8 md:py-24 px-4 overflow-hidden bg-black">
             {!hideIntro && (
-                <div className="flex flex-col items-center gap-4 text-center z-10 mb-6 md:mb-12">
+                <div className="z-10 mb-6 flex flex-col items-center gap-4 text-center md:mb-12">
+                    <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">
+                        — Products built
+                    </p>
                     <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">
-                        Selected work
+                        Case studies &amp; live products
                     </h2>
-                    <p className="text-zinc-400 max-w-lg">
+                    <p className="max-w-lg text-zinc-400">
                         <span className="font-semibold text-white">
-                            Live products you can open today — Google Play, demos and production
-                            apps — plus a few personal experiments.
+                            Proof before the pitch — live apps, measurable outcomes, real architecture.
                         </span>
                         <br />
-                        Click any card for the full breakdown.
+                        Click any card for the full breakdown.{" "}
+                        <a href="/case-studies" className="text-white underline underline-offset-4 hover:text-zinc-300">
+                            View all case studies
+                        </a>
                     </p>
                 </div>
             )}
@@ -398,26 +403,31 @@ const data = [
         >
             <div className="mt-8 space-y-6 text-neutral-600 dark:text-neutral-400">
                 <section>
-                    <h4 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">The problem</h4>
-                    <p>Small businesses are online, but their information is scattered across Google Maps, Instagram and WhatsApp. Website builders still start from a blank page. PaperChai starts from what they already have.</p>
+                    <h4 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-white">Results that matter</h4>
+                    <ul className="list-disc space-y-1 pl-5">
+                        <li>Founder-built SaaS with AI generation live</li>
+                        <li>Booking, WhatsApp and enquiry workflows</li>
+                        <li>Auth, multi-tenant-ready data, payments architecture</li>
+                        <li>SEO-ready published sites with stable republish URLs</li>
+                        <li>Wildcard subdomains + custom domain flow</li>
+                    </ul>
                 </section>
 
                 <section>
-                    <h4 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">What it does</h4>
-                    <ul className="list-disc pl-5 space-y-1">
+                    <h4 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-white">What it does</h4>
+                    <ul className="list-disc space-y-1 pl-5">
                         <li>Import from Google Business / Maps (primary launch source)</li>
                         <li>AI-assisted content and multi-template one-page sites</li>
                         <li>Review-before-publish, edit and republish on the same URL</li>
                         <li>WhatsApp, email booking, calendar embeds and native scheduling</li>
-                        <li>Wildcard subdomains and owner custom domains</li>
                     </ul>
                 </section>
 
-                <div className="pt-2 flex flex-wrap gap-4">
-                    <a href="/projects/paperchai" className="inline-flex items-center gap-2 text-amber-600 dark:text-amber-400 font-medium hover:underline">
-                        Read the full case study →
+                <div className="flex flex-wrap gap-4 pt-2">
+                    <a href="/projects/paperchai" className="inline-flex items-center gap-2 font-medium text-amber-600 hover:underline dark:text-amber-400">
+                        View architecture →
                     </a>
-                    <a href="https://paperchaiapp.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-neutral-600 dark:text-neutral-300 font-medium hover:underline">
+                    <a href="https://paperchaiapp.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-medium text-neutral-600 hover:underline dark:text-neutral-300">
                         Visit PaperChai →
                     </a>
                 </div>

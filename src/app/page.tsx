@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Navbar } from "@/components/Navbar"
 import { Hero } from "@/components/Hero"
+import { Footer } from "@/components/Footer"
 import { Code2, Database, LayoutTemplate, Server, Box } from "lucide-react"
 import Marquee from "@/components/magicui/marquee"
 import { HomeDeferredContent } from "@/components/HomeDeferredContent"
@@ -117,11 +118,11 @@ export default function Home() {
       <Navbar />
       <Hero />
 
-      {/* Trusted By Marquee */}
-      <section id="tech-stack" className="relative z-10 mt-32 border-b border-white/5 bg-black/50 py-12 backdrop-blur-sm">
-        <div className="container mx-auto px-4 mb-8 text-center">
+      {/* Compact trust strip — stack only, then straight into proof */}
+      <section id="tech-stack" className="relative z-10 border-b border-white/5 bg-black/50 py-10 backdrop-blur-sm">
+        <div className="container mx-auto mb-6 px-4 text-center">
           <span className="text-sm font-medium uppercase tracking-widest text-muted-foreground/50">
-            Trusted stack for shipping modern SaaS products fast
+            Production stack used across live SaaS products
           </span>
         </div>
         <Marquee pauseOnHover className="[--duration:20s]">
@@ -135,24 +136,11 @@ export default function Home() {
         </Marquee>
       </section>
 
-      <section id="explore-services" className="relative z-10 border-y border-white/5 bg-black/40 py-10">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-sm uppercase tracking-widest text-zinc-500">Explore Services</p>
-          <div className="mt-4 flex flex-wrap justify-center gap-3">
-            <Link href="/services/saas-mvp-development" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">SaaS MVP Development</Link>
-            <Link href="/services/nextjs-performance-optimization" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">Next.js Performance Optimization</Link>
-            <Link href="/services/production-readiness-upgrade" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">Production Readiness Upgrade</Link>
-            <Link href="/services/ai-saas-development" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">AI SaaS Development</Link>
-            <Link href="/stories" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">Web Stories</Link>
-            <Link href="/blog" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">Read Blog</Link>
-          </div>
-        </div>
-      </section>
+      {/* Conversion flow: proof → why hire → comparison → services → process → FAQ → CTA */}
+      <HomeDeferredContent />
 
-      {/* Latest from the blog — links are server-rendered (client component still
-          SSRs) so crawlers see all 6 post URLs in the initial HTML. */}
-      <section id="latest-posts" className="relative z-10 overflow-hidden bg-black py-24 md:py-32">
-        {/* Soft radial spotlight to match the rest of the site's premium dark aesthetic */}
+      {/* Blog after conversion sections — useful for SEO, not before proof */}
+      <section id="latest-posts" className="relative z-10 overflow-hidden border-t border-white/5 bg-black py-24 md:py-32">
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="h-[24rem] w-[24rem] rounded-full bg-indigo-500/[0.07] blur-[120px]" />
         </div>
@@ -161,14 +149,14 @@ export default function Home() {
         <div className="container relative z-10 mx-auto max-w-6xl px-4">
           <div className="mb-12 flex flex-col items-start justify-between gap-6 md:mb-16 md:flex-row md:items-end">
             <div className="max-w-xl">
-              <p className="mb-3 text-xs font-mono uppercase tracking-widest text-zinc-500">
+              <p className="mb-3 font-mono text-xs uppercase tracking-widest text-zinc-500">
                 — From the blog
               </p>
               <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">
                 Notes from shipping SaaS
               </h2>
               <p className="mt-4 text-zinc-400">
-                Practical writing on Next.js, performance, AI features, and the production work
+                Practical writing on MVP cost, hiring, Next.js, AI features, and production work
                 most posts don&apos;t cover.
               </p>
             </div>
@@ -201,7 +189,7 @@ export default function Home() {
         </div>
       </section>
 
-      <HomeDeferredContent />
+      <Footer />
     </main>
   )
 }

@@ -72,9 +72,9 @@ export function Hero() {
                             <ArrowRight className="ml-2 h-4 w-4" />
                         </Link>
                     </Button>
-                    <Link href="/agency-development-partner">
+                    <Link href="#work">
                         <Button variant="outline" size="lg" className="h-12 min-w-[220px] text-base border-white/10 hover:bg-white/5 hover:text-white">
-                            For agencies
+                            See case studies
                         </Button>
                     </Link>
                 </div>
