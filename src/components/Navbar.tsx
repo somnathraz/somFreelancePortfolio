@@ -5,11 +5,11 @@ import { Logo } from "@/components/Logo"
 export function Navbar() {
     return (
         <header className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b border-white/5 bg-black/50 px-6 backdrop-blur-md">
-            <Link href="/" className="flex items-center gap-2 group">
-                <Logo className="w-8 h-8 text-white transition-transform group-hover:scale-110" />
-                <span className="text-xl font-bold tracking-tight text-white">
-                    Somanath Studio
-                </span>
+            <Link href="/" className="group flex items-center">
+                <Logo
+                    priority
+                    className="h-9 w-auto transition-transform group-hover:scale-[1.02]"
+                />
             </Link>
 
             <nav className="hidden gap-8 md:flex">

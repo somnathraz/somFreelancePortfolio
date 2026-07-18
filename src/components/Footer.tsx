@@ -11,12 +11,7 @@ export function Footer() {
                 <div className="flex flex-col items-center gap-8 text-center">
                     {/* Brand + tagline + socials */}
                     <div className="flex max-w-md flex-col items-center gap-3">
-                        <div className="flex items-center gap-2">
-                            <Logo className="h-6 w-6 text-white" />
-                            <div className="text-xl font-bold italic tracking-tight text-white">
-                                Somanath Studio
-                            </div>
-                        </div>
+                        <Logo className="h-10 w-auto" />
                         <p className="text-sm font-medium text-zinc-500">
                             SaaS development partner for founders, agencies, freelancers and consultants.
                         </p>

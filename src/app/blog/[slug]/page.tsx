@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { Navbar } from '@/components/Navbar';
@@ -9,8 +10,7 @@ import { Footer } from '@/components/Footer';
 import { getPostBySlug, getPostSlugs } from '@/lib/blog';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { BlogTracker } from '@/components/ai-helper/BlogTracker';
-
-const siteUrl = 'https://somanathkhadanga.com';
+import { siteLogoUrl, siteUrl } from '@/lib/site';
 
 function getPostShareImage(post: ReturnType<typeof getPostBySlug>) {
     const shareImage = post.frontmatter.shareImage;
@@ -71,6 +71,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
     const post = getPostBySlug(slug);
+
+    if (slug !== post.slug) {
+        redirect(`/blog/${post.slug}`);
+    }
+
     const formattedDate = format(new Date(post.frontmatter.date), 'MMMM d, yyyy');
     const postUrl = `${siteUrl}/blog/${post.slug}`;
     const shareImage = getPostShareImage(post);
@@ -95,7 +100,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             url: siteUrl,
             logo: {
                 '@type': 'ImageObject',
-                url: `${siteUrl}/icon.svg`,
+                url: siteLogoUrl,
             },
         },
         inLanguage: 'en',

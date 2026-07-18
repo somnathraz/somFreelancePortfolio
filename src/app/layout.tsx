@@ -5,6 +5,7 @@ import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { MicrosoftClarity } from "@/components/MicrosoftClarity";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { SiteHelper } from "@/components/ai-helper";
+import { siteLogoPath, siteLogoUrl } from "@/lib/site";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -60,7 +61,8 @@ export const metadata: Metadata = {
     images: ["/og?title=Somanath%20Studio"],
   },
   icons: {
-    icon: "/icon.svg",
+    icon: siteLogoPath,
+    apple: "/apple-icon.png",
   },
 };
 
@@ -72,7 +74,7 @@ const jsonLd = {
       "@id": "https://somanathkhadanga.com/#organization",
       "name": "Somanath Studio",
       "url": "https://somanathkhadanga.com",
-      "logo": "https://somanathkhadanga.com/icon.svg",
+      "logo": siteLogoUrl,
       "description": "SaaS development partner for founders, agencies, freelancers and consultants. Next.js, Node.js and AI SaaS. White-label and NDA-friendly.",
       "founder": {
         "@type": "Person",

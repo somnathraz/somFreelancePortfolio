@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getWebStoryBySlug } from "@/lib/web-stories";
+import { siteLogoUrl } from "@/lib/site";
 
 function escapeHtml(value: string) {
   return value
@@ -220,7 +221,7 @@ function renderStoryHtml(slug: string) {
       standalone
       title="${escapeHtml(story.title)}"
       publisher="Somanath Studio"
-      publisher-logo-src="${baseUrl}/icon.svg"
+      publisher-logo-src="${siteLogoUrl}"
       poster-portrait-src="${posterUrl}"
       poster-square-src="${posterUrl}"
       poster-landscape-src="${posterUrl}">

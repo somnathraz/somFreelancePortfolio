@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ProductionReadinessClient } from "@/components/services/ProductionReadinessClient";
+import { siteLogoUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Production Readiness Upgrade for SaaS | Somanath Studio",
@@ -43,7 +44,7 @@ export default function ProductionReadinessPage() {
       "@id": "https://somanathkhadanga.com/#organization",
       name: "Somanath Studio",
       url: "https://somanathkhadanga.com",
-      logo: "https://somanathkhadanga.com/icon.svg",
+      logo: siteLogoUrl,
     },
     areaServed: "Worldwide",
     url: "https://somanathkhadanga.com/services/production-readiness-upgrade",

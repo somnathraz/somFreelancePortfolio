@@ -1,13 +1,16 @@
 import { ImageResponse } from "next/og";
+import { siteLogoPath } from "@/lib/site";
 
 export const runtime = "edge";
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
+  const { searchParams, origin } = new URL(request.url);
   const title = searchParams.get("title") ?? "Somanath Studio";
   const subtitle =
     searchParams.get("subtitle") ??
     "SaaS MVP Development, Performance Optimization, and Production Readiness";
+
+  const logoData = await fetch(new URL(siteLogoPath, origin)).then((res) => res.arrayBuffer());
 
   return new ImageResponse(
     (
@@ -23,15 +26,12 @@ export async function GET(request: Request) {
           padding: "64px",
         }}
       >
-        <div
-          style={{
-            fontSize: 28,
-            letterSpacing: 2,
-            opacity: 0.8,
-          }}
-        >
-          SOMANATH STUDIO
-        </div>
+        <img
+          src={logoData as unknown as string}
+          alt="Somanath Studio"
+          height={72}
+          style={{ objectFit: "contain", objectPosition: "left center" }}
+        />
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div
             style={{

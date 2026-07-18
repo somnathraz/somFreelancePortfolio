@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AiSaasDevelopmentClient } from "@/components/services/AiSaasDevelopmentClient";
+import { siteLogoUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "AI SaaS Development for Founders | Somanath Studio",
@@ -43,7 +44,7 @@ export default function AiSaasDevelopmentPage() {
       "@id": "https://somanathkhadanga.com/#organization",
       name: "Somanath Studio",
       url: "https://somanathkhadanga.com",
-      logo: "https://somanathkhadanga.com/icon.svg",
+      logo: siteLogoUrl,
     },
     areaServed: "Worldwide",
     url: "https://somanathkhadanga.com/services/ai-saas-development",
