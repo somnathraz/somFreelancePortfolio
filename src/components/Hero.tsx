@@ -15,23 +15,35 @@ export function Hero() {
         setMounted(true);
     }, []);
 
-    let headlineMain = "SaaS development partner";
-    let headlineAccent = "for founders, agencies and freelancers.";
-    let descriptionText = "I build and upgrade SaaS products with Next.js, Node.js and practical AI — white-label friendly, NDA-ready, remote for international clients.";
+    let headlineMain = "Senior-Led SaaS Development";
+    let headlineAccent = "Without the Agency Layers";
+    let descriptionText =
+        "Build, improve, or rescue your software with an experienced technical lead and a flexible engineering team selected around your scope, timeline, and budget.";
+    let trustLine =
+        "Direct access to the engineers building your product. No sales-to-development handoff. Specialists added only when required.";
 
     if (mounted && selectedJourneyId) {
         if (selectedJourneyId === "build-saas") {
-            headlineMain = "SaaS MVP development partner";
-            headlineAccent = "launch your product to production in 21 days.";
-            descriptionText = "I build high-quality SaaS MVPs with Next.js, Node.js, and clean architecture so you can get user feedback and iterate fast.";
+            headlineMain = "Senior-Led SaaS MVP Development";
+            headlineAccent = "from idea to production.";
+            descriptionText =
+                "Launch with an experienced technical lead and a compact product team sized for your MVP — Next.js, Node.js, and clean architecture.";
+            trustLine =
+                "Direct access to the people building your product. Specialists added only when the scope needs them.";
         } else if (selectedJourneyId === "add-ai") {
-            headlineMain = "AI SaaS engineering partner";
-            headlineAccent = "add AI features that earn their place in the product.";
-            descriptionText = "I implement AI-assisted workflows, copilot interfaces, and document understanding pipelines that solve real user problems.";
+            headlineMain = "AI SaaS Engineering";
+            headlineAccent = "led by experienced product engineers.";
+            descriptionText =
+                "Add AI-assisted workflows, copilots, and document understanding with a senior technical lead and specialists when the feature needs them.";
+            trustLine =
+                "Practical AI features tied to real product outcomes — not demo theatre.";
         } else if (selectedJourneyId === "improve-product") {
-            headlineMain = "SaaS upgrade partner";
-            headlineAccent = "optimize Next.js and secure your architecture.";
-            descriptionText = "Fix latency problems, optimize Core Web Vitals, upgrade MVPs to production readiness, and scale your tech stack.";
+            headlineMain = "SaaS Upgrade Partner";
+            headlineAccent = "performance, readiness, and rescue.";
+            descriptionText =
+                "Fix latency, Core Web Vitals, and fragile foundations with a senior engineer — and specialists when the bottleneck crosses layers.";
+            trustLine =
+                "Direct engineering access. Flexible delivery capacity when remediation needs more hands.";
         }
     }
 
@@ -49,7 +61,7 @@ export function Hero() {
                 <header className="space-y-4">
                     <div className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900/50 px-3 py-1 text-sm text-zinc-400 backdrop-blur-sm">
                         <span className="flex h-2 w-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
-                        For founders · agencies · freelancers · consultants
+                        Founder-led engineering studio · flexible senior team
                     </div>
 
                     <h1 className="text-4xl font-bold tracking-tighter text-white sm:text-5xl xl:text-6xl">
@@ -63,18 +75,21 @@ export function Hero() {
                     <p className="mx-auto max-w-3xl text-lg text-zinc-400 sm:text-xl">
                         {descriptionText}
                     </p>
+                    <p className="mx-auto max-w-2xl text-sm text-zinc-500">
+                        {trustLine}
+                    </p>
                 </header>
 
                 <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                     <Button asChild size="lg" className="h-12 min-w-[220px] text-base bg-white text-black hover:bg-zinc-200">
-                        <Link href="/book">
-                            Book a 20-minute strategy call
+                        <Link href="/contact">
+                            Talk to an Engineer
                             <ArrowRight className="ml-2 h-4 w-4" />
                         </Link>
                     </Button>
                     <Link href="#work">
                         <Button variant="outline" size="lg" className="h-12 min-w-[220px] text-base border-white/10 hover:bg-white/5 hover:text-white">
-                            See case studies
+                            See Our Work
                         </Button>
                     </Link>
                 </div>

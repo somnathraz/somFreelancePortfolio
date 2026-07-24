@@ -3,16 +3,16 @@ import { NextjsPerformanceClient } from "@/components/services/NextjsPerformance
 import { siteLogoUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-    title: "Next.js Performance Optimization for SaaS | Somanath Studio",
+    title: "Next.js Performance Optimization Services | Somanath Studio",
     description:
-        "Fix slow Next.js 16 pages, poor Core Web Vitals, and App Router bottlenecks in your SaaS. LCP, INP, and React Compiler evaluation for real performance gains.",
+        "Next.js performance optimization without a full rewrite. Core Web Vitals, App Router bottlenecks, and senior-led fixes with specialists when needed.",
     alternates: {
         canonical: "/services/nextjs-performance-optimization",
     },
     openGraph: {
-        title: "Next.js Performance Optimization for SaaS | Somanath Studio",
+        title: "Next.js Performance Optimization Services | Somanath Studio",
         description:
-            "Fix slow Next.js 16 pages, poor Core Web Vitals, and App Router bottlenecks. LCP, INP, and React Compiler evaluation included.",
+            "Fix slow Next.js pages and Core Web Vitals issues without rewriting everything.",
         url: "/services/nextjs-performance-optimization",
         type: "website",
         images: [
@@ -20,15 +20,15 @@ export const metadata: Metadata = {
                 url: "/og?title=Next.js%20Performance%20Optimization",
                 width: 1200,
                 height: 630,
-                alt: "Next.js Performance Optimization for SaaS",
+                alt: "Next.js Performance Optimization Services",
             },
         ],
     },
     twitter: {
         card: "summary_large_image",
-        title: "Next.js Performance Optimization for SaaS | Somanath Studio",
+        title: "Next.js Performance Optimization Services | Somanath Studio",
         description:
-            "Fix slow Next.js 16 pages, poor Core Web Vitals, and App Router bottlenecks. LCP, INP, and React Compiler evaluation included.",
+            "Fix slow Next.js pages and Core Web Vitals issues without rewriting everything.",
         images: ["/og?title=Next.js%20Performance%20Optimization"],
     },
 };

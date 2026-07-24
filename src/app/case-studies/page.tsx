@@ -118,7 +118,7 @@ export default function CaseStudiesPage() {
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Button asChild className="bg-white text-black hover:bg-zinc-200">
-                            <Link href="/book">Book a 20-minute strategy call</Link>
+                            <Link href="/contact">Talk to an Engineer</Link>
                         </Button>
                         <Button asChild variant="outline" className="border-white/10 hover:bg-white/5 hover:text-white">
                             <Link href="/projects/paperchai">PaperChai case study</Link>

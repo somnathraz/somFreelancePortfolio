@@ -3,16 +3,16 @@ import { AiSaasDevelopmentClient } from "@/components/services/AiSaasDevelopment
 import { siteLogoUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "AI SaaS Development for Founders | Somanath Studio",
+  title: "AI SaaS Development Services for Startups | Somanath Studio",
   description:
-    "Practical AI SaaS features for founders: MCP servers, AI agents, copilots, and semantic search. Built to work in production, not just demos.",
+    "AI SaaS development services for startups: agents, RAG, copilots, and production-ready AI features led by experienced engineers.",
   alternates: {
     canonical: "/services/ai-saas-development",
   },
   openGraph: {
-    title: "AI SaaS Development for Founders | Somanath Studio",
+    title: "AI SaaS Development Services for Startups | Somanath Studio",
     description:
-      "Practical AI SaaS features: MCP servers, AI agents, copilots, and semantic search — built for production use, not demos.",
+      "Practical AI SaaS features: agents, copilots, and semantic search — built for production use, not demos.",
     url: "/services/ai-saas-development",
     type: "website",
     images: [
@@ -20,15 +20,15 @@ export const metadata: Metadata = {
         url: "/og?title=AI%20SaaS%20Development",
         width: 1200,
         height: 630,
-        alt: "AI SaaS Development for Founders",
+        alt: "AI SaaS Development Services for Startups",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI SaaS Development for Founders | Somanath Studio",
+    title: "AI SaaS Development Services for Startups | Somanath Studio",
     description:
-      "Practical AI SaaS features: MCP servers, AI agents, copilots, and semantic search — built for production use, not demos.",
+      "Practical AI SaaS features: agents, copilots, and semantic search — built for production use, not demos.",
     images: ["/og?title=AI%20SaaS%20Development"],
   },
 };

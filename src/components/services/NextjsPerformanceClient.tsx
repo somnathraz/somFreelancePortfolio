@@ -25,6 +25,7 @@ import { SectionWhoItsFor } from "@/components/services/SectionWhoItsFor";
 import { SectionIncidentBoard } from "@/components/services/SectionIncidentBoard";
 import { SectionPhasedPipeline } from "@/components/services/SectionPhasedPipeline";
 import { SectionOutcomesBoard } from "@/components/services/SectionOutcomesBoard";
+import { DeliveryModelSection } from "@/components/DeliveryModelSection";
 import type { WhoItsForPersona } from "@/components/services/SectionWhoItsFor";
 import type { ServiceIncident } from "@/components/services/SectionIncidentBoard";
 import type { ServicePhase } from "@/components/services/SectionPhasedPipeline";
@@ -607,18 +608,19 @@ export function NextjsPerformanceClient() {
                         </div>
 
                         <h1 className="text-4xl font-bold tracking-tighter text-white sm:text-5xl xl:text-6xl leading-[1.05]">
-                            Speed up your Next.js product — without rewriting everything.
+                            Next.js Performance Optimization Without a Full Rewrite
                         </h1>
 
                         <p className="max-w-xl text-lg text-zinc-400">
                             Your Next.js app got slower as it grew. That&apos;s normal. Fixing it without rewriting
-                            the whole thing is the part most teams get wrong — and the part I do every week.
+                            the whole thing is the part most teams get wrong — and the part a senior engineer
+                            should lead.
                         </p>
 
                         <div className="flex flex-col items-center gap-4 sm:flex-row lg:items-start">
                                 <Button asChild size="lg" className="h-12 min-w-[220px] bg-white text-base text-black hover:bg-zinc-200">
-                                    <Link href="/book">
-                                    Book a 20-minute strategy call
+                                    <Link href="/contact">
+                                    Discuss Your Requirements With an Engineer
                                     <ArrowRight className="ml-2 h-4 w-4" />
                                     </Link>
                                 </Button>
@@ -808,6 +810,10 @@ export function NextjsPerformanceClient() {
             </section>
             </DeferredSection>
 
+            <DeferredSection minHeightClassName="h-[420px]">
+                <DeliveryModelSection contextLine="Performance work is led by a senior engineer, with backend, database, DevOps, or frontend specialists added when the bottleneck crosses multiple layers." />
+            </DeferredSection>
+
             {/* ── Final CTA ── */}
             <DeferredSection minHeightClassName="h-[520px]">
             <section className="relative flex w-full flex-col items-center justify-center overflow-hidden border-t border-white/10 bg-black px-4 py-32 text-center">
@@ -819,15 +825,16 @@ export function NextjsPerformanceClient() {
                             Slow products lose users quietly. Yours doesn&apos;t have to.
                         </h2>
                         <p className="max-w-2xl text-lg text-zinc-400 md:text-xl">
-                            I help SaaS teams improve Next.js performance in practical, high-impact ways — so the product feels faster, behaves better, and supports growth more cleanly.
+                            Choose audit only, audit plus implementation, or ongoing performance support —
+                            led by a senior engineer with specialists when needed.
                         </p>
                     </div>
                     <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 flex flex-col items-center gap-4">
                         <Link
-                            href="/book"
+                            href="/contact"
                             className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white px-6 py-3 text-base font-semibold text-black shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] transition-transform duration-300 hover:scale-[1.02] hover:bg-zinc-200"
                         >
-                                    Book a 20-minute strategy call
+                                    Discuss Your Requirements With an Engineer
                         </Link>
                         <Link href="/case-studies" className="inline-flex items-center gap-2 text-zinc-300 underline underline-offset-4 hover:text-white">
                             View relevant case studies

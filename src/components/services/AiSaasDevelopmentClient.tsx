@@ -12,6 +12,7 @@ import { DeferredSection } from "@/components/DeferredSection";
 import { ClientMobileNav } from "@/components/ClientMobileNav";
 import { ServiceSectionCard } from "@/components/services/ServiceSectionCard";
 import { AnimatedSectionHeading } from "@/components/services/AnimatedSectionHeading";
+import { DeliveryModelSection } from "@/components/DeliveryModelSection";
 
 const fitItems = [
   "Want to add AI features to an existing SaaS product",
@@ -129,19 +130,23 @@ export function AiSaasDevelopmentClient() {
               <span className="mr-2 flex h-2 w-2 animate-pulse rounded-full bg-violet-400" />
               AI SaaS Development
             </div>
-            <h1 className="text-4xl font-bold tracking-tighter text-white sm:text-5xl xl:text-6xl">
+            <p className="text-sm font-medium text-zinc-500">
               AI features that earn their place in the product.
+            </p>
+            <h1 className="text-4xl font-bold tracking-tighter text-white sm:text-5xl xl:text-6xl">
+              AI SaaS Development for Reliable, Production-Ready Products
             </h1>
             <p className="mx-auto max-w-3xl text-lg text-zinc-400 sm:text-xl">
               The interesting question isn&apos;t &quot;how do we add AI?&quot; — it&apos;s which feature actually
-              makes the product more useful. I help founders figure that out, then build it.
+              makes the product more useful. We help founders figure that out, then build it with a
+              senior technical lead and AI specialists when the scope needs them.
             </p>
           </header>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button asChild size="lg" className="h-12 min-w-[220px] bg-white text-base text-black hover:bg-zinc-200">
-                <Link href="/book">
-                Book a 20-minute strategy call
+                <Link href="/contact">
+                Discuss Your Requirements With an Engineer
                 <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
@@ -329,6 +334,10 @@ export function AiSaasDevelopmentClient() {
       </section>
       </DeferredSection>
 
+      <DeferredSection minHeightClassName="h-[420px]">
+        <DeliveryModelSection contextLine="AI work is senior-led, with model, retrieval, frontend, or backend specialists added when the feature crosses multiple layers." />
+      </DeferredSection>
+
       <DeferredSection minHeightClassName="h-[520px]">
       <section className="relative flex w-full flex-col items-center justify-center overflow-hidden border-t border-white/10 bg-black px-4 py-32 text-center">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-zinc-900/50 to-black" />
@@ -346,16 +355,16 @@ export function AiSaasDevelopmentClient() {
               Ready to build the AI feature your users will keep using?
             </h2>
             <p className="max-w-3xl text-lg text-zinc-400 md:text-xl">
-              I help founders build AI-powered SaaS experiences that are practical, product-aware,
-              and ready to support real users.
+              Discuss your use case with an engineer. We&apos;ll clarify where AI belongs, the delivery
+              setup, and what should ship first.
             </p>
           </div>
           <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 flex flex-col items-center gap-4">
             <Link
-              href="/book"
+              href="/contact"
               className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white px-6 py-3 text-base font-semibold text-black shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] transition-transform duration-300 hover:scale-[1.02] hover:bg-zinc-200"
             >
-                  Book a 20-minute strategy call
+                  Discuss Your Requirements With an Engineer
             </Link>
             <Link
               href="/case-studies"

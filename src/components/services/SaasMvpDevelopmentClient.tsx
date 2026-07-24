@@ -28,6 +28,7 @@ import { TrackedBookCallButton, TrackedWhatsAppButton, MvpMobileStickyCtas } fro
 import { MvpHeroJourney } from "@/components/services/MvpHeroJourney";
 import { MvpWhoItsForJourney } from "@/components/services/MvpWhoItsForJourney";
 import { MvpTechStackMotion } from "@/components/services/MvpTechStackMotion";
+import { DeliveryModelSection } from "@/components/DeliveryModelSection";
 import { MvpTestimonials } from "@/components/services/MvpTestimonials";
 import {
   CONTACT_EMAIL,
@@ -250,18 +251,19 @@ export function SaasMvpDevelopmentClient() {
               SaaS MVP Development
             </div>
             <h1 className="mt-5 text-4xl font-bold tracking-tighter text-white sm:text-5xl xl:text-[3.25rem] xl:leading-[1.05]">
-              Ship the version of your SaaS that&apos;s worth shipping.
+              Build Your SaaS MVP With a Senior-Led Product Team
             </h1>
             <p className="mt-5 max-w-xl text-lg text-zinc-400 lg:mx-0 mx-auto">
-              I build production SaaS MVPs end-to-end — product scope, full-stack
-              engineering, AI features, payments and launch. Not brochure sites.
+              Start with one experienced technical lead and add frontend, backend, design, QA, AI,
+              or cloud specialists only when your product requires them.
             </p>
             <p className="mt-3 text-sm text-zinc-500">
-              Work directly with Somanath — from idea to a product real users can use.
+              Work directly with an experienced technical lead responsible for architecture, scope,
+              communication, and delivery.
             </p>
 
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
-              <TrackedBookCallButton location="mvp_hero" label="Book a free 20-minute call" />
+              <TrackedBookCallButton location="mvp_hero" label="Discuss Your Requirements With an Engineer" />
               <Link
                 href="#proof"
                 className="inline-flex h-12 min-w-[200px] items-center justify-center rounded-md border border-white/10 px-6 text-base font-medium text-white transition-colors hover:bg-white/5"
@@ -711,6 +713,10 @@ export function SaasMvpDevelopmentClient() {
         </section>
       </DeferredSection>
 
+      <DeferredSection minHeightClassName="h-[420px]">
+        <DeliveryModelSection contextLine="Every SaaS MVP engagement remains senior-led. Additional specialists support delivery when the scope requires more capacity." />
+      </DeferredSection>
+
       {/* Final CTA */}
       <DeferredSection minHeightClassName="h-[480px]">
         <section className="relative flex w-full flex-col items-center justify-center overflow-hidden border-t border-white/10 bg-black px-4 py-28 text-center">
@@ -728,10 +734,11 @@ export function SaasMvpDevelopmentClient() {
               Ready to ship a SaaS MVP worth launching?
             </h2>
             <p className="text-zinc-400">
-              Book a call, message on WhatsApp, or send requirements — I personally handle the work.
+              Every engagement remains senior-led. Additional specialists support delivery when the
+              scope requires more capacity.
             </p>
             <div className="flex flex-col items-center gap-3 sm:flex-row">
-              <TrackedBookCallButton location="mvp_final_cta" />
+              <TrackedBookCallButton location="mvp_final_cta" label="Discuss Your Requirements With an Engineer" />
               <TrackedWhatsAppButton location="mvp_final_cta_whatsapp" />
             </div>
             <p className="max-w-md text-xs text-zinc-500">

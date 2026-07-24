@@ -6,6 +6,7 @@ import { Navbar } from '@/components/Navbar';
 import MdxContent, { mdxComponents } from '@/components/MdxContent';
 import { ClientMobileNav } from '@/components/ClientMobileNav';
 import { BlogCTA } from '@/components/BlogCTA';
+import { AuthorBio } from '@/components/AuthorBio';
 import { Footer } from '@/components/Footer';
 import { getPostBySlug, getPostSlugs } from '@/lib/blog';
 import { MDXRemote } from 'next-mdx-remote/rsc';
@@ -198,8 +199,9 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                                 Working on a SaaS that&apos;s starting to feel fragile?
                             </h3>
                             <p className="text-zinc-400 mb-6 leading-relaxed">
-                                I help founders fix the parts that break first — without rewriting what already works.
-                                Book a 20-minute call and we&apos;ll figure out where to start.
+                                Talk to an engineer about the parts that break first — without rewriting
+                                what already works. We&apos;ll recommend focused support or a compact team
+                                based on your scope.
                             </p>
                             <div className="mb-6 flex flex-wrap gap-2">
                                 <Link href="/services/saas-mvp-development" className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/5 hover:text-white">
@@ -215,6 +217,8 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                             <BlogCTA />
                         </div>
                     </div>
+
+                    <AuthorBio />
                 </div>
             </article>
 

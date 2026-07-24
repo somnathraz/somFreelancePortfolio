@@ -28,6 +28,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ClientMobileNav } from "@/components/ClientMobileNav";
 import { Button } from "@/components/ui/button";
+import { CaseStudyDeliverySummary } from "@/components/CaseStudyDeliverySummary";
 import { cn } from "@/lib/utils";
 
 const TOC = [
@@ -427,6 +428,12 @@ export function PaperChaiCaseStudy() {
                   )}
                 </div>
               ))}
+            </div>
+            <div className="mt-8">
+              <CaseStudyDeliverySummary
+                deliverySetup="Senior-led compact team"
+                specialists="UI/UX, frontend, backend, AI, QA"
+              />
             </div>
           </Section>
 
@@ -831,8 +838,8 @@ export function PaperChaiCaseStudy() {
                     size="lg"
                     className="h-12 border-white/15 text-base hover:bg-white/5 hover:text-white"
                   >
-                    <Link href="/book">
-                      Discuss a SaaS project
+                    <Link href="/contact">
+                      Talk to an Engineer
                       <ArrowRight className="ml-1 h-4 w-4" />
                     </Link>
                   </Button>

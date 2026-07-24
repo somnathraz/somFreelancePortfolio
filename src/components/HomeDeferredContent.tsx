@@ -21,6 +21,10 @@ const BentoServices = dynamic(() => import("@/components/BentoServices").then((m
   loading: () => <div className="flex h-96 items-center justify-center"><div className="animate-pulse text-zinc-500">Loading services...</div></div>,
 });
 
+const FlexibleTeamSection = dynamic(() => import("@/components/FlexibleTeamSection").then((mod) => ({ default: mod.FlexibleTeamSection })), {
+  loading: () => <div className="h-64" />,
+});
+
 const ClientFit = dynamic(() => import("@/components/ClientFit").then((mod) => ({ default: mod.ClientFit })), {
   loading: () => <div className="h-64" />,
 });
@@ -75,6 +79,13 @@ export function HomeDeferredContent() {
           </Suspense>
         </DeferredSection>
       </section>
+
+      {/* 4b. Flexible team model */}
+      <DeferredSection minHeightClassName="h-64">
+        <Suspense fallback={<div className="h-64" />}>
+          <FlexibleTeamSection />
+        </Suspense>
+      </DeferredSection>
 
       <section id="who-i-work-with" className="relative z-10">
         <DeferredSection minHeightClassName="h-64">

@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendEnquiryNotification } from "@/lib/email";
 
-const STAGES = new Set([
+const MVP_STAGES = new Set([
   "Idea / validating",
   "Ready to build",
   "Already have something live",
   "Need to rebuild / fix an MVP",
 ]);
+
+const CONTACT_STAGES = new Set(["New product", "Existing system"]);
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,6 +21,12 @@ export async function POST(request: NextRequest) {
     const launchDate = typeof body.launchDate === "string" ? body.launchDate.trim() : "";
     const source =
       typeof body.source === "string" ? body.source.trim() : "saas-mvp-development";
+    const supportNeeded =
+      typeof body.supportNeeded === "string" ? body.supportNeeded.trim() : undefined;
+    const engagement =
+      typeof body.engagement === "string" ? body.engagement.trim() : undefined;
+    const timezone =
+      typeof body.timezone === "string" ? body.timezone.trim() : undefined;
 
     if (!name || !contact || !building || !stage || !budget) {
       return NextResponse.json(
@@ -36,7 +44,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "One or more fields are too long." }, { status: 400 });
     }
 
-    if (!STAGES.has(stage)) {
+    const allowedStages = source === "contact" ? CONTACT_STAGES : MVP_STAGES;
+    if (!allowedStages.has(stage)) {
       return NextResponse.json({ error: "Invalid stage selection." }, { status: 400 });
     }
 
@@ -48,6 +57,9 @@ export async function POST(request: NextRequest) {
       budget,
       launchDate: launchDate || "Not specified",
       source,
+      supportNeeded,
+      engagement,
+      timezone,
     });
 
     return NextResponse.json({ success: true });

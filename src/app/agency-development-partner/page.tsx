@@ -2,23 +2,23 @@ import type { Metadata } from "next";
 import { GrowthLandingPage } from "@/components/growth/GrowthLandingPage";
 
 export const metadata: Metadata = {
-  title: "Agency Development Partner | White-Label SaaS Engineering",
+  title: "White-Label Software Development Partner for Agencies",
   description:
-    "Agency development partner for white-label SaaS and custom product builds. You manage the client. I handle the engineering. NDA-friendly, referral-ready, remote.",
+    "Add SaaS, AI, and custom application delivery to your agency without building a permanent internal engineering department. Senior-led, NDA-ready, no poaching.",
   alternates: { canonical: "/agency-development-partner" },
   openGraph: {
-    title: "Agency Development Partner | Somanath Studio",
+    title: "White-Label Software Development Partner for Agencies",
     description:
-      "You manage the client. I handle the engineering — white-label Next.js, Node.js and AI SaaS delivery.",
+      "Your client relationship. Our senior-led engineering team. White-label SaaS and custom product delivery.",
     url: "/agency-development-partner",
     type: "website",
     images: [{ url: "/og?title=Agency%20Development%20Partner", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Agency Development Partner | Somanath Studio",
+    title: "White-Label Software Development Partner for Agencies",
     description:
-      "You manage the client. I handle the engineering — white-label Next.js, Node.js and AI SaaS delivery.",
+      "Your client relationship. Our senior-led engineering team. White-label SaaS and custom product delivery.",
     images: ["/og?title=Agency%20Development%20Partner"],
   },
 };
@@ -32,18 +32,18 @@ export default function AgencyDevelopmentPartnerPage() {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Service",
-            name: "Agency Development Partner",
+            name: "White-Label Software Development Partner for Agencies",
             provider: { "@type": "Organization", name: "Somanath Studio" },
             url: "https://somanathkhadanga.com/agency-development-partner",
             description:
-              "White-label SaaS engineering partner for agencies. You manage the client. I handle the engineering.",
+              "White-label SaaS and custom application delivery for agencies with a senior-led flexible team.",
           }),
         }}
       />
       <GrowthLandingPage
-        eyebrow="For agencies & partners"
-        title="You manage the client. I handle the engineering."
-        description="White-label SaaS and custom product delivery for agencies, freelancers and consultants. NDA-friendly. No client contact without permission. Fixed-scope or sprint work."
+        eyebrow="White-label software development partner"
+        title="Your Client Relationship. Our Senior-Led Engineering Team."
+        description="Add SaaS, AI, and custom application delivery to your agency without building a permanent internal engineering department."
         whoFor={[
           "Web-design and marketing agencies that need senior product engineering",
           "UI/UX studios shipping beyond brochure sites",
@@ -53,15 +53,15 @@ export default function AgencyDevelopmentPartnerPage() {
         offerings={[
           {
             title: "White-label delivery",
-            body: "I ship under your process and branding when agreed — clean repos, docs and demos you can present.",
+            body: "We ship under your process and branding when agreed — clean repos, docs and demos you can present.",
           },
           {
-            title: "No poaching",
+            title: "Flexible team composition",
+            body: "Start with a technical lead. Add frontend, backend, AI, design, or QA capacity for overflow work.",
+          },
+          {
+            title: "NDA and no poaching",
             body: "No direct client contact without your permission. Referral partnerships welcome.",
-          },
-          {
-            title: "Fixed scope or sprints",
-            body: "Clear milestones for MVP builds, rescue work, AI features or performance upgrades.",
           },
           {
             title: "Weekly progress updates",
@@ -70,7 +70,7 @@ export default function AgencyDevelopmentPartnerPage() {
         ]}
         process={[
           { title: "Intro", body: "Fit check + NDA if needed." },
-          { title: "Scope", body: "Estimate, stack and delivery model." },
+          { title: "Scope", body: "Estimate, stack, and delivery team setup." },
           { title: "Build", body: "Sprints with weekly demos for you." },
           { title: "Handover", body: "Code, deploy access and documentation." },
         ]}
@@ -80,12 +80,12 @@ export default function AgencyDevelopmentPartnerPage() {
             body: "Next.js, Node.js, PostgreSQL, auth, payments and practical AI — not template sites.",
           },
           {
-            title: "Partner-friendly",
-            body: "Remote international clients. IST timezone. Clear communication.",
+            title: "Partner-friendly capacity",
+            body: "Remote international clients. IST timezone. White-label overflow without agency layers.",
           },
         ]}
         pricingNote="Partner / referral terms by agreement · NDA supported"
-        primaryCta={{ href: "/book", label: "Book a partner intro call" }}
+        primaryCta={{ href: "/contact", label: "Talk to an Engineer" }}
         secondaryCta={{ href: "/case-studies", label: "See case studies" }}
       />
     </>

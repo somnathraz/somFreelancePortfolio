@@ -80,8 +80,8 @@ export function AgencyComparison() {
 
         <div className="mt-10 flex justify-center">
           <Button asChild size="lg" className="h-12 bg-white text-base text-black hover:bg-zinc-200">
-            <Link href="/book">
-              Book a 20-minute strategy call
+            <Link href="/contact">
+              Talk to an Engineer
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>

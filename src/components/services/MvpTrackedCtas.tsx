@@ -13,13 +13,13 @@ type TrackedBookCallButtonProps = {
 };
 
 export function TrackedBookCallButton({
-  label = "Book a free 20-minute MVP call",
+  label = "Discuss Your Requirements With an Engineer",
   className,
   location,
 }: TrackedBookCallButtonProps) {
   return (
     <Link
-      href="/book"
+      href="/contact"
       onClick={() =>
         trackEvent("book_call_click", {
           event_category: "engagement",

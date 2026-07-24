@@ -11,16 +11,16 @@ import { LatestPostTiltCard } from "@/components/LatestPostTiltCard"
 import { ArrowRight } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Somanath Studio — SaaS Partner for Founders, Agencies & Freelancers",
+  title: "SaaS Development Partner for Startups & Agencies | Somanath Studio",
   description:
-    "SaaS development partner for founders, agencies, freelancers and consultants. Next.js, Node.js, AI SaaS. White-label, NDA-friendly, remote international.",
+    "Senior-led SaaS engineering without unnecessary agency layers. Work directly with experienced engineers, with specialists added according to your project requirements.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
     title: "Somanath Studio | SaaS Development Partner",
     description:
-      "For founders, agencies, freelancers and consultants — Next.js, Node.js, AI. White-label and referral-friendly.",
+      "Founder-led engineering studio with a flexible senior team for founders, agencies, and product teams.",
     url: "/",
     siteName: "Somanath Studio",
     type: "website",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Somanath Studio | SaaS Development Partner",
     description:
-      "For founders, agencies, freelancers and consultants — Next.js, Node.js, AI. White-label and referral-friendly.",
+      "Founder-led engineering studio with a flexible senior team for founders, agencies, and product teams.",
     images: ["/og?title=Somanath%20Studio"],
   },
 }
@@ -101,6 +101,14 @@ export default function Home() {
                 "@type": "Service",
                 name: "AI SaaS Development",
                 url: "https://somanathkhadanga.com/services/ai-saas-development",
+              },
+            },
+            {
+              "@type": "Offer",
+              itemOffered: {
+                "@type": "Service",
+                name: "Custom Software Development",
+                url: "https://somanathkhadanga.com/services/custom-software-development",
               },
             },
           ],

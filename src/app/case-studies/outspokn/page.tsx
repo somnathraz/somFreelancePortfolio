@@ -5,6 +5,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ClientMobileNav } from "@/components/ClientMobileNav";
 import { PhoneFrameGallery } from "@/components/projects/PhoneFrameGallery";
+import { CaseStudyDeliverySummary } from "@/components/CaseStudyDeliverySummary";
 
 export const metadata: Metadata = {
   title: "Case Study: Outspokn — AI English Learning App | Somanath Studio",
@@ -68,6 +69,11 @@ export default function OutspoknCaseStudyPage() {
             </span>
           ))}
         </div>
+
+        <CaseStudyDeliverySummary
+          deliverySetup="Senior-led compact team"
+          specialists="Mobile, backend, AI / RAG"
+        />
       </article>
 
       <section className="border-y border-white/5 bg-zinc-950/40 px-4 py-14">
@@ -161,10 +167,10 @@ export default function OutspoknCaseStudyPage() {
             <ArrowRight className="ml-2 h-4 w-4" />
           </a>
           <Link
-            href="/book"
+            href="/contact"
             className="inline-flex h-11 items-center rounded-md border border-white/10 px-5 text-sm text-white"
           >
-            Book a call
+            Talk to an Engineer
           </Link>
           <Link
             href="/services/ai-saas-development"

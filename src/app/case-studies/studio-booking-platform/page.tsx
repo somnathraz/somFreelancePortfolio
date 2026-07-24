@@ -5,6 +5,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ClientMobileNav } from "@/components/ClientMobileNav";
 import { WideShotGallery } from "@/components/projects/WideShotGallery";
+import { CaseStudyDeliverySummary } from "@/components/CaseStudyDeliverySummary";
 
 export const metadata: Metadata = {
   title: "Case Study: Calendar Booking System | Somanath Studio",
@@ -67,6 +68,11 @@ export default function StudioBookingCaseStudyPage() {
             </span>
           ))}
         </div>
+
+        <CaseStudyDeliverySummary
+          deliverySetup="Senior-led compact team"
+          specialists="UI/UX, frontend, backend, payments"
+        />
       </article>
 
       <section className="border-y border-white/5 bg-zinc-950/40 px-4 py-14">
@@ -134,10 +140,10 @@ export default function StudioBookingCaseStudyPage() {
 
         <div className="mt-14 flex flex-wrap gap-4 border-t border-white/10 pt-10">
           <Link
-            href="/book"
+            href="/contact"
             className="inline-flex h-11 items-center rounded-md bg-white px-5 text-sm font-medium text-black"
           >
-            Book a call
+            Talk to an Engineer
             <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
           <Link

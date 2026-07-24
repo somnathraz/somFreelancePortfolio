@@ -1,0 +1,449 @@
+---
+title: "How to Evaluate AI Agents Before Production: A Practical SaaS Checklist"
+metaTitle: "How to Evaluate AI Agents Before Production: A Practical SaaS Checklist"
+description: "Learn how to evaluate AI agents for tool selection, task completion, hallucinations, latency, safety and cost before deploying them to real SaaS users."
+date: "2026-07-24"
+updated: "2026-07-24"
+author: "Somanath Khadanga"
+category: "AI SaaS"
+tags:
+  - AI agent evaluation
+  - how to evaluate AI agents
+  - AI agent testing
+  - LLM agent evaluation framework
+  - production AI agent testing
+  - AI agent quality assurance
+readTime: "11 min read"
+shareImage: "/images/blog/how-to-evaluate-ai-agents-before-production.png"
+---
+
+![AI-agent evaluation dashboard measuring tool usage, reasoning, output quality, latency and cost](/images/blog/how-to-evaluate-ai-agents-before-production.png)
+
+An AI agent can look excellent in a controlled demonstration.
+
+It answers the expected question, selects a tool, returns a polished response and makes the product feel significantly more capable.
+
+That demonstration proves that the workflow can work.
+
+It does not prove that it will work consistently for real users.
+
+Production users will phrase requests differently. They will omit important information, change their minds halfway through a conversation, request actions they are not authorized to perform and combine several goals in one message.
+
+The agent may:
+
+- Select the wrong tool
+- Pass incorrect parameters
+- Use stale information
+- Forget earlier constraints
+- Generate a convincing but unsupported answer
+- Perform unnecessary tool calls
+- Expose information from another account
+- Complete the task at an unacceptable cost
+
+This is why evaluating an AI agent cannot stop at checking whether its final response sounds useful.
+
+You need evidence that the entire system behaves correctly.
+
+## Why Normal Software Testing Is Not Enough
+
+Traditional application tests are usually deterministic.
+
+Given the same input, a function should produce the same expected output.
+
+AI agents do not always behave that way.
+
+The same user request can produce several different responses, and more than one of those responses may be acceptable. An agent may also reach the right final answer through different reasoning paths or tool sequences.
+
+The system must therefore be evaluated at multiple levels:
+
+1. Did it choose the correct tools?
+2. Did it pass valid parameters?
+3. Did it follow the correct constraints?
+4. Did it complete the user’s actual goal?
+5. Was the answer accurate and useful?
+6. Did it operate within acceptable cost and latency?
+
+[AWS describes agent evaluation](https://aws.amazon.com/blogs/machine-learning/evaluating-ai-agents-for-production-a-practical-guide-to-strands-evals/) as a combination of tool-level, trace-level and complete-session evaluation rather than a single final-answer check.
+
+## Start With the User Outcome
+
+Do not begin by choosing an evaluation framework.
+
+Begin with the outcome the agent is supposed to create.
+
+For example, a customer-support agent may need to:
+
+- Identify the customer
+- Retrieve the correct account
+- Find the relevant policy
+- Explain the next action
+- Escalate when confidence is low
+- Avoid changing account data without permission
+
+A project-management agent may need to:
+
+- Understand the requested project
+- Find the correct tasks
+- Respect workspace boundaries
+- Update only authorized records
+- Confirm changes before applying them
+
+Write the expected outcome in business language.
+
+A weak definition is:
+
+> The response should be helpful.
+
+A stronger definition is:
+
+> The agent should find the customer’s unpaid invoices, calculate the correct outstanding amount and avoid exposing invoices belonging to another workspace.
+
+The second definition can be tested.
+
+## Build a Realistic Evaluation Dataset
+
+Start with 20–50 test cases representing the most important user workflows.
+
+Each case should contain:
+
+- User request
+- Relevant context
+- Expected outcome
+- Expected or allowed tools
+- Forbidden actions
+- Important constraints
+- Evaluation criteria
+
+For example:
+
+```yaml
+name: Find overdue invoices
+input: Show me everything Acme still owes us
+expected_tools:
+  - find_client
+  - list_invoices
+expected_result:
+  - only Acme invoices
+  - only unpaid or partially paid invoices
+  - correct outstanding total
+forbidden:
+  - invoices from another workspace
+  - changing invoice status
+```
+
+Do not fill the dataset only with clean, well-written prompts.
+
+Include:
+
+- Misspellings
+- Incomplete requests
+- Conflicting instructions
+- Multi-turn conversations
+- Ambiguous company names
+- Unauthorized requests
+- Empty search results
+- Outdated records
+- Tool failures
+- Slow API responses
+- Attempts to override system instructions
+
+Generated test cases are useful for coverage, but real user requests should gradually become the foundation of the evaluation suite.
+
+## Evaluate Tool Selection Separately
+
+An agent can produce a correct-looking answer after calling the wrong tool.
+
+That is dangerous because the mistake may remain hidden until the tool returns different data.
+
+Evaluate:
+
+- Was the correct tool selected?
+- Were unnecessary tools avoided?
+- Were the arguments valid?
+- Was the correct workspace or user ID supplied?
+- Were filters applied correctly?
+- Did the agent retry safely after failure?
+- Did it stop when authorization failed?
+
+For consequential workflows, tool selection should be measured independently from the final response.
+
+[AWS’s recent production blueprint](https://aws.amazon.com/blogs/machine-learning/evaluating-ai-agents-a-production-blueprint-with-strands-and-agentcore/) used separate quality gates for tool usage, reasoning and output quality. Its example required tool-selection accuracy above 95% before deployment could proceed.
+
+The exact threshold for your product may be different.
+
+A writing assistant can tolerate more variation than an agent that updates financial or medical records.
+
+## Evaluate the Complete Trajectory
+
+The trajectory is the sequence of decisions and actions taken by the agent.
+
+Consider a user asking:
+
+> Cancel my subscription at the end of the billing period and email me confirmation.
+
+A valid trajectory might be:
+
+1. Identify the authenticated customer.
+2. Retrieve the active subscription.
+3. Confirm the cancellation policy.
+4. Schedule cancellation for the correct date.
+5. Send confirmation.
+6. Return the final status.
+
+An agent might still produce a convincing confirmation even if step four failed.
+
+Final-response evaluation alone would miss that failure.
+
+Trajectory evaluation should check:
+
+- Correct order of operations
+- Successful tool responses
+- Appropriate handling of failures
+- Confirmation before destructive actions
+- Correct authorization checks
+- No skipped required steps
+
+This becomes especially important once agents can modify data rather than only answer questions.
+
+## Evaluate Consistency Across Repeated Runs
+
+One successful run is not enough.
+
+Because agent behavior is non-deterministic, run important cases multiple times.
+
+Imagine an agent succeeds 75% of the time on one task.
+
+That may appear acceptable from a single-run report. But the probability of succeeding three consecutive times is only about 42%.
+
+AWS recommends evaluating repeated-run consistency using metrics such as `pass^k`, particularly for important workflows where users expect reliable results every time.
+
+For critical cases:
+
+- Run each test several times
+- Track the percentage of fully successful runs
+- Record inconsistent tool choices
+- Compare latency and cost across runs
+- Investigate failures that appear only occasionally
+
+Intermittent failures are still production failures.
+
+## Measure More Than Accuracy
+
+A production AI agent should be evaluated across several dimensions.
+
+### Task completion
+
+Did the user achieve the intended outcome?
+
+### Tool accuracy
+
+Did the agent choose the correct tool and parameters?
+
+### Factual correctness
+
+Was the response supported by available data?
+
+### Context retention
+
+Did the agent remember important constraints during a multi-turn conversation?
+
+### Authorization
+
+Did it access only information available to the current user or workspace?
+
+### Safety
+
+Did it refuse harmful, forbidden or unsupported actions?
+
+### Latency
+
+Did the workflow complete fast enough for the product experience?
+
+### Cost
+
+How many model and tool calls were required?
+
+### User experience
+
+Did the agent explain uncertainty, failures and required follow-up clearly?
+
+An agent that is accurate but takes 40 seconds and performs 30 tool calls may still be unsuitable for the product.
+
+## Add Evaluation to CI/CD
+
+Evaluation should not be a document someone runs manually before the first launch.
+
+It should become a deployment gate.
+
+A practical workflow is:
+
+1. Developer changes a prompt, model, tool or retrieval strategy.
+2. Unit and integration tests run.
+3. The agent evaluation suite runs against important scenarios.
+4. Results are compared with the current production baseline.
+5. Deployment is blocked when critical metrics fall below agreed thresholds.
+6. Staging receives the candidate version.
+7. The team reviews traces before production rollout.
+
+[OpenAI’s Evals API](https://platform.openai.com/docs/guides/evals) supports reusable evaluation definitions, datasets, graders and evaluation runs that can be applied across different model configurations.
+
+The particular platform matters less than making evaluation repeatable.
+
+## Use Shadow Mode Before Full Rollout
+
+Synthetic tests will not represent every production request.
+
+Shadow mode sends a copy of real traffic to the candidate agent without showing its response to the user.
+
+This lets the team compare:
+
+- Current agent versus candidate
+- Tool-selection differences
+- Latency
+- Cost
+- Failure rate
+- Output quality
+- Behaviour on unusual terminology
+
+The recent AWS blueprint recommends shadow testing before routing a small percentage of live traffic to a new agent version.
+
+For an early-stage SaaS product, the process can remain simple:
+
+- Store representative production requests safely
+- Remove sensitive information
+- Replay them against the candidate version
+- Compare the results
+- Manually review the highest-risk differences
+
+## Monitor the Agent After Deployment
+
+Passing pre-release evaluation does not mean the agent will remain reliable forever.
+
+Behaviour can change when:
+
+- The model is upgraded
+- Prompts are modified
+- Tool schemas change
+- Product data changes
+- User behaviour evolves
+- Retrieval indexes become stale
+- External services fail
+- More tools are added
+
+Monitor:
+
+- Task-completion rate
+- Tool-selection accuracy
+- Failed tool calls
+- Hallucination or unsupported-answer rate
+- Authorization failures
+- Response latency
+- Cost per successful task
+- Escalation rate
+- User corrections
+- Abandoned conversations
+
+Sample and evaluate real production traces regularly.
+
+You do not need to evaluate every interaction. Even a controlled sample can reveal patterns that synthetic tests missed.
+
+## Turn Production Failures Into Regression Tests
+
+Every meaningful production failure should produce a new test case.
+
+For example:
+
+- A user used an unexpected product name.
+- The agent selected the wrong client with a similar name.
+- A tool timeout caused the agent to invent a result.
+- A follow-up question removed an earlier filter.
+- The agent attempted an action without confirmation.
+
+Add the exact pattern to the evaluation dataset.
+
+Then confirm that future releases cannot reintroduce the same problem.
+
+This creates a feedback loop:
+
+```text
+Production failure
+→ Investigation
+→ New evaluation case
+→ Fix
+→ Deployment gate
+→ Safer future releases
+```
+
+The evaluation suite becomes more valuable as the product receives real usage.
+
+## What Founders Should Ask Before Launching an AI Agent
+
+A founder does not need to understand every evaluation framework.
+
+They should ask the development team:
+
+1. What are the agent’s most important user outcomes?
+2. How many realistic test cases do we have?
+3. Are tool calls tested separately from final answers?
+4. Do tests include unauthorized and adversarial requests?
+5. Are important cases run more than once?
+6. What quality thresholds block deployment?
+7. How are latency and cost monitored?
+8. Can we inspect why an agent failed?
+9. Are production failures turned into regression tests?
+10. Who reviews agent quality after launch?
+
+A fluent demonstration is not enough.
+
+The team should be able to show measurable evidence that the agent behaves correctly.
+
+## A Minimum Viable Evaluation Process
+
+An early-stage startup does not need a large AI quality department.
+
+Start with:
+
+- 20–50 high-value test cases
+- Deterministic checks for tool selection and parameters
+- Human or model-based scoring for output quality
+- Repeated runs for critical workflows
+- Authorization and refusal cases
+- A basic latency and cost report
+- A deployment threshold
+- Weekly review of sampled production traces
+- A process for converting failures into tests
+
+That is enough to move from “the demo looks good” to a repeatable quality process.
+
+## Final Thought
+
+AI agents should not be trusted because their responses sound intelligent.
+
+They should be trusted because their important behaviours are tested, measured and monitored.
+
+The strongest production teams evaluate:
+
+- What the agent says
+- Which tools it uses
+- How it reaches the result
+- Whether it respects permissions
+- How consistently it succeeds
+- What each successful task costs
+
+That is the difference between adding an impressive AI demo and operating a dependable AI product.
+
+---
+
+## Related Reading
+
+- [AI SaaS Development](/services/ai-saas-development) — how I help founders ship practical AI features and agents
+- [Building Your First MCP Server](/blog/first-mcp-server-saas-founder-guide) — a short path to connecting tools safely
+- [What to Audit in a Vibe-Coded MVP Before Real Users See It](/blog/what-to-audit-in-a-vibe-coded-mvp-before-real-users-see-it) — production checks that still apply to AI features
+- [OpenAI on AWS Bedrock: The AI Provider Landscape Just Shifted](/blog/openai-aws-bedrock-ai-saas-provider-shift) — provider choices that affect evaluation and cost
+- [Which AI Features Are Actually Worth Building in SaaS?](/blog/which-ai-features-are-worth-building-in-saas) — decide what is worth evaluating before you build it
+
+---
+
+> **Building an AI feature or customer-facing agent?**  
+> I help founders define the workflow, connect tools safely, create evaluation gates and prepare the complete product for production.  
+> [See AI SaaS Development](/services/ai-saas-development) or [book a 20-minute call](/book).

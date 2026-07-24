@@ -92,8 +92,8 @@ export function HomeFaq() {
 
         <p className="mt-8 text-center text-sm text-zinc-500">
           Still unsure?{" "}
-          <Link href="/book" className="text-white underline underline-offset-4 hover:text-zinc-300">
-            Book a 20-minute strategy call
+          <Link href="/contact" className="text-white underline underline-offset-4 hover:text-zinc-300">
+            Talk to an Engineer
           </Link>{" "}
           — or read{" "}
           <Link href="/blog/saas-mvp-cost-2026" className="text-white underline underline-offset-4 hover:text-zinc-300">

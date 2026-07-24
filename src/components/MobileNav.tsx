@@ -53,7 +53,7 @@ export function MobileNav() {
             icon: (
                 <IconMessage2 className="h-full w-full text-neutral-500 dark:text-neutral-300" />
             ),
-            href: "/#contact",
+            href: "/contact",
         },
     ];
 

@@ -12,6 +12,7 @@ import { DeferredSection } from "@/components/DeferredSection";
 import { ClientMobileNav } from "@/components/ClientMobileNav";
 import { ServiceSectionCard } from "@/components/services/ServiceSectionCard";
 import { AnimatedSectionHeading } from "@/components/services/AnimatedSectionHeading";
+import { DeliveryModelSection } from "@/components/DeliveryModelSection";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -136,22 +137,22 @@ export function ProductionReadinessClient() {
           <header className="space-y-4">
             <div className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900/50 px-3 py-1 text-sm text-zinc-400 backdrop-blur-sm">
               <span className="mr-2 flex h-2 w-2 animate-pulse rounded-full bg-violet-400" />
-              Production Readiness Upgrade
+              SaaS Production Readiness Audit & Upgrade
             </div>
             <h1 className="text-4xl font-bold tracking-tighter text-white sm:text-5xl xl:text-6xl">
-              Your MVP shipped. Now make sure it survives growth.
+              Find and Fix What Could Break Before Your SaaS Scales
             </h1>
             <p className="mx-auto max-w-3xl text-lg text-zinc-400 sm:text-xl">
               The codebase that got you to launch is rarely the codebase that gets you to 1,000 users.
-              I clean up the parts that break first — auth, deploys, architecture, the bits the team
-              keeps avoiding — without rewriting what already works.
+              Start with a production readiness audit, then remediate the high-risk parts — auth,
+              deploys, architecture, monitoring — without rewriting what already works.
             </p>
           </header>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button asChild size="lg" className="h-12 min-w-[220px] bg-white text-base text-black hover:bg-zinc-200">
-                <Link href="/book">
-                Book a 20-minute strategy call
+                <Link href="/contact">
+                Discuss Your Requirements With an Engineer
                 <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
@@ -185,6 +186,37 @@ export function ProductionReadinessClient() {
         </div>
 
         <div className="pointer-events-none absolute -bottom-8 left-0 right-0 z-20 h-32 bg-gradient-to-t from-black to-transparent" />
+      </section>
+
+      {/* ── Two-stage offer ── */}
+      <section className="relative border-b border-white/5 px-4 py-20">
+        <div className="container relative z-10 mx-auto max-w-5xl">
+          <AnimatedSectionHeading className="text-3xl font-bold tracking-tight text-white md:text-5xl">
+            Audit first. Remediate with a clear plan.
+          </AnimatedSectionHeading>
+          <div className="mt-10 grid gap-8 md:grid-cols-2">
+            <div className="border-t border-white/15 pt-5">
+              <p className="text-xs font-medium uppercase tracking-widest text-zinc-500">Stage 1</p>
+              <h3 className="mt-2 text-xl font-semibold text-white">Production Readiness Audit</h3>
+              <ul className="mt-4 space-y-2 text-sm text-zinc-400">
+                <li>Readiness score and critical findings</li>
+                <li>Architecture, security, and performance risks</li>
+                <li>Deployment and monitoring gaps</li>
+                <li>Prioritised action plan</li>
+              </ul>
+            </div>
+            <div className="border-t border-white/15 pt-5">
+              <p className="text-xs font-medium uppercase tracking-widest text-zinc-500">Stage 2</p>
+              <h3 className="mt-2 text-xl font-semibold text-white">Remediation Sprint</h3>
+              <ul className="mt-4 space-y-2 text-sm text-zinc-400">
+                <li>Fix implementation and testing</li>
+                <li>Monitoring and deployment improvements</li>
+                <li>Technical documentation</li>
+                <li>Optional ongoing support</li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* ── Who this is for ── */}
@@ -350,6 +382,10 @@ export function ProductionReadinessClient() {
       </section>
       </DeferredSection>
 
+      <DeferredSection minHeightClassName="h-[420px]">
+        <DeliveryModelSection contextLine="Production readiness work is led by a senior engineer, with specialists added when remediation spans frontend, backend, cloud, or security layers." />
+      </DeferredSection>
+
       {/* ── Final CTA ── */}
       <DeferredSection minHeightClassName="h-[520px]">
       <section className="relative flex w-full flex-col items-center justify-center overflow-hidden border-t border-white/10 bg-black px-4 py-32 text-center">
@@ -368,16 +404,16 @@ export function ProductionReadinessClient() {
               You shipped. Don&apos;t let the codebase be the thing that stops you next.
             </h2>
             <p className="max-w-3xl text-lg text-zinc-400 md:text-xl">
-              I help founders strengthen the product behind the scenes — so it becomes easier to scale,
-              safer to maintain, and more reliable for the people using it.
+              Discuss your product with an engineer. We&apos;ll recommend an audit, a remediation
+              sprint, or both — based on risk, timeline, and budget.
             </p>
           </div>
           <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 flex flex-col items-center gap-4">
             <Link
-              href="/book"
+              href="/contact"
               className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white px-6 py-3 text-base font-semibold text-black shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] transition-transform duration-300 hover:scale-[1.02] hover:bg-zinc-200"
             >
-                  Book a 20-minute strategy call
+                  Discuss Your Requirements With an Engineer
             </Link>
             <Link
               href="/case-studies"

@@ -174,6 +174,9 @@ export interface EnquiryEmailParams {
     budget: string;
     launchDate: string;
     source?: string;
+    supportNeeded?: string;
+    engagement?: string;
+    timezone?: string;
 }
 
 function escapeHtml(value: string): string {
@@ -192,8 +195,41 @@ export async function sendEnquiryNotification(params: EnquiryEmailParams) {
     const budget = escapeHtml(params.budget.trim());
     const launchDate = escapeHtml(params.launchDate.trim());
     const source = escapeHtml((params.source || 'saas-mvp-development').trim());
+    const supportNeeded = params.supportNeeded
+        ? escapeHtml(params.supportNeeded.trim())
+        : "";
+    const engagement = params.engagement ? escapeHtml(params.engagement.trim()) : "";
+    const timezone = params.timezone ? escapeHtml(params.timezone.trim()) : "";
+    const isContact = (params.source || "").trim() === "contact";
 
     const to = process.env.ENQUIRY_TO_EMAIL || process.env.GOOGLE_CALENDAR_ID || 'somnathkhadanga@gmail.com';
+
+    const extraRows = [
+        supportNeeded
+            ? `<tr>
+            <td style="padding:0 0 12px 0;">
+              <p style="margin:0 0 4px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">Support needed</p>
+              <p style="margin:0; font-size:15px; color:#ffffff;">${supportNeeded}</p>
+            </td>
+          </tr>`
+            : "",
+        engagement
+            ? `<tr>
+            <td style="padding:0 0 12px 0;">
+              <p style="margin:0 0 4px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">Preferred engagement</p>
+              <p style="margin:0; font-size:15px; color:#ffffff;">${engagement}</p>
+            </td>
+          </tr>`
+            : "",
+        timezone
+            ? `<tr>
+            <td style="padding:0 0 12px 0;">
+              <p style="margin:0 0 4px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">Country / time zone</p>
+              <p style="margin:0; font-size:15px; color:#ffffff;">${timezone}</p>
+            </td>
+          </tr>`
+            : "",
+    ].join("");
 
     const html = `
 <!DOCTYPE html>
@@ -211,7 +247,7 @@ export async function sendEnquiryNotification(params: EnquiryEmailParams) {
           </tr>
           <tr>
             <td style="padding:0 0 8px 0;">
-              <h1 style="margin:0; font-size:24px; font-weight:700; color:#ffffff;">New MVP project enquiry</h1>
+              <h1 style="margin:0; font-size:24px; font-weight:700; color:#ffffff;">${isContact ? "New contact enquiry" : "New MVP project enquiry"}</h1>
             </td>
           </tr>
           <tr>
@@ -239,10 +275,11 @@ export async function sendEnquiryNotification(params: EnquiryEmailParams) {
           </tr>
           <tr>
             <td style="padding:0 0 12px 0;">
-              <p style="margin:0 0 4px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">Current stage</p>
+              <p style="margin:0 0 4px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">${isContact ? "New or existing" : "Current stage"}</p>
               <p style="margin:0; font-size:15px; color:#ffffff;">${stage}</p>
             </td>
           </tr>
+          ${extraRows}
           <tr>
             <td style="padding:0 0 12px 0;">
               <p style="margin:0 0 4px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">Approximate budget</p>
@@ -251,7 +288,7 @@ export async function sendEnquiryNotification(params: EnquiryEmailParams) {
           </tr>
           <tr>
             <td style="padding:0 0 12px 0;">
-              <p style="margin:0 0 4px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">Expected launch date</p>
+              <p style="margin:0 0 4px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">${isContact ? "Desired timeline" : "Expected launch date"}</p>
               <p style="margin:0; font-size:15px; color:#ffffff;">${launchDate}</p>
             </td>
           </tr>
@@ -263,12 +300,15 @@ export async function sendEnquiryNotification(params: EnquiryEmailParams) {
 </html>`;
 
     const text = `
-New MVP project enquiry
+${isContact ? "New contact enquiry" : "New MVP project enquiry"}
 
 Name: ${params.name}
 Contact: ${params.contact}
 Building: ${params.building}
 Stage: ${params.stage}
+${params.supportNeeded ? `Support needed: ${params.supportNeeded}` : ""}
+${params.engagement ? `Engagement: ${params.engagement}` : ""}
+${params.timezone ? `Timezone: ${params.timezone}` : ""}
 Budget: ${params.budget}
 Launch date: ${params.launchDate}
 Source: ${params.source || 'saas-mvp-development'}
@@ -278,7 +318,7 @@ Source: ${params.source || 'saas-mvp-development'}
         from: `"Somanath Studio" <${process.env.SES_FROM_EMAIL || 'dev@somanathkhadanga.com'}>`,
         to,
         replyTo: params.contact.includes('@') ? params.contact.trim() : undefined,
-        subject: `MVP enquiry: ${params.name.trim()}`,
+        subject: `${isContact ? "Contact" : "MVP"} enquiry: ${params.name.trim()}`,
         html,
         text,
     });

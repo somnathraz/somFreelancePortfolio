@@ -690,7 +690,7 @@ export function AboutPageClient() {
                     <div className="relative w-56 h-56 md:w-72 md:h-72 rounded-2xl overflow-hidden border border-white/10">
                         <Image
                             src="/images/somnath-about.jpg"
-                            alt="Somnath Khadanga — Full-Stack SaaS Engineer"
+                            alt="Somanath Khadanga — SaaS Engineer and Studio Lead"
                             fill
                             className="object-cover object-top"
                             priority
@@ -722,7 +722,7 @@ export function AboutPageClient() {
                         transition={{ duration: 0.6, delay: 0.15 }}
                         className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-white mb-4 leading-tight"
                     >
-                        Somnath{" "}
+                        Somanath{" "}
                         <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40">
                             Khadanga
                         </span>
@@ -742,9 +742,10 @@ export function AboutPageClient() {
                         transition={{ duration: 0.55, delay: 0.28 }}
                         className="text-zinc-300 text-lg leading-relaxed max-w-xl mb-8"
                     >
-                        I build high-performance SaaS products — from early architecture to production scale.
-                        Currently SDE4 at <span className="text-white font-semibold">IQVIA</span>
-                        {" "}(after ABInBev), and freelancing for founders who need real product engineering, not just code.
+                        I lead a flexible software engineering studio helping founders and agencies
+                        build, improve, and operate SaaS products. Currently SDE4 at{" "}
+                        <span className="text-white font-semibold">IQVIA</span>
+                        {" "}(after ABInBev), with a trusted engineering network added when projects need more capacity.
                     </motion.p>
 
                     {/* Social links */}
@@ -774,13 +775,35 @@ export function AboutPageClient() {
                         ))}
 
                         <Link
-                            href="/book"
+                            href="/contact"
                             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-semibold text-sm hover:bg-zinc-200 transition-colors"
                         >
-                            Book a call
+                            Talk to an Engineer
                             <ArrowRight className="w-4 h-4" />
                         </Link>
                     </motion.div>
+                </div>
+            </section>
+
+            {/* How the studio works */}
+            <section className="border-b border-white/5 px-4 py-16 md:py-20">
+                <div className="mx-auto max-w-3xl">
+                    <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">
+                        — Operating model
+                    </p>
+                    <h2 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
+                        How Somanath Studio Works
+                    </h2>
+                    <p className="mt-5 text-lg leading-relaxed text-zinc-400">
+                        I lead every engagement and remain directly involved in architecture,
+                        technical decisions, and delivery. When a project requires additional
+                        capacity, I bring in trusted specialists based on the actual requirements
+                        instead of assigning a fixed agency team.
+                    </p>
+                    <p className="mt-4 text-sm text-zinc-500">
+                        Specialists are added as needed for frontend, backend, AI, design, QA, or
+                        cloud work — a flexible delivery team, not a permanent overhead layer.
+                    </p>
                 </div>
             </section>
 
@@ -1015,14 +1038,14 @@ export function AboutPageClient() {
                             Want to work together?
                         </h2>
                         <p className="text-zinc-400 text-lg mb-8 max-w-xl mx-auto">
-                            I'm available for freelance SaaS projects. A 20-minute call is usually enough to figure out if there's a fit.
+                            Tell an engineer what you&apos;re building. We&apos;ll recommend the right delivery setup — focused engineer, compact team, or extended capacity.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <Link
-                                href="/book"
+                                href="/contact"
                                 className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-base font-semibold text-black hover:bg-zinc-200 transition-colors"
                             >
-                                Book a 20-minute call
+                                Talk to an Engineer
                                 <ArrowRight className="w-4 h-4" />
                             </Link>
                             <Link

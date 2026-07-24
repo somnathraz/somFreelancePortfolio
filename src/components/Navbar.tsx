@@ -31,10 +31,13 @@ export function Navbar() {
                 <Link href="/blog" className="text-sm font-medium text-muted-foreground transition-colors hover:text-white">
                     Blogs
                 </Link>
+                <Link href="/contact" className="text-sm font-medium text-muted-foreground transition-colors hover:text-white">
+                    Contact
+                </Link>
             </nav>
 
             <Button asChild size="sm">
-                <Link href="/book">Book Intro Call</Link>
+                <Link href="/contact">Talk to an Engineer</Link>
             </Button>
         </header>
     )

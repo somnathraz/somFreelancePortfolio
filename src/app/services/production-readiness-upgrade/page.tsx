@@ -3,33 +3,33 @@ import { ProductionReadinessClient } from "@/components/services/ProductionReadi
 import { siteLogoUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Production Readiness Upgrade for SaaS | Somanath Studio",
+  title: "SaaS Production Readiness Audit & Upgrade | Somanath Studio",
   description:
-    "Turn a fragile MVP — including vibe-coded and AI-built products — into production-ready SaaS with stronger architecture, real security, and stable delivery.",
+    "SaaS production readiness audit and remediation for fragile MVPs — architecture risks, security, performance, deployment, and monitoring.",
   alternates: {
     canonical: "/services/production-readiness-upgrade",
   },
   openGraph: {
-    title: "Production Readiness Upgrade for SaaS | Somanath Studio",
+    title: "SaaS Production Readiness Audit & Upgrade | Somanath Studio",
     description:
-      "Turn a fragile MVP — including vibe-coded and AI-built products — into production-ready SaaS with real security and stable delivery.",
+      "Find and fix what could break before your SaaS scales — audit first, then remediate.",
     url: "/services/production-readiness-upgrade",
     type: "website",
     images: [
       {
-        url: "/og?title=Production%20Readiness%20Upgrade",
+        url: "/og?title=Production%20Readiness%20Audit",
         width: 1200,
         height: 630,
-        alt: "Production Readiness Upgrade for SaaS MVPs",
+        alt: "SaaS Production Readiness Audit & Upgrade",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Production Readiness Upgrade for SaaS | Somanath Studio",
+    title: "SaaS Production Readiness Audit & Upgrade | Somanath Studio",
     description:
-      "Turn a fragile MVP — including vibe-coded and AI-built products — into production-ready SaaS with real security and stable delivery.",
-    images: ["/og?title=Production%20Readiness%20Upgrade"],
+      "Find and fix what could break before your SaaS scales — audit first, then remediate.",
+    images: ["/og?title=Production%20Readiness%20Audit"],
   },
 };
 

@@ -4,24 +4,24 @@ import { Footer } from "@/components/Footer";
 import { AboutPageClient } from "@/components/AboutPageClient";
 
 export const metadata: Metadata = {
-    title: "About — Somnath Khadanga | Full-Stack SaaS Engineer",
+    title: "Somanath Khadanga — SaaS Engineer and Studio Lead",
     description:
-        "4+ years building production SaaS systems. SDE4 at IQVIA after ABInBev. Previously Learnbay and Skillslash. Next.js, React, Node.js, MongoDB, and AI-powered applications.",
+        "Somanath leads a flexible software engineering studio. Clients work directly with experienced engineers, with specialists added according to product requirements.",
     alternates: {
         canonical: "/about",
     },
     openGraph: {
-        title: "About Somnath Khadanga — Full-Stack SaaS Engineer",
+        title: "Somanath Khadanga — SaaS Engineer and Studio Lead",
         description:
-            "4+ years building production SaaS systems. Currently SDE4 at IQVIA (after ABInBev). Next.js, React, Node.js, and AI-powered applications.",
+            "Founder-led engineering studio with a flexible senior team for SaaS products.",
         url: "/about",
         type: "profile",
         images: [
             {
-                url: "/og?title=About%20Somnath%20Khadanga",
+                url: "/og?title=About%20Somanath%20Khadanga",
                 width: 1200,
                 height: 630,
-                alt: "Somnath Khadanga — Full-Stack SaaS Engineer",
+                alt: "Somanath Khadanga — SaaS Engineer and Studio Lead",
             },
         ],
     },
@@ -30,8 +30,8 @@ export const metadata: Metadata = {
 const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
-    name: "Somnath Khadanga",
-    jobTitle: "Software Development Engineer 4",
+    name: "Somanath Khadanga",
+    jobTitle: "SaaS Engineer and Studio Lead",
     url: "https://somanathkhadanga.com",
     image: "https://somanathkhadanga.com/images/somnath-about.jpg",
     sameAs: [
@@ -50,7 +50,7 @@ const jsonLd = {
     ],
     worksFor: {
         "@type": "Organization",
-        name: "IQVIA",
+        name: "Somanath Studio",
     },
 };
 

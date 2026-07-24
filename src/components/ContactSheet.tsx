@@ -29,7 +29,7 @@ export function ContactSheet({ children }: ContactSheetProps) {
     const router = useRouter();
 
     const handleScheduleCall = () => {
-        router.push('/book');
+        router.push('/contact');
     };
 
     const handleEmail = () => {
@@ -73,10 +73,10 @@ export function ContactSheet({ children }: ContactSheetProps) {
                             </div>
                             <div className="flex-1">
                                 <h3 className="font-semibold text-white mb-1">
-                                    Book a 20-min call
+                                    Talk to an Engineer
                                 </h3>
                                 <p className="text-sm text-zinc-400">
-                                    Best for scoping projects and timelines.
+                                    Share requirements and get the right delivery setup.
                                 </p>
                             </div>
                         </button>

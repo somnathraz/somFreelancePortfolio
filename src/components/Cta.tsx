@@ -21,20 +21,20 @@ export function Cta() {
             <div className="z-10 relative flex flex-col items-center gap-8 px-4 max-w-4xl mx-auto">
                 <div className="flex flex-col gap-4 items-center animate-in fade-in slide-in-from-bottom-8 duration-700">
                     <h2 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white via-white/90 to-white/50 tracking-tighter leading-tight">
-                        Live products. One available engineer.
+                        Direct access. Flexible delivery capacity.
                     </h2>
                     <p className="text-zinc-400 max-w-2xl text-lg md:text-xl leading-relaxed">
-                        Outspokn on Google Play, VGT demo, PaperChai Invoice live — plus MVPs built
-                        for founders and agencies. Book a 20-minute call and we&apos;ll see if it fits.
+                        Live products across AI learning, logistics, booking, and invoicing. Talk to an
+                        engineer about scope, risks, and the right delivery setup for your project.
                     </p>
                 </div>
 
                 <div className="flex flex-col items-center gap-4 mt-2 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150">
                     <Link
-                        href="/book"
+                        href="/contact"
                         className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white px-6 py-3 text-base font-semibold text-black shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] transition-transform duration-300 hover:scale-[1.02] hover:bg-zinc-200"
                     >
-                        Book a 20-minute call
+                        Talk to an Engineer
                     </Link>
 
                     <Link
@@ -50,7 +50,8 @@ export function Cta() {
                             ● Currently available for 1–2 new SaaS projects
                         </p>
                         <p className="text-xs text-zinc-500 max-w-xl">
-                            Best fit for founders who want a senior engineer, not a team of juniors.
+                            Direct access like working with a senior engineer. Delivery capacity like
+                            working with a complete product team.
                         </p>
                     </div>
                 </div>

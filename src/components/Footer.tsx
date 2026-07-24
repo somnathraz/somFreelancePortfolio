@@ -13,7 +13,7 @@ export function Footer() {
                     <div className="flex max-w-md flex-col items-center gap-3">
                         <Logo className="h-10 w-auto" />
                         <p className="text-sm font-medium text-zinc-500">
-                            SaaS development partner for founders, agencies, freelancers and consultants.
+                            Founder-led engineering studio with a flexible senior team for founders, agencies, and product teams.
                         </p>
                         <div className="mt-1 flex items-center justify-center gap-4">
                             <a
@@ -57,8 +57,10 @@ export function Footer() {
                         <Link href="/agency-development-partner" className="hover:text-white transition-colors">For Agencies</Link>
                         <Link href="/hire-saas-mvp-developer" className="hover:text-white transition-colors">Hire MVP Dev</Link>
                         <Link href="/case-studies" className="hover:text-white transition-colors">Case Studies</Link>
+                        <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
                         <Link href="/blog" className="hover:text-white transition-colors">Writing</Link>
                         <Link href="/services/saas-mvp-development" className="hover:text-white transition-colors">SaaS MVP Development</Link>
+                        <Link href="/services/custom-software-development" className="hover:text-white transition-colors">Custom Software</Link>
                         <Link href="/services/nextjs-performance-optimization" className="hover:text-white transition-colors">Next.js Performance</Link>
                         <Link href="/services/production-readiness-upgrade" className="hover:text-white transition-colors">Production Readiness</Link>
                         <Link href="/services/ai-saas-development" className="hover:text-white transition-colors">AI SaaS Development</Link>
@@ -66,10 +68,10 @@ export function Footer() {
 
                     {/* CTA */}
                     <Link
-                        href="/book"
+                        href="/contact"
                         className="group inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-white/15 bg-gradient-to-r from-white to-zinc-200 px-5 py-2.5 text-sm font-semibold text-black transition-all hover:-translate-y-0.5 hover:from-cyan-200 hover:to-white hover:shadow-[0_12px_35px_-12px_rgba(34,211,238,0.55)]"
                     >
-                        Book a 20-min strategy call
+                        Talk to an Engineer
                         <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
                     </Link>
 
