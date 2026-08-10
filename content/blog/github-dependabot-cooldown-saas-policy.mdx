@@ -1,0 +1,292 @@
+---
+title: "Dependabot's New 3-Day Cooldown: A Safer Update Policy for SaaS"
+metaTitle: "Dependabot Cooldowns: Safer SaaS Dependency Updates"
+description: "GitHub now delays routine Dependabot updates for three days. Learn how SaaS teams can separate urgent security fixes from safer version upgrades."
+date: "2026-08-01"
+updated: "2026-08-01"
+author: "Somanath Khadanga"
+category: "Security"
+tags:
+  - Dependabot cooldown
+  - dependency update policy
+  - software supply chain security
+  - SaaS CI/CD
+readTime: "10 min read"
+shareImage: "/images/blog/github-dependabot-cooldown-saas-policy.png"
+---
+
+![Software packages waiting at a verification gateway before entering a production release pipeline](/images/blog/github-dependabot-cooldown-saas-policy.png)
+
+Being first to install a dependency release is rarely a competitive advantage for a SaaS product.
+
+It can be useful when you are testing a framework preview or need a specific bug fix. But for routine production maintenance, immediately accepting every new package version gives your team the smallest possible window to discover that the release is broken, compromised or incompatible with your application.
+
+GitHub has now changed that default trade-off.
+
+Dependabot waits until a new release has been available for at least three days before opening a **version update** pull request. The delay is enabled by default on github.com, applies across supported ecosystems and will also be part of GitHub Enterprise Server 3.23. Crucially, **security updates are not delayed**. GitHub confirmed that distinction in its [July 14 Dependabot announcement](https://github.blog/changelog/2026-07-14-dependabot-version-updates-introduce-default-package-cooldown/).
+
+That is a small platform change with a useful architectural lesson: dependency maintenance should run at two speeds.
+
+- Known security fixes should move through an urgent, focused path.
+- Ordinary patch, minor and major releases should wait long enough to collect evidence, then move through planned validation.
+
+The three-day default is not a complete supply-chain defense. It does not inspect your application, approve a maintainer or prove that a package is safe. It simply removes “install immediately” as the default for routine updates.
+
+For most SaaS teams, that is a better place to start.
+
+## What the Cooldown Actually Changes
+
+A Dependabot schedule and a cooldown answer different questions.
+
+The schedule controls **when Dependabot checks** for releases. The cooldown controls **which releases are old enough to consider** when that check runs.
+
+Imagine a repository configured for a daily check:
+
+1. A dependency publishes version 4.2.1 on Monday.
+2. Dependabot checks on Tuesday, but the version is still inside the cooldown.
+3. It checks again after the waiting period.
+4. If 4.2.1 is still the appropriate version, Dependabot can open the update pull request.
+
+The release is not permanently ignored. It is temporarily ineligible for a routine version update.
+
+GitHub’s current configuration supports a default delay plus different windows for semantic major, minor and patch updates. Teams can also include or exclude named dependencies, with wildcard support. The official [Dependabot options reference](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#cooldown) documents those controls and limits cooldown values to 1–90 days.
+
+The most important boundary is what the feature does **not** affect: a security update can still open immediately. You do not have to choose between reducing day-zero exposure to routine releases and receiving a known vulnerability fix quickly.
+
+## Why “Always Stay on Latest” Is an Incomplete Policy
+
+“We always update dependencies” sounds responsible, but it leaves several decisions undefined:
+
+- How soon after publication?
+- Which update types can merge automatically?
+- What evidence is required for a production dependency?
+- Who reviews changes to authentication, billing or database libraries?
+- What happens when the lockfile changes hundreds of transitive packages?
+- How do known security fixes bypass the normal queue?
+
+Without answers, the real policy often becomes “merge when CI is green.”
+
+CI can show that your existing tests still pass. It cannot tell you whether a maintainer account was compromised, a package was republished, a new regression is appearing in other projects or an update changes behavior your tests do not cover.
+
+A short waiting period creates time for external signals to emerge:
+
+- Maintainer corrections or deprecations
+- Registry action against a malicious release
+- New advisories
+- Bug reports and rollback releases
+- Framework compatibility notes
+- Failures in other projects with broader test coverage
+
+This is not proof by popularity. A quiet three days does not certify a package.
+
+It is simply more information than your team had in the first few minutes after publication.
+
+## Use a Two-Speed Dependency Policy
+
+Treat dependency work as two separate queues.
+
+### Fast lane: confirmed security updates
+
+When an advisory applies to code you use, the goal is to reduce exposure without introducing a second incident.
+
+The fast lane should include:
+
+- Confirmation that the vulnerable package and version are present
+- Reachability or exposure analysis where practical
+- The smallest supported fixed version
+- Focused tests around the affected behavior
+- An explicit deploy owner
+- A rollback or forward-fix plan
+- Post-deploy verification
+
+Fast does not mean blind. It means the team removes routine scheduling delay and concentrates review on one known risk.
+
+If a critical framework patch arrives, do not hide it inside a broad “update everything” pull request. A narrow change is easier to understand, validate and revert.
+
+### Normal lane: routine version updates
+
+Routine updates should be predictable rather than urgent.
+
+A practical normal lane might use:
+
+- Three days for patch releases
+- Seven days for minor releases
+- Thirty days for major releases
+- A weekly dependency review window
+- Grouped low-risk development dependencies
+- Separate pull requests for production-critical packages
+
+Those numbers are a starting point, not a universal standard. A fast-moving pre-1.0 library, a database driver and a lint plugin do not carry the same operational risk.
+
+The policy should become stricter as a dependency gains more power over production.
+
+## A Practical Dependabot Configuration
+
+The following example keeps daily discovery, applies risk-based waiting periods and groups routine development updates. Security updates remain outside the cooldown behavior.
+
+```yaml
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "Asia/Kolkata"
+
+    cooldown:
+      default-days: 7
+      semver-patch-days: 3
+      semver-minor-days: 7
+      semver-major-days: 30
+
+    groups:
+      development-minor-and-patch:
+        applies-to: version-updates
+        dependency-type: development
+        update-types:
+          - "minor"
+          - "patch"
+```
+
+Do not copy this configuration without reviewing your release process.
+
+For example, grouping makes sense when packages share a validation path and a failure can be isolated easily. It is less useful when a single pull request mixes framework, database, authentication and build-system changes. A green result then tells you that the combination passed, but makes the source of a later regression harder to identify.
+
+Use exclusions sparingly. Excluding a package from cooldown makes routine versions eligible immediately; it does not make them safer. Reserve that choice for a dependency where early updates are intentional and someone owns the extra validation.
+
+## Cooldown Is One Layer, Not the Security System
+
+A waiting period helps with newly published routine versions. It does not cover every path by which untrusted code reaches a build.
+
+Your controls still need to address installation, detection and CI credentials.
+
+### Restrict install-time code
+
+npm 12 changed several risky behaviors from automatic to opt-in. Dependency lifecycle scripts and implicit `node-gyp` builds no longer run unless allowed, while Git and remote URL dependencies are blocked by default unless approved. npm provides an approval workflow for teams that genuinely need install scripts. Those defaults and the migration command are documented in the [npm 12 install-time security announcement](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/).
+
+That control addresses a different moment from Dependabot cooldowns.
+
+- Cooldown reduces how quickly a routine release enters an update pull request.
+- Install restrictions reduce what dependency code can execute during installation.
+
+Use both. A package can be old enough to pass a cooldown and still contain an unsafe lifecycle script.
+
+The earlier [npm security changes guide](/blog/recent-npm-security-changes-what-saas-teams-should-fix-right-now) explains why registry credentials, publishing controls and installation behavior need separate owners.
+
+### Keep malware alerts enabled
+
+On July 28, GitHub expanded the malware data behind Dependabot alerts by ingesting OpenSSF malicious-package advisories. The resulting coverage includes npm, PyPI and other ecosystems, but repositories only receive the matching benefit when malware alerting is enabled. GitHub’s [expanded malware-alert coverage announcement](https://github.blog/changelog/2026-07-28-dependabot-alerts-on-malicious-packages-across-more-ecosystems/) includes the setting teams should verify.
+
+This is why a cooldown is a waiting window, not a detection engine.
+
+During the window, registry and advisory systems may identify a release. After the window, alerts remain necessary because malicious behavior can be discovered later.
+
+### Do not assume registry scanning is perfect
+
+npm now scans newly published packages before they become available for installation. A package may publish normally, be held for manual review or be blocked. npm says the process usually introduces a short availability delay, although timing can vary. The [publish-time scanning announcement](https://github.blog/changelog/2026-07-28-npm-publish-time-malware-scanning-and-dual-use-metadata/) also explains new disclosure requirements for legitimate packages with security-sensitive capabilities.
+
+That is a useful preventative layer.
+
+It should not become a reason to auto-merge every package that reaches the registry. Automated scanning has detection limits, and application compatibility is outside its job entirely.
+
+### Protect the workflow that performs the update
+
+Dependency review is only useful if the CI workflow running it cannot expose broad credentials.
+
+Use least-privilege job permissions, avoid long-lived publishing tokens, separate build and deploy authority, and require human approval for sensitive environments. Review third-party actions with the same care as application packages.
+
+GitHub also began automatically holding certain workflow runs in public repositories when they appear potentially malicious. The run requires approval from a collaborator with write access through an authenticated web session. That safeguard is automatic on github.com public repositories, but it currently does not cover private repositories or GitHub Enterprise Server, according to the [July 28 GitHub Actions announcement](https://github.blog/changelog/2026-07-28-github-actions-holds-potentially-malicious-workflows-for-approval/).
+
+Private SaaS repositories therefore cannot treat that platform protection as their approval gate.
+
+## Decide What Can Auto-Merge
+
+Cooldown and auto-merge are separate decisions.
+
+A routine patch being three days old does not mean it should deploy without review. Auto-merge should depend on the dependency’s role and the quality of your validation.
+
+Low-risk candidates may include:
+
+- Development-only formatting tools
+- Type packages with no runtime output
+- Test utilities covered by the tests they help run
+- Small patch updates with deterministic lockfile changes
+
+Require deliberate review for packages that touch:
+
+- Authentication and authorization
+- Payments and billing
+- Database drivers and migration tooling
+- Framework runtimes and server adapters
+- File parsing or image processing
+- Cryptography
+- Observability agents with broad process access
+- Build, release and deployment workflows
+
+Even then, package category is only a proxy. Review the actual diff, release notes, maintainer history and transitive changes.
+
+When a runtime or framework upgrade changes the whole deployment surface, use a staged compatibility plan like the one in [Node.js 26 for SaaS: Test Now or Wait for LTS?](/blog/nodejs-26-saas-production-upgrade), not a routine patch workflow.
+
+## A 60-Minute Action Plan for SaaS Teams
+
+You can turn the new default into an explicit policy without redesigning the entire pipeline.
+
+### 1. Confirm the current behavior
+
+- [ ] Open `.github/dependabot.yml` in every active production repository.
+- [ ] List each monitored ecosystem and directory.
+- [ ] Confirm version updates and security updates are both enabled as intended.
+- [ ] Check whether an existing `cooldown` overrides the new three-day default.
+- [ ] Verify malware alerts are enabled at repository or organization level.
+
+### 2. Classify dependency risk
+
+- [ ] Mark runtime dependencies separately from development dependencies.
+- [ ] Identify packages with access to auth, payments, data, builds or deployments.
+- [ ] Identify tightly coupled package families that should update together.
+- [ ] Assign an owner for framework and database upgrades.
+
+### 3. Set the normal lane
+
+- [ ] Choose patch, minor and major cooldown windows.
+- [ ] Schedule a recurring review time.
+- [ ] Group only updates that share a validation path.
+- [ ] Document which low-risk updates may auto-merge.
+- [ ] Keep high-impact packages in isolated pull requests.
+
+### 4. Prove the fast lane
+
+- [ ] Trigger a test security-update workflow in a non-production repository.
+- [ ] Confirm alerts reach a monitored channel.
+- [ ] Confirm the cooldown does not delay security updates.
+- [ ] Test focused validation and deployment rollback.
+- [ ] Record who can authorize an emergency release.
+
+### 5. Reduce blast radius
+
+- [ ] Move CI jobs toward least-privilege permissions.
+- [ ] Review install scripts and allow only required ones.
+- [ ] Remove long-lived publishing credentials where possible.
+- [ ] Separate package installation, testing and production deployment authority.
+- [ ] Review dependency policy after any supply-chain incident or major tooling change.
+
+The [April npm supply-chain checklist](/blog/npm-supply-chain-attacks-april-2026-saas-checklist) provides a deeper incident-response path for lockfile review, credential rotation and CI hardening.
+
+## The Better Default Is Deliberate, Not Slow
+
+Dependency risk is not solved by freezing versions forever. Old packages accumulate known vulnerabilities, compatibility debt and expensive future migrations.
+
+It is also not solved by merging every release immediately.
+
+The better policy is deliberate movement:
+
+- Discover updates frequently.
+- Patch known vulnerabilities urgently.
+- Give routine releases a short observation window.
+- Match review depth to production impact.
+- Keep changes small enough to validate and reverse.
+
+GitHub’s three-day cooldown makes that behavior the default for Dependabot version updates. SaaS teams should use the change as a prompt to write down the rest of the policy.
+
+If your dependency pipeline, deployment permissions and rollback process have grown organically, a broader [production readiness review](/services/production-readiness-upgrade) can turn those disconnected checks into one release system your team can operate confidently.
