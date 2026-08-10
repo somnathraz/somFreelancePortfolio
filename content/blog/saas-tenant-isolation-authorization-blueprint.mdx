@@ -320,4 +320,6 @@ A small SaaS team does not need the most elaborate authorization platform. It ne
 
 Build those foundations while the system is still understandable. They reduce security risk now and make future choices—custom roles, dedicated tenants, regional deployments, support tooling, and AI workflows—far less painful.
 
+Review the boundary whenever a new data path is added, not only when the authentication system changes.
+
 If the current boundary depends on developers remembering `where tenant_id = ...` in every new code path, a focused [production-readiness upgrade](/services/production-readiness-upgrade) should treat tenant isolation as a system property, not another item on a launch checklist.
