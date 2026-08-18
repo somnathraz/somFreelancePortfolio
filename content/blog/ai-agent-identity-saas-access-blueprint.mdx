@@ -1,0 +1,238 @@
+---
+title: "Your AI Agent Needs Its Own Identity: A SaaS Access Blueprint"
+metaTitle: "AI Agent Identity: A SaaS Access Blueprint"
+description: "A practical identity and access blueprint for SaaS AI agents: separate users, workloads and tools, scope authority, add approvals, and preserve audit trails."
+date: "2026-08-16"
+updated: "2026-08-16"
+author: "Somanath Khadanga"
+category: "AI SaaS"
+tags:
+  - AI agent identity
+  - agent authorization
+  - AI SaaS security
+  - workload identity
+readTime: "11 min read"
+shareImage: "/images/blog/ai-agent-identity-saas-access-blueprint.png"
+---
+
+![A user and AI agent passing through an identity policy gateway before reaching SaaS tools](/images/blog/ai-agent-identity-saas-access-blueprint.png)
+
+An AI agent starts as a feature. It searches documents, drafts a reply, or updates a ticket.
+
+Then it gains a calendar connection, customer data, billing tools, and permission to run after the user closes the browser. The agent is no longer only generating text. It is acting inside the product.
+
+At that point, one backend API key is not an identity model.
+
+Google made Agent Identity generally available as part of Gemini Enterprise Agent Platform on July 29, 2026. The announcement describes a native identity type with least-privilege permissions, runtime-bound access, lifecycle management, and auditing. It launched alongside a gateway and registry for governing agent interactions. [Google’s announcement](https://cloud.google.com/blog/products/ai-machine-learning/whats-new-in-gemini-enterprise-agent-platform) is vendor-specific, but the signal is broader: production agents need to be accountable actors, not anonymous code running behind a model.
+
+This does not mean every startup needs an enterprise identity platform. It means every SaaS team should be able to answer four questions before an agent can change real data:
+
+1. Which user or system initiated the task?
+2. Which agent performed the action?
+3. What exact authority did it have at that moment?
+4. Which policy, approval, and tool result explain what happened?
+
+Here is a practical way to build those answers into an ordinary SaaS architecture.
+
+---
+
+## Map the Actors Before Choosing Credentials
+
+“The agent” is usually several identities collapsed into one phrase.
+
+Consider a customer-success agent that reads an account, drafts an email, and schedules a follow-up. The workflow contains at least these actors:
+
+| Actor | What it represents | What the system must prove |
+|---|---|---|
+| User | The person requesting or approving work | Authentication, tenant membership, and current permissions |
+| SaaS application | The API accepting the request | Trusted deployment and allowed backend role |
+| Agent | The named autonomous capability | Purpose, owner, version, environment, and lifecycle state |
+| Runtime | The process executing this run | Attested workload and short-lived credential |
+| Tool | The email, CRM, billing, or data function | Allowed operations and resource scope |
+| Resource | The customer record, message, invoice, or file | Tenant ownership and action-specific policy |
+
+Microsoft’s startup guidance makes a similar separation between user, application, workload, managed, agent, tool, and resource identities. It warns against collapsing them into one shared secret or highly privileged service account. [The identity overview](https://learn.microsoft.com/en-us/startups/build/identity-management/identity-fundamentals-ai-agents) is useful even if Azure is not in your stack because the questions are platform-independent.
+
+Start with an inventory, not a product purchase. Give every production agent a stable record containing:
+
+- a unique ID and human-readable purpose;
+- an owning team or person;
+- its current version and deployment environment;
+- its allowed tools and maximum action class;
+- the tenants or resource scopes it may reach;
+- creation, review, and retirement dates.
+
+An agent registry can be a database table in a small product. The important property is that a run cannot appear from nowhere, use a shared credential, and disappear without an owner.
+
+## Keep Agent Identity Separate From User Authority
+
+An agent’s identity answers **what is acting**. It does not automatically answer **on whose authority** or **within which customer boundary**.
+
+There are three common access modes.
+
+### Delegated access
+
+The agent acts for a signed-in user. Its effective access should be no broader than that user’s current permission, the task’s approved scope, and the agent’s own tool policy.
+
+Use this for actions such as scheduling the user’s meeting, editing a document they can edit, or updating a ticket in their workspace.
+
+### Application access
+
+The agent runs as the SaaS system without a live user. A nightly anomaly scan or an inbox triage job may need this model.
+
+Application access should have a narrow service role, explicit tenant scope, and no assumption that a past user session still grants authority. Microsoft’s current Agent ID authorization guidance distinguishes delegated permissions from app-only permissions and recommends using tenant-wide application permissions sparingly. It also blocks a set of high-privilege permissions for agent identities. [The authorization documentation](https://learn.microsoft.com/en-us/entra/agent-id/authorization-agent-id) shows why “administrator consented once” is not the same as safe ongoing authority.
+
+### Mixed access
+
+The agent begins for a user, continues asynchronously, and later reaches an approval or expiry boundary. This is where many implementations become vague.
+
+Do not copy the user’s long-lived token into a queue. Create a task record that preserves the initiating user, tenant, approved action, resource boundary, and expiry. When the worker resumes, it should obtain fresh, audience-specific access and re-check policy. If the user was disabled, removed from the tenant, or lost the relevant permission, the task should stop or request a new approval.
+
+This complements, rather than replaces, [tenant isolation](/blog/saas-tenant-isolation-authorization-blueprint). The agent identity must still be bound to the same customer boundary as the user and target resource.
+
+## Make Every Tool Call Cross a Deterministic Policy Boundary
+
+The model may propose an action. It should not be the component that decides whether the action is allowed.
+
+Place a deterministic tool gateway between model output and real systems. The gateway receives verified context, validates typed arguments, evaluates policy, records the decision, and only then invokes the tool.
+
+```ts
+type AgentActionContext = {
+  requestId: string
+  runId: string
+  agentId: string
+  agentVersion: string
+  tenantId: string
+  initiatedBy?: string
+  authority: "delegated" | "application"
+  approvedScopes: string[]
+}
+
+const decision = await authorizeAgentAction({
+  context,
+  tool: "invoice.refund",
+  resource: { invoiceId, tenantId: invoice.tenantId },
+  effect: "financial-write",
+  amount: refundAmount,
+})
+
+if (!decision.allowed) {
+  throw new AgentPolicyError(decision.reasonCode)
+}
+
+return refundInvoice({ invoiceId, refundAmount })
+```
+
+Notice what is absent: a prompt asking the model whether it is authorized.
+
+Google’s current Agent Gateway documentation exposes policies for agent-to-agent, agent-to-MCP-server, and agent-to-endpoint traffic. Its conditions can distinguish read-only, destructive, idempotent, and open-world operations. [The IAM policy guide](https://docs.cloud.google.com/gemini-enterprise-agent-platform/govern/policies/configure-iam-policies) is a useful reference for the kinds of facts a vendor-neutral gateway should evaluate.
+
+For an early product, this gateway can be a shared TypeScript module around every tool. A separate policy service becomes worthwhile when several applications reuse the rules, customers define custom controls, or security teams must change policy independently of deployments.
+
+## Scope Authority by Tool, Resource, Audience, and Time
+
+“Can call the CRM” is too broad to be a useful production permission.
+
+A safer grant says:
+
+```text
+agent: customer-follow-up
+tenant: t_482
+tool: crm.contact.update
+fields: next_follow_up_at, note
+resource: contacts assigned to user u_19
+expires: 2026-08-16T14:30:00Z
+```
+
+Use separate permissions for reading, drafting, writing, sending, approving, and deleting. Keep audiences narrow so a token issued for the CRM cannot be replayed against storage or billing. Prefer credentials that expire with the run or task instead of static secrets stored in agent configuration.
+
+OAuth token exchange is one standards-based option for multi-service delegation. RFC 8693 distinguishes impersonation from delegation: under delegation, the acting principal keeps its own identity while representing another subject. It defines an `act` claim that can identify the current actor and preserve a delegation chain. [The standard](https://datatracker.ietf.org/doc/html/rfc8693) is not an automatic agent-security solution, but its subject-and-actor model is far clearer than passing a user token through every service unchanged.
+
+For service-to-service authentication, use the workload identity mechanism provided by your platform. If you operate across heterogeneous infrastructure, SPIFFE defines workload IDs and automatically rotated, short-lived identity documents rather than requiring applications to ship with authentication secrets. [SPIFFE’s concepts guide](https://spiffe.io/docs/latest/spiffe-about/spiffe-concepts/) explains the model and its trust boundaries.
+
+The design target is consistent:
+
+**A stolen credential should reveal a narrow identity, expire quickly, work only at its intended audience, and grant less than the entire agent platform.**
+
+## Require Approval Based on Consequence, Not Confidence
+
+Model confidence is not a reliable authorization control. A confident agent can still misunderstand the user, select the wrong record, or receive malicious instructions from retrieved content.
+
+Classify tools by consequence instead:
+
+| Action class | Examples | Default control |
+|---|---|---|
+| Read | Search docs, list tickets | Allow within scoped policy and tenant |
+| Draft | Prepare an email or proposed change | Allow, but do not send or apply |
+| Reversible write | Add a label, schedule a reminder | Allow within limits; record before and after state |
+| External side effect | Send email, publish, create an order | Require explicit user intent or policy-backed approval |
+| Destructive or financial | Delete data, refund, change access | Require fresh approval and stronger verification |
+
+Approval should bind to the specific action, resource, important parameters, and expiry. “Approve this agent” is not enough. “Approve refunding ₹2,400 on invoice `inv_1842` before 3:00 PM” gives the gateway something deterministic to enforce.
+
+For long-running work, pause before the side effect rather than collecting blanket approval at the beginning. That architecture also fits the explicit task state described in [the MCP 2026 migration guide](/blog/mcp-2026-stateless-migration-saas): resumable product state should be intentional, inspectable, and independent of hidden transport sessions.
+
+## Audit the Action Chain, Not Private Model Reasoning
+
+An audit record should explain the business action without storing hidden reasoning or every sensitive prompt token.
+
+For each consequential tool call, record:
+
+- request ID, run ID, agent ID, and agent version;
+- initiating user or application identity;
+- tenant and target resource identifiers;
+- authority mode and credential audience;
+- tool name, sanitized parameters, and action class;
+- policy version, decision, and reason code;
+- approval identity and approval scope when required;
+- result status, changed-resource IDs, and timestamps.
+
+Protect these logs as sensitive operational data. Redact secrets and unnecessary customer content. Make retention deliberate. An audit log that becomes a second copy of every prompt, access token, and document is a new security problem.
+
+Tracing tells you what path the agent took. Evaluation tells you whether that path was acceptable. Add identity-bound negative cases to [your production agent evaluation suite](/blog/how-to-evaluate-ai-agents-before-production): wrong tenant, expired approval, disabled user, unexpected tool, excessive amount, revoked agent, and replayed task.
+
+## Failure Modes to Remove First
+
+### One service account for every agent
+
+You cannot attribute actions cleanly, retire one agent safely, or grant different scopes. Split identities by purpose and environment before adding more tools.
+
+### A model-facing tool with a master API key
+
+Prompt restrictions do not reduce the credential’s real capability. Put the key behind a gateway that exposes narrow operations, validates resource scope, and denies unknown parameters.
+
+### Authorization checked only when the run starts
+
+Permissions, memberships, approvals, and resource state can change during a long task. Re-check before consequential actions and after any pause.
+
+### An agent registry without lifecycle rules
+
+Inventory alone does not remove dormant access. Assign an owner, review date, last-used timestamp, and automatic disable or deletion path.
+
+### Logs that say only “system updated record”
+
+Preserve both the initiating subject and acting agent. Otherwise support and incident response cannot reconstruct who authorized what.
+
+## A Seven-Step Agent Identity Plan
+
+1. **Inventory agents and tools.** Include prototypes, background agents, embedded assistants, MCP clients, and scheduled workflows.
+2. **Name every actor.** Separate user, application, agent, runtime, tool, and resource identities on one architecture diagram.
+3. **Remove shared standing secrets.** Start with agents that can write, send, delete, or reach several tenants.
+4. **Build one tool gateway.** Validate typed input, enforce tenant and action policy, and fail closed when context is missing.
+5. **Classify consequences.** Mark tools as read, draft, reversible write, external side effect, financial, or destructive.
+6. **Add scoped approval and audit records.** Bind approvals to action parameters and preserve subject, actor, policy, and result.
+7. **Test revocation.** Disable a user, agent, tenant, and credential during an active task; confirm the next protected action stops.
+
+Do not begin by migrating every read-only assistant. Start with the smallest workflow that creates a real side effect and make its authority explainable from request to resource.
+
+## The Founder Decision
+
+Agent identity is not enterprise decoration. It is the control that lets a useful prototype become a product that can safely act.
+
+A small SaaS team can start with a registry table, platform workload identities, short-lived scoped credentials, a shared policy wrapper, consequence-based approvals, and structured audit events. The architecture can evolve later without changing its core invariant:
+
+**The model proposes. Verified identity and deterministic policy decide.**
+
+Before adding the next tool, ask whether you can identify the user, agent, authority, policy, approval, and resource for every action it may take. If one of those fields is missing, the agent has more capability than accountability.
+
+For a focused review of those boundaries before launch, an [AI SaaS development engagement](/services/ai-saas-development) should treat identity and tool authorization as part of the product architecture, not as a prompt-engineering task.
