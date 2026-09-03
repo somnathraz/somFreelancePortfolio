@@ -1,0 +1,225 @@
+---
+title: "Agent Builder Is Winding Down: Make Your AI SaaS Portable"
+metaTitle: "Agent Builder Sunset: An AI SaaS Portability Guide"
+description: "OpenAI Agent Builder ends November 30, 2026. Use this practical plan to move workflows into code and keep tools, state, tests and telemetry portable."
+date: "2026-09-01"
+updated: "2026-09-01"
+author: "Somanath Khadanga"
+category: "AI SaaS"
+tags:
+  - AI agent portability
+  - OpenAI Agent Builder
+  - AI SaaS architecture
+  - agent migration
+readTime: "11 min read"
+shareImage: "/images/blog/openai-agent-builder-sunset-ai-saas-portability.png"
+---
+
+![An AI SaaS core connecting portable model, tool and state components](/images/blog/openai-agent-builder-sunset-ai-saas-portability.png)
+
+Visual agent builders are excellent at turning an uncertain idea into a working demonstration.
+
+They make prompts, branches, tools, guardrails and handoffs visible. Product and engineering teams can change a workflow without rebuilding the surrounding application. That speed is valuable while the team is still learning what the agent should do.
+
+The risk appears when the visual workflow becomes the only executable definition of the product.
+
+OpenAI has now put a date on that risk. Its updated [AgentKit announcement](https://openai.com/index/introducing-agentkit/) says Agent Builder and the Evals product are winding down and will no longer be available on the OpenAI platform after November 30, 2026. OpenAI recommends the Agents SDK for workflows that should continue as code.
+
+This is not a reason to avoid managed AI platforms. It is a reason to decide which parts of an agent belong to the platform and which parts must remain product assets that your team can inspect, test, export and replace.
+
+For an AI SaaS product, portability does not mean switching models every week. It means a vendor change should be a bounded migration—not a rewrite of the business.
+
+## Start With the Product Boundary, Not the Provider Boundary
+
+An agent workflow usually contains at least six different concerns:
+
+1. The user outcome and business rules
+2. The model request and response format
+3. The tools the model may call
+4. Conversation and workflow state
+5. Approvals, authorization and side-effect controls
+6. Traces, evaluation cases and quality thresholds
+
+A managed builder may package all six into one convenient interface. Your architecture should not assume they have the same replacement cost.
+
+The model adapter can be replaceable while the tool that issues a refund must remain stable. A visual trace viewer can be temporary while the evaluation examples it displays are durable product knowledge. A vendor conversation ID can be useful while your database remains the authority for customer, tenant and workflow state.
+
+That separation is the core portability decision.
+
+If the team is still deciding whether the agent creates enough customer value to deserve this engineering, first use the criteria in [which AI features are worth building](/blog/which-ai-features-are-worth-building-in-saas). Portability work should protect a validated product path, not make an unproven demo more elaborate.
+
+## Move the Workflow Definition Into Versioned Code
+
+The first migration target is the workflow itself: instructions, tools, handoff rules, approval points, stop conditions and error paths.
+
+Store that definition with the application code. Review it through the same pull-request process. Version prompt templates and structured output schemas. Make environment-specific settings explicit instead of hiding them inside a hosted canvas.
+
+OpenAI's TypeScript Agents SDK defines an agent around instructions, a model and tools, and supports handoffs, guardrails, sessions and tracing. Its [model documentation](https://openai.github.io/openai-agents-js/guides/models/) also exposes `Model` and `ModelProvider` interfaces, so model resolution can sit behind an application-controlled boundary.
+
+The exact SDK matters less than the ownership model. A useful shape looks like this:
+
+```ts
+type AgentRequest = {
+  tenantId: string
+  userId: string
+  task: "draft_reply" | "classify_ticket"
+  input: string
+}
+
+type AgentResult = {
+  status: "completed" | "needs_approval" | "failed"
+  output?: string
+  approvalId?: string
+  traceId: string
+}
+
+export interface AgentRuntime {
+  run(request: AgentRequest): Promise<AgentResult>
+}
+```
+
+The rest of the product calls `AgentRuntime`. One implementation may use OpenAI's SDK. Another could call a different model or orchestration runtime. The product does not need identical provider features; it needs a stable contract for the outcomes it actually sells.
+
+Keep provider-only features behind named adapters. If a workflow uses a hosted file-search tool, deferred tool loading or provider-managed continuation, make that dependency obvious. Portability improves when the exceptional path is visible, not when every provider-specific capability is forced into a misleading generic abstraction.
+
+## Treat Tool Contracts as Product APIs
+
+Models are replaceable only when their tools behave predictably.
+
+Each tool needs a stable name, a narrow input schema, a documented result shape and explicit failure behavior. Validate arguments before execution. Return structured domain errors instead of prose. Keep tenant and user identity outside model-controlled arguments whenever possible.
+
+For example, an agent may request:
+
+```json
+{
+  "invoiceId": "inv_123",
+  "reason": "duplicate charge"
+}
+```
+
+The trusted application context should supply the tenant, user and allowed refund limit. The model should not be able to select those authority fields simply because they appear in its tool schema.
+
+This also makes tool tests independent of a particular model. The same fixture can verify that an unknown invoice is rejected, a cross-tenant invoice is invisible and a refund above the threshold becomes `needs_approval`.
+
+Tool portability is not only a migration concern. It reinforces the identity and policy boundaries described in the [AI agent access blueprint](/blog/ai-agent-identity-saas-access-blueprint). A new model provider must not silently acquire broader authority than the old one.
+
+## Keep Business State in Your System of Record
+
+Conversation history and business state are different things.
+
+Conversation history contains messages, tool calls and intermediate context. Business state contains facts such as “refund approved,” “export delivered,” “subscription cancelled” or “ticket assigned.” Only the latter should decide what the product does next.
+
+The OpenAI Agents SDK documents four state strategies: application-held history, an SDK session backed by your storage, an OpenAI conversation ID and a previous response ID. The [running-agents guide](https://openai.github.io/openai-agents-js/guides/running-agents/) explicitly distinguishes client-managed options from OpenAI-managed continuation.
+
+For a production SaaS workflow, store durable business outcomes in your own database even if provider-managed conversation state improves latency or convenience. Keep an internal mapping from your workflow ID to any provider ID. Do not make the provider ID the only way to locate a customer operation.
+
+The SDK's [sessions guide](https://openai.github.io/openai-agents-js/guides/sessions/) also allows a custom storage backend through its `Session` interface. That is useful, but storing a transcript in your database is still not enough. The application should separately record:
+
+- The workflow status and owner
+- Tool intents and completed side effects
+- Approval requests and decisions
+- Idempotency keys for consequential actions
+- Provider, model and workflow version
+- A safe retry or compensation path
+
+This structure lets the team rebuild model context, audit an outcome and resume a workflow without pretending that a chat transcript is a transaction log.
+
+## Own the Evaluation Corpus, Not Only the Dashboard
+
+The loss of an eval UI hurts much less when the underlying test cases, expected outcomes and scoring rules live in exportable files or tables.
+
+For each important workflow, preserve:
+
+- A sanitized input or scenario reference
+- The expected final outcome
+- Allowed and forbidden tool calls
+- Required approval behavior
+- Quality, latency and cost thresholds
+- The workflow, prompt, model and dataset versions
+
+Keep deterministic orchestration tests separate from model-quality evaluations. A unit test should prove that a high-value refund requires approval. An evaluation should measure whether the model recognizes when a customer's message describes a duplicate charge.
+
+OpenAI's [Agents SDK testing guide](https://openai.github.io/openai-agents-js/guides/testing/) now describes provider-neutral in-memory test doubles for model calls, tool loops, sessions and failures. That boundary is useful even if your runtime choice differs: test the workflow mechanics without a live model, then run a smaller evaluation suite against each model configuration you intend to ship.
+
+The evaluation process in [how to evaluate AI agents before production](/blog/how-to-evaluate-ai-agents-before-production) remains the deeper guide. The portability addition is simple: the dataset and acceptance rules must survive the evaluation vendor.
+
+## Export Neutral Telemetry Alongside Vendor Traces
+
+Hosted traces are often the fastest way to debug an agent during development. Keep them. But also emit an application-level event for every run and consequential tool call.
+
+A minimum run record should include:
+
+```text
+trace_id, tenant_id, workflow_version, provider, model,
+started_at, completed_at, outcome, tool_names,
+input_tokens, output_tokens, estimated_cost, error_code
+```
+
+Do not log raw prompts or tool results by default. They may contain customer data, secrets or personal information. Store references, classifications and redacted summaries where they answer the operational question.
+
+OpenTelemetry's [semantic conventions](https://opentelemetry.io/docs/specs/semconv/) provide shared names and meanings for telemetry across languages and platforms, including generative-AI conventions. Those conventions are evolving, so isolate the mapping in instrumentation code and retain your own stable business fields such as workflow version, tenant and outcome.
+
+The goal is not to reproduce every vendor trace screen. It is to preserve enough evidence to compare a migration, investigate a failure and connect an agent run to the customer journey.
+
+## Do Not Confuse Portability With Lowest-Common-Denominator Design
+
+Avoiding every proprietary capability can make the product worse.
+
+A provider may offer better hosted tools, caching, realtime transport or long-context behavior. Use those capabilities when they materially improve the customer outcome. Record the dependency and choose a fallback deliberately.
+
+A practical classification is:
+
+| Dependency | Default treatment | Migration expectation |
+|---|---|---|
+| Prompt and workflow rules | Own in versioned code | Must be reproducible |
+| Tool contracts | Own and validate | Must remain stable |
+| Business state | Own in product storage | Must remain authoritative |
+| Model call | Wrap at one boundary | Replace when justified |
+| Hosted retrieval or computer use | Allow behind an adapter | May require redesign |
+| Traces and eval UI | Use for convenience | Export essential evidence |
+
+This creates honest portability. A text-classification workflow might move in days. A realtime voice agent built around provider-specific streaming events might require a planned project. Both are acceptable if the difference is known before the dependency becomes critical.
+
+## Common Migration Failures
+
+### Rebuilding the canvas node for node
+
+A visual prototype often contains exploratory branches that no longer serve the validated workflow. Document the current business outcomes first, then implement the smallest workflow that preserves them.
+
+### Abstracting every provider feature immediately
+
+An interface around one proven call boundary is useful. A universal agent framework built before a second runtime has been tested usually hides incompatibilities instead of resolving them.
+
+### Exporting prompts but losing evaluation history
+
+Prompts explain what the team asked for. Evaluation cases explain what customers needed and where the system failed. Preserve both.
+
+### Moving conversation state without side-effect records
+
+A transcript may say that a refund tool ran. The payment system and your product database must say whether it actually completed. Migrate and reconcile business records separately.
+
+### Switching providers and changing everything at once
+
+Changing the runtime, model, prompts and tools together makes regressions difficult to attribute. Establish a baseline, migrate one boundary and compare the same evaluation set.
+
+## A Seven-Step Portability Action Plan
+
+1. **Inventory the managed workflow.** List every prompt, branch, tool, guardrail, approval, state store, dataset, trace view and provider-only capability.
+2. **Define product-level contracts.** Write the accepted request, final outcomes, error codes and approval states without vendor terminology.
+3. **Export durable assets.** Save prompts, tool schemas, sanitized evaluation cases, score thresholds and version metadata in repositories or controlled storage.
+4. **Implement the code-owned path.** Recreate the validated workflow behind one application interface, with provider-specific behavior isolated in adapters.
+5. **Separate state.** Keep provider conversation references as mappings while your database owns workflow status, side effects and approvals.
+6. **Run equivalence tests.** Replay deterministic workflow tests and the same evaluation dataset against the old and new paths. Compare outcomes, tool behavior, latency and cost.
+7. **Cut over gradually.** Shadow production traffic where privacy rules allow, then route a small cohort to the code path with a rollback flag and explicit owners.
+
+For teams using Agent Builder, work backward from November 30 rather than treating that date as the start of migration. Leave time to export evidence, resolve missing failure paths, observe real traffic and remove the old dependency safely.
+
+## The Durable Asset Is the Decision System
+
+The shutdown of a managed product is frustrating, but it also clarifies what an AI SaaS team is building.
+
+The durable asset is not a particular model, canvas or SDK. It is the decision system around the model: the workflow rules, trusted tools, state transitions, evaluation evidence and operational controls that turn probabilistic output into a dependable product capability.
+
+Keep those parts inspectable and owned. Then managed platforms can remain what they are best at: accelerators that help the team ship faster, not foundations that make the product impossible to move.
+
+If the migration exposes unclear tool authority, hidden workflow state or evaluation data trapped in a dashboard, a focused [AI SaaS development review](/services/ai-saas-development) can turn the prototype into a code-owned production path before the deadline becomes an incident.

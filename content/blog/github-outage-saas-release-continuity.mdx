@@ -1,0 +1,210 @@
+---
+title: "When GitHub Goes Down: A SaaS Release Continuity Playbook"
+metaTitle: "GitHub Outage: A SaaS Release Continuity Playbook"
+description: "A practical plan for keeping SaaS rollback, hotfix and incident work available when GitHub, Actions or another delivery control plane is down."
+date: "2026-09-02"
+updated: "2026-09-02"
+author: "Somanath Khadanga"
+category: "Production Readiness"
+tags:
+  - GitHub outage
+  - SaaS release continuity
+  - CI/CD resilience
+  - production readiness
+readTime: "11 min read"
+shareImage: "/images/blog/github-outage-saas-release-continuity.png"
+---
+
+![A resilient SaaS release path separating source, build artifact and production rollback](/images/blog/github-outage-saas-release-continuity.png)
+
+GitHub is not part of your product's request path, but it may still be part of every path your team uses to change the product.
+
+That distinction became visible on August 17, 2026. GitHub says its outage lasted 7 hours and 47 minutes and disrupted github.com, authentication, GitHub Actions, APIs, pull requests, issues and Copilot. The incident began when a critical infrastructure component failed to scale under a traffic peak, and retry behavior increased load during recovery, according to GitHub's [official outage update](https://github.blog/news-insights/company-news/the-august-17-outage-and-the-work-ahead/).
+
+Your running SaaS may have stayed healthy throughout that event. But could the team inspect the code, coordinate an incident, roll back a bad release or ship a critical fix?
+
+Release continuity is the ability to make the safest necessary production change when a development platform is unavailable. It is not a demand for a second copy of every CI system. For most small teams, the right answer is a deliberately narrow emergency path built around known source, previously verified artifacts, independent access and rehearsed decisions.
+
+## Map the Delivery Control Plane Before Adding Tools
+
+A modern release path often looks deceptively simple:
+
+```text
+commit -> pull request -> CI -> artifact registry -> deploy -> verify
+```
+
+In practice, one provider may sit behind several boxes. GitHub can hold the canonical repository, team authentication, approval record, workflow runner, deployment identity, build logs, release artifacts and incident discussion. If GitHub authentication fails, moving the workflow YAML to another runner during the incident does not restore those dependencies.
+
+Start with a dependency map, not a shopping list. For each release step, record:
+
+- where the required data lives;
+- which identity authorizes the step;
+- whether the step calls GitHub at execution time;
+- what known-good input could replace it;
+- who may activate the fallback;
+- how the action will be audited afterward.
+
+The result usually separates three planes.
+
+| Plane | Examples | Continuity objective |
+|---|---|---|
+| Product runtime | application, database, queues, customer APIs | Keep serving users safely |
+| Delivery control plane | repository, CI, registry, deployment automation | Roll back or ship a critical fix |
+| Team coordination | issues, chat, runbooks, status updates | Make and record decisions |
+
+Do not assume those planes fail together. A GitHub outage can stop Actions while your cloud and application remain healthy. A cloud outage can leave the repository available but make deployments dangerous. The response should match the failed plane.
+
+This dependency map complements a [minimum viable observability plan](/blog/minimum-viable-observability-saas). Telemetry tells the team whether production needs intervention; release continuity determines whether a safe intervention is still possible.
+
+## Choose the Events Your Fallback Must Support
+
+"We need to deploy during an outage" is too broad. Most releases can wait. An emergency path should support a small set of explicit outcomes:
+
+1. Stop or pause an in-progress rollout.
+2. Roll production back to a known-good artifact.
+3. Change a feature flag or operational configuration.
+4. Ship a narrowly scoped security or availability fix.
+5. Verify the result and preserve an audit record.
+
+Everything else should usually stop until the primary system recovers. Feature releases, dependency upgrades, database redesigns and large migrations become riskier when normal review, automation and evidence are unavailable.
+
+Define two times for each supported outcome:
+
+- **Decision time:** how long the team can investigate before acting.
+- **Recovery time:** how long the approved action may take.
+
+A customer-facing outage might justify a 15-minute rollback target. A non-critical release can wait several hours. This avoids spending enterprise-level money on a second CI platform when the actual business requirement is one documented rollback command.
+
+## Preserve Recoverable Source Without Pretending a Clone Is Everything
+
+Git is distributed, so an engineer's current clone may already contain the commits and history needed for a hotfix. That is useful, but it is not a complete continuity plan. A laptop clone may have stale remote branches, missing tags or no trusted way to share the resulting commit.
+
+Keep a recoverable copy of the canonical repository on an independent schedule. GitHub documents a [mirror clone backup](https://docs.github.com/en/enterprise-cloud@latest/repositories/archiving-a-github-repository/backing-up-a-repository) as a way to capture files and revision history, then restore them by pushing to another remote. Git also supports self-contained bundle files for offline transfer and full or incremental backup through [`git bundle`](https://git-scm.com/docs/git-bundle.html).
+
+For a small SaaS team, a nightly encrypted mirror or bundle in a separate storage account may be enough rather than a continuously active second code host. Test that it contains protected release tags and the default branch. Store the restore instructions outside GitHub.
+
+Be precise about what this protects. Repository history does not automatically include:
+
+- issues and pull-request discussion;
+- Actions secrets and environment rules;
+- workflow run logs and artifacts;
+- GitHub Apps, webhooks and organization dependencies;
+- uncommitted work on developer machines.
+
+Back up the items required for the chosen emergency outcomes. Avoid promising a full GitHub reconstruction if the business only needs verified source for a rollback or hotfix.
+
+## Make the Artifact the Unit of Deployment
+
+Rebuilding production code from source during an outage creates more uncertainty than redeploying an artifact that normal CI already built and tested.
+
+A release record should identify an immutable artifact by digest, not only by a mutable tag such as `latest`. For a containerized service, preserve:
+
+```text
+service: billing-api
+commit: 4e83c1f
+image: registry.example.com/billing-api@sha256:...
+environment: production
+deployed_at: 2026-09-02T06:20:00Z
+change_ticket: REL-184
+```
+
+Keep enough recent production artifacts in a registry that remains reachable independently of the code host. If the only artifact is stored in GitHub Packages, a broad GitHub incident may remove both the source and rollback input at once. Independence matters more than the logo on the registry.
+
+Provenance should travel with the artifact. GitHub's [artifact attestation documentation](https://docs.github.com/en/actions/concepts/security/artifact-attestations) describes signed claims that bind an artifact to its workflow, repository, commit and triggering event. Whether the team uses GitHub attestations or another system, the emergency process should verify the same digest that normal CI approved. Continuity is not permission to deploy an untraceable laptop build.
+
+This is also why build performance work should preserve correctness boundaries. The cache guidance in [Your Next.js CI Is Rebuilding Everything](/blog/nextjs-turbopack-build-cache-ci-guide) treats caches as accelerators, not release artifacts. A cache can help recreate a build, but it should never be the only recoverable production input.
+
+## Keep Break-Glass Access Independent and Smaller
+
+Short-lived OpenID Connect credentials are the right default for normal CI. GitHub explains that Actions can exchange a GitHub-issued OIDC token for a short-lived cloud token instead of storing long-lived credentials in repository secrets in its [cloud-provider OIDC guide](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-cloud-providers).
+
+That security benefit creates an availability dependency: if the workflow or GitHub's OIDC issuer is unavailable, the normal deployment identity cannot be minted.
+
+Do not solve that by placing a permanent administrator key on every developer laptop. Create a narrower break-glass role for the exact emergency outcomes. It might be able to:
+
+- inspect the current production version;
+- roll back to one of the last three approved digests;
+- pause a rollout;
+- update a small allowlist of feature flags;
+- read deployment health and audit logs.
+
+It should not be able to create users, export customer data, disable audit logging or redesign infrastructure. Require strong multi-factor authentication, keep recovery codes or hardware keys under dual control, alert on every use and rotate or re-seal the credentials after an incident.
+
+Test identity independence carefully. A cloud console account is not independent if its only sign-in route redirects to GitHub. A password vault is not a fallback if every approver reaches it through the same unavailable single sign-on chain.
+
+## Separate Rollback From Hotfix
+
+Rollback and hotfix are different risk classes.
+
+A rollback selects an artifact that has already passed normal review and production verification. It should be the fastest path and require the least emergency authority. Many deployment platforms keep release history; for example, Kubernetes Deployments retain revisions and support returning to an earlier one with `kubectl rollout undo`. The equivalent mechanism may be a platform rollback button, a previous serverless deployment or an image-digest update.
+
+A hotfix introduces new code while the normal review system is impaired. Use it only when rollback, configuration changes and traffic controls cannot restore safety.
+
+The hotfix path still needs two people when possible: one prepares the change and evidence, another reviews the diff and authorizes production. Build in an isolated trusted environment. Run the smallest relevant deterministic test suite. Sign or attest the artifact. Record the source commit, artifact digest, commands, approvers and verification results in an independent incident log.
+
+When GitHub recovers, push the emergency commit, recreate the review record and reconcile the deployed artifact with the canonical branch. An emergency change is not complete until the normal control plane reflects reality.
+
+## Design the Runbook Around Decisions
+
+A useful runbook should tell a tired team what to decide, not bury them under commands.
+
+### Entry conditions
+
+- GitHub's status and direct probes confirm the required service is unavailable.
+- Production impact requires action before the agreed wait time expires.
+- The incident lead has named an operator and approver.
+- The intended outcome is rollback, pause, flag change or critical hotfix.
+
+GitHub exposes component status and unresolved incidents through its [public Status API](https://www.githubstatus.com/api/), so internal alerting can distinguish Actions, Git operations and API failures. Treat provider status as one signal. Also test the operation your team needs, because a green summary cannot prove that a specific repository, organization or identity path works.
+
+### Stop conditions
+
+- The primary platform recovers before emergency access is used.
+- The artifact digest or source provenance cannot be verified.
+- Required approvers or independent credentials are unavailable.
+- The proposed change includes a destructive data migration.
+- Verification signals are missing or production is becoming less stable.
+
+Stopping is a valid continuity decision. The purpose of the path is to reduce customer risk, not to prove that the team can deploy under any circumstances.
+
+## Common Continuity Mistakes
+
+### Buying a second CI service without removing shared dependencies
+
+A secondary runner that still pulls source, actions, packages or identity from GitHub is a different interface to the same failure domain.
+
+### Rebuilding the latest commit during the incident
+
+The latest commit may never have passed the full release pipeline. Prefer the last known-good digest. If a rebuild is unavoidable, document why and compare its inputs with the normal build.
+
+### Making the break-glass role too powerful
+
+Emergency access is used rarely and under pressure. Narrow permissions reduce both mistakes and credential risk.
+
+### Storing the runbook only in the repository
+
+Keep an encrypted offline copy or controlled document in an independent system. Include contact paths, role owners and verification queries—not just deployment commands.
+
+### Never testing recovery
+
+A backup that has not been restored is an assumption. A credential that has not been exercised may be expired, incomplete or locked behind the failed identity provider.
+
+## A Seven-Step Release Continuity Action Plan
+
+1. **Draw the dependency map.** Trace source, review, build, registry, identity, deployment, verification and coordination. Mark every runtime call to GitHub or another shared provider.
+2. **Set proportional objectives.** Decide which incidents may wait, which require rollback and which could justify a hotfix. Assign decision and recovery times.
+3. **Protect known-good inputs.** Create an independent repository backup and retain recent production artifacts by immutable digest. Test both recovery paths.
+4. **Create narrow emergency access.** Give the break-glass role only rollback, pause, approved flag and observation permissions. Remove shared SSO dependencies and require strong approval.
+5. **Write two runbooks.** Keep rollback short and deterministic. Make hotfix stricter, with source verification, independent review, tests, artifact identity and reconciliation.
+6. **Run a tabletop exercise.** Assume GitHub web, Actions and OIDC are unavailable. Walk through a bad release and record every hidden dependency or missing decision.
+7. **Perform one controlled restore.** In a non-production environment, restore the repository backup, pull a retained artifact, activate emergency identity, roll back and verify. Fix the runbook immediately.
+
+The review should be repeated after changing the code host, registry, cloud identity, deployment platform or incident tooling. Those are control-plane changes even when the application code stays the same.
+
+## Continuity Is a Smaller Target Than Full Redundancy
+
+The August outage is not an argument to abandon GitHub or operate two complete software factories. It is a reminder that a healthy production system can still become unchangeable when its delivery control plane fails.
+
+For most SaaS teams, the practical target is modest: recoverable source, retained verified artifacts, a narrow independent rollback identity, an external runbook and a tested decision process. That gives the team a safe way to wait, roll back or fix the product without turning a provider incident into an improvised security exception.
+
+Release continuity belongs beside backups, monitoring and incident response in any [production-readiness review](/services/production-readiness-upgrade). Build the smallest path that meets the business recovery need, then prove it works before an outage chooses the timing for you.
