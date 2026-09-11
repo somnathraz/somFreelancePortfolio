@@ -1,0 +1,189 @@
+---
+title: "Soft Navigation Core Web Vitals: A SaaS RUM Guide"
+metaTitle: "Soft Navigation Core Web Vitals for SaaS"
+description: "Measure Core Web Vitals across React and Next.js route changes with soft-navigation RUM, without mixing incompatible data or hiding slow SaaS screens."
+date: "2026-09-04"
+updated: "2026-09-04"
+author: "Somanath Khadanga"
+category: "Next.js Performance"
+tags:
+  - soft navigation Core Web Vitals
+  - Next.js performance monitoring
+  - SaaS real user monitoring
+  - web-vitals v6
+readTime: "11 min read"
+shareImage: "/images/blog/soft-navigation-core-web-vitals-saas.png"
+---
+
+![A browser route transition measured through click, URL change and visible paint](/images/blog/soft-navigation-core-web-vitals-saas.png)
+
+A SaaS dashboard can look fast in your Core Web Vitals report and still feel slow during the work customers do every day.
+
+The reason is architectural. A customer loads the dashboard once, then moves between invoices, reports and settings through client-side routing. The URL changes and the screen updates, but the browser document does not reload. Traditional page-level metrics primarily describe the first load, not every route transition that follows it.
+
+Chrome 151 changes what teams can observe. Chrome's updated [soft-navigation measurement guide](https://developer.chrome.com/docs/web-platform/soft-navigations) documents two performance APIs that let compatible browsers identify same-document navigations and attribute fresh performance entries to them. The result is a practical way to measure LCP, INP and CLS for route changes inside a React or Next.js application.
+
+This is an important measurement improvement, not a new ranking panic. Browser support is still limited, the specification is still incubating, and the data has different semantics from a full page load. The right rollout is a separate real-user monitoring stream that helps product and engineering teams find slow in-app journeys without corrupting the baseline they already trust.
+
+## The Blind Spot Inside a Fast Initial Load
+
+Imagine an invoicing SaaS with this customer journey:
+
+```text
+/dashboard -> /invoices -> /invoices/123 -> /reports/revenue
+```
+
+The initial dashboard request may have a good LCP. After that, the application shell stays mounted. Each link click starts client-side work: fetch React Server Component data, wait on an API, parse a response, render a chart and replace the main content area.
+
+If `/reports/revenue` takes three seconds to become useful, a synthetic test can reproduce it and a custom timer can measure part of it. But the traditional page-level LCP for the document does not restart just because the URL and main panel changed. Long-lived CLS and INP values also remain scoped to the document rather than naturally becoming route-level measurements.
+
+This creates two common mistakes.
+
+First, teams optimize only landing pages because those are the routes visible in lab tools and aggregate field reports. Second, teams create framework-specific timers such as `routeStart` to `routeComplete` and treat them as Core Web Vitals, even though those timers do not necessarily represent when the user saw useful content.
+
+The broader performance audit in [Why Your Next.js App Feels Slow After Launch](/blog/why-your-nextjs-app-feels-slow-after-launch) still applies. Soft-navigation metrics add missing field evidence; they do not replace network traces, server timings, bundle analysis or product-level completion metrics.
+
+## What Chrome Counts as a Soft Navigation
+
+Chrome does not classify every call to `history.pushState()` as a new page. Its heuristic looks for three connected events:
+
+1. A user interaction starts the change.
+2. The visible URL changes.
+3. Content is painted as a result of that interaction.
+
+That definition is designed to work across frameworks instead of requiring React, Next.js, Vue or an application router to announce a navigation. The August 26 [WICG draft specification](https://wicg.github.io/soft-navigations/) describes the underlying `PerformanceSoftNavigation`, navigation identifier and interaction-attribution model. It is a Community Group draft, not a W3C Standard, so the API and its cross-browser future should still be treated as evolving.
+
+The heuristic also has edge cases. A product may update a URL after a filter interaction that users do not consider a new page. Another route change may be triggered programmatically without the interaction pattern Chrome expects. The official guidance acknowledges that false positives and false negatives are possible.
+
+Treat detection as browser-generated evidence, not unquestionable product truth. During rollout, compare emitted soft navigations with a small set of known journeys and keep your own route-transition event beside the browser metric. When the two disagree, investigate before changing a performance budget.
+
+## The Metric Meanings Change at a Route Boundary
+
+A soft-navigation LCP is not the same scene replayed from a cold page load.
+
+The application header, side navigation and other persistent elements may not repaint during a route change, so they are not candidates for that transition's contentful paint. The new LCP may be a report heading, invoice table or chart that appears in the updated region. That is useful: it describes what became visible after the click. It may still differ from the LCP element seen when the same URL loads directly.
+
+The official `web-vitals` documentation explains the other resets in its [soft-navigation reporting guide](https://github.com/GoogleChrome/web-vitals/blob/main/README.md#report-metrics-for-soft-navigations):
+
+- INP starts measuring interactions after the new soft navigation.
+- CLS restarts for the new route view.
+- TTFB is reported as zero for a soft navigation, not as the duration of the first data request.
+- The initial page's metrics are finalized when the first soft navigation begins.
+
+Do not interpret a soft-navigation TTFB of zero as proof that the backend is fast. If route data matters, record a separate request duration or Server-Timing value. Do not compare a soft-navigation LCP directly with a hard-load LCP unless the dashboard keeps `navigationType` and route-entry mode visible.
+
+This distinction also matters when testing the instant-navigation patterns described in [Next.js 16.3 Instant Navigations](/blog/nextjs-instant-navigation-saas-preview). A cached shell can make the first paint immediate while meaningful content streams later. Measure the browser's paint, the data boundary and the user's task outcome rather than declaring success from one timestamp.
+
+## Start With Two RUM Streams, Not One Blended Chart
+
+The `web-vitals` package added soft-navigation support in version 6. Its [official changelog](https://github.com/GoogleChrome/web-vitals/blob/main/CHANGELOG.md) records the v6 release on July 21, 2026 and the new reporting capability. Soft-navigation reporting is opt-in through `reportSoftNavs: true`.
+
+For an initial evaluation, keep the existing callback and add a separately labelled soft-navigation callback. The project documentation recommends this dual registration when a team needs both traditional and soft-navigation processing.
+
+```tsx
+'use client';
+
+import { useEffect } from 'react';
+import type { Metric } from 'web-vitals';
+
+function report(metric: Metric, stream: 'traditional' | 'soft-nav') {
+  const payload = JSON.stringify({
+    id: metric.id,
+    name: metric.name,
+    value: metric.value,
+    rating: metric.rating,
+    navigationType: metric.navigationType,
+    navigationURL: metric.navigationURL ?? window.location.href,
+    stream,
+  });
+
+  navigator.sendBeacon('/api/vitals', payload);
+}
+
+export function WebVitalsReporter() {
+  useEffect(() => {
+    void import('web-vitals').then(({ onCLS, onINP, onLCP }) => {
+      const traditional = (metric: Metric) => report(metric, 'traditional');
+      const softNav = (metric: Metric) => report(metric, 'soft-nav');
+
+      onCLS(traditional);
+      onINP(traditional);
+      onLCP(traditional);
+
+      onCLS(softNav, { reportSoftNavs: true });
+      onINP(softNav, { reportSoftNavs: true });
+      onLCP(softNav, { reportSoftNavs: true });
+    });
+  }, []);
+
+  return null;
+}
+```
+
+Mount this small client component once in the root layout so route transitions do not register duplicate observers. Next.js also provides a built-in `useReportWebVitals` approach, but verify that your installed Next.js integration exposes the new soft-navigation option before assuming the framework hook collects it. Using `web-vitals` directly makes the opt-in explicit while support settles.
+
+This example is a starting point, not a complete telemetry endpoint. The receiver must validate payload size and fields, apply rate limits, avoid logging sensitive URLs, and respond quickly. Sampling is usually reasonable once volume grows, but keep the sampling rule stable enough to compare releases.
+
+## Store the Route the Metric Belongs To
+
+A metric callback can run after the application has moved again. `window.location.href` may therefore point to a newer screen than the one that produced the metric. Version 6 includes `navigationURL` for this reason. Prefer it when attributing the value.
+
+Do not store raw SaaS URLs without review. Paths often contain tenant slugs, document IDs, search terms or invitation tokens. Normalize them before aggregation:
+
+```text
+/acme/invoices/INV-1042?customer=paperchai
+                         |
+                         v
+/[tenant]/invoices/[invoiceId]
+```
+
+A useful event schema includes:
+
+- metric name, value, rating and unique metric ID;
+- normalized route template;
+- `navigationType` and measurement stream;
+- browser family and major version;
+- application release or build identifier;
+- device class and a coarse network class, when available and appropriate;
+- a sampled trace or request correlation ID for slow cases.
+
+Avoid tenant names, full query strings and user identifiers in the metric body. If you need account-tier analysis, resolve an opaque, approved segment on the server rather than turning the URL into analytics metadata.
+
+This route-and-release context is the performance counterpart to a [minimum viable observability plan](/blog/minimum-viable-observability-saas): collect enough dimensions to decide what to fix, but not enough unbounded cardinality to make the system expensive or unsafe.
+
+## Separate Coverage Before Comparing Results
+
+Chrome 151 reached stable on July 28, 2026, according to the [official release notes](https://developer.chrome.com/release-notes/151). Soft-navigation Core Web Vitals are currently available in Chromium 151 and newer through the supporting APIs. Other engines do not yet provide the same measurement.
+
+That means the soft-navigation dataset is a sample of compatible traffic, not a browser-neutral view of every customer. Keep at least these groups separate:
+
+| Dataset | What it represents | Use it for |
+|---|---|---|
+| Hard navigation RUM | Direct loads and reloads across supported browsers | Existing page-load baselines |
+| Soft navigation RUM | In-document routes in compatible Chromium versions | Finding slow in-app journeys |
+| Product route timing | Framework or application events | Coverage checks and business flow timing |
+| Synthetic journeys | Controlled devices, data and routes | Reproduction and regression testing |
+
+Do not quietly replace the first row with the second. Do not merge values and publish one percentile without a navigation-type dimension. A release with more customers using compatible Chrome could change the blended distribution even when the product did not change.
+
+There is another boundary: Chrome had not announced a timetable for adding these route-level measurements to CrUX when the Web Vitals SPA FAQ was updated in August 2026. The [official SPA guidance](https://web.dev/articles/vitals-spa-faq) says the APIs are beginning to appear in RUM libraries and tools, while CrUX integration remains unspecified. Your custom RUM data should guide engineering decisions, but it does not imply that Search Console is already scoring every dashboard route.
+
+## A Seven-Step Rollout for a SaaS Team
+
+1. **Choose three real journeys.** Use routes customers depend on, such as opening an invoice, changing workspace settings and loading a large report. Record direct-load and client-navigation behavior.
+2. **Upgrade in isolation.** Move to `web-vitals` v6 or newer in a small change, read its breaking changes, and confirm the current lockfile version before enabling the option.
+3. **Add a separate stream.** Preserve traditional reporting and label soft-navigation events explicitly. Include `navigationURL`, `navigationType` and application release.
+4. **Normalize routes at ingestion.** Replace tenant names and record IDs with bounded templates. Drop sensitive query strings and reject unexpected payload fields.
+5. **Validate detection.** Compare browser entries with product route events on Chrome 151 or newer. Document known false positives, false negatives and programmatic navigation cases.
+6. **Build segmented views.** Chart hard and soft navigation percentiles separately by route template, release and compatible browser cohort. Add sample counts beside every percentile.
+7. **Set budgets after a baseline.** Collect enough representative traffic to understand coverage and variance. Then attach alerts to important journeys, not to a blended site-wide number.
+
+The first business question should be concrete: “Which route transition blocks a paid workflow?” A route with modest traffic but severe delay during checkout, reporting or team administration may deserve attention before a frequently visited screen with a slightly worse aggregate rating.
+
+## Measurement Should Follow the Customer Journey
+
+Client-side routing moved the user's experience beyond the first page load years ago. Performance measurement is finally gaining a browser-level way to follow it.
+
+Adopt the new data carefully. Keep it separate, label its coverage, protect route privacy and validate the heuristic against journeys your customers actually take. Used that way, soft-navigation Core Web Vitals can turn “the dashboard sometimes feels slow” into a route, release and metric an engineering team can investigate.
+
+If the new stream reveals slow route paints, unstable layouts or delayed interactions but the trace still does not explain why, a focused [Next.js performance review](/services/nextjs-performance-optimization) can connect the field signal to rendering, data fetching, caching and bundle behavior without starting with a rewrite.

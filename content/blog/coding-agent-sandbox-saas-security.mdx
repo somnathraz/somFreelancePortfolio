@@ -1,0 +1,198 @@
+---
+title: "Your Coding Agent Needs a Sandbox: A SaaS Security Blueprint"
+metaTitle: "Coding Agent Sandboxes: A SaaS Security Blueprint"
+description: "A practical sandbox blueprint for coding agents: isolate files, restrict network access, broker credentials, limit resources and keep merges human-controlled."
+date: "2026-09-09"
+updated: "2026-09-09"
+author: "Somanath Khadanga"
+category: "AI SaaS"
+tags:
+  - coding agent sandbox
+  - AI coding security
+  - agent network isolation
+  - SaaS engineering governance
+readTime: "11 min read"
+shareImage: "/images/blog/coding-agent-sandbox-saas-security.png"
+---
+
+![A coding agent isolated from source files, external networks and production credentials by a sandbox boundary](/images/blog/coding-agent-sandbox-saas-security.png)
+
+A coding agent can clone a repository, install packages, run shell commands, edit application code and open a pull request while the team works on something else.
+
+That is useful because the agent has tools. It is risky for exactly the same reason.
+
+On September 3, 2026, Vercel announced that Cursor Cloud Agents can run on customer-supplied Vercel Sandbox infrastructure. The reference architecture gives each request an isolated Firecracker microVM, durable orchestration and short-lived user-scoped credentials, according to the [Vercel announcement](https://vercel.com/changelog/run-cursor-cloud-agents-vercel-sandbox). The product detail is new, but the engineering lesson is broader: once an agent executes code, its runtime becomes part of your security architecture.
+
+The wrong question is, "Do we trust the model?" Trust is not a useful control for a process that reads untrusted repository content, downloads dependencies and can make mistakes. The practical question is: if this task behaves badly, what can it read, reach, change and publish?
+
+A good sandbox makes the answer small.
+
+## Treat the Agent as an Untrusted Build Worker
+
+Most teams already understand that a public web request should not inherit an administrator's credentials. Apply the same reasoning to coding agents.
+
+The agent processes instructions from several places:
+
+- the engineer's task;
+- repository instructions and documentation;
+- source code, tests, issues and generated files;
+- package metadata and install scripts;
+- websites, APIs and MCP tools it may query.
+
+Any of those inputs can be stale, misleading or malicious. A comment inside a dependency can look like an instruction. A test fixture can contain text designed to redirect the agent. A compromised package can execute during installation. Even without an attacker, an over-broad command can delete files or send data to the wrong service.
+
+This does not mean agents are unusable. It means their execution environment should resemble an ephemeral CI worker, not a developer laptop with months of accumulated credentials.
+
+GitHub now documents both local and cloud sandboxing for Copilot CLI. Its [sandbox overview](https://docs.github.com/en/enterprise-cloud@latest/copilot/concepts/about-cloud-and-local-sandboxes) makes an important distinction: local OS-level controls restrict paths, network and capabilities, while a cloud session runs in a fully isolated ephemeral Linux environment. Isolation strength is a design choice, not a checkbox.
+
+For a SaaS team, use the weakest environment only when the possible consequence is equally weak. A documentation change in a public repository may be acceptable locally. A task that installs dependencies, handles private code or exercises infrastructure needs a stronger boundary.
+
+## Build Four Independent Boundaries
+
+A sandbox is not merely a container around a shell. It needs four separately configurable boundaries.
+
+| Boundary | Safe default | Explicit exception |
+|---|---|---|
+| Filesystem | One disposable checkout, no host mounts | Read-only fixture or narrowly scoped cache |
+| Network | Deny by default after setup | Named registries, APIs or test endpoints |
+| Credentials | No inherited developer or production secrets | Short-lived, task-scoped token through a broker |
+| Change authority | Agent branch and draft pull request only | Human-approved merge through normal rules |
+
+If one boundary fails, the others should still limit the outcome. A process that reads an unexpected file should not automatically be able to send it anywhere. A process that can reach an API should not possess an unrestricted token for it. A process that writes code should not be able to merge that code into production.
+
+### 1. Give Each Task a Disposable Filesystem
+
+Create a fresh checkout for each task. It should contain the repository and the minimum build context, not the engineer's home directory, SSH configuration, cloud profiles, browser data or sibling repositories.
+
+The agent should normally write only inside that checkout and temporary build directories. Mount shared dependency caches read-only when possible. Never mount a production volume just to make an integration test convenient.
+
+Destroy the environment after collecting the diff, logs and test results. Persistence improves warm-start speed, but it also carries state between trust domains. If snapshots are reused, make them immutable base images that contain tools and dependencies—not tokens, task output or another customer's source.
+
+Vercel's current [Sandbox documentation](https://vercel.com/docs/sandbox) describes an isolated microVM with its own filesystem and network, plus managed images, snapshots and persistent storage. Those features can reduce startup cost, but teams still need a lifecycle rule: base tooling may persist; task-specific state must not leak into the next task.
+
+### 2. Open the Network in Phases
+
+Many agent tasks need internet access to install dependencies. That does not justify unrestricted egress for the entire run.
+
+Use two phases:
+
+```text
+setup:   allow approved package registries -> install locked dependencies
+execute: deny by default -> allow only required APIs and test hosts
+```
+
+Pin dependency versions and preserve the lockfile. If setup modifies the lockfile, surface that as part of the review instead of silently accepting a new dependency graph.
+
+Log outbound destinations and blocked requests. A blocked domain is useful evidence: it may reveal a missing test dependency, an unexpected telemetry call or an attempted exfiltration path. Avoid responding by adding a wildcard allow rule. Identify why the connection exists and grant the smallest exception.
+
+GitHub says Copilot's default firewall limits internet access to reduce exfiltration risk, but its [firewall documentation](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-the-firewall) also lists limitations: some MCP servers and setup-step processes fall outside that boundary, and sophisticated bypasses may exist. That is the right mental model. Egress filtering is one layer, not proof that every tool connected to the agent is safe.
+
+### 3. Keep Secrets Outside the Sandbox
+
+An environment variable is masked in a log, but any process that can read the variable can still use or transmit it.
+
+Prefer credential brokering. The sandbox sends an unauthenticated request to an approved destination; a trusted proxy outside the sandbox adds a short-lived credential and forwards the request. The agent can call the service without ever seeing the secret value.
+
+When brokering is unavailable, mint a task-specific token with all of these properties:
+
+- expires in minutes or hours, not months;
+- works for one repository, tenant or test environment;
+- grants only the required actions;
+- cannot create another credential;
+- produces an identifiable audit trail;
+- can be revoked without disrupting normal production workloads.
+
+Do not copy the developer's `.env` file into the checkout. Create a dedicated agent secret set. GitHub follows this separation for its cloud agent: [Agents secrets are distinct](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/configure-secrets-and-variables) from Actions, Codespaces and Dependabot secrets, and organization secrets can be limited to selected repositories. The exact product is optional; the separation of trust domains is not.
+
+Test against disposable services. Give an agent a seeded test database that can be rebuilt, a payment-provider sandbox and a non-production object bucket. A read-only production token is still production access and may expose customer data.
+
+### 4. Separate Code Generation From Merge Authority
+
+The sandbox limits what happens during execution. Repository rules limit what happens afterward.
+
+An agent should push to its own branch and produce a reviewable pull request. It should not push directly to the default branch, dismiss reviews, change branch protection or approve its own work.
+
+Require the same controls that apply to human-authored changes:
+
+- deterministic tests and linting;
+- secret and dependency scanning;
+- review from the owner of sensitive paths;
+- migration checks for data changes;
+- deployment approval for production;
+- a diff small enough for a person to understand.
+
+Protect the files that define the agent's own power. Repository instructions, setup workflows, MCP configuration, sandbox policy and `CODEOWNERS` deserve owner review. GitHub's [cloud-agent guardrail guidance](https://docs.github.com/en/copilot/tutorials/cloud-agent/build-guardrails) similarly recommends protecting Copilot and MCP configuration with code-owner rules, using fresh or ephemeral runners and reviewing workflow-token permissions.
+
+This is the key separation: the agent may propose a change to its guardrails, but the existing guardrails decide whether that proposal can land.
+
+## Scope the Environment to the Task's Consequence
+
+Not every task needs the same runtime. Define tiers so engineers do not negotiate security from scratch for each prompt.
+
+### Tier 1: Read and explain
+
+The agent receives a read-only checkout, no secrets and no network after dependency-free analysis. Suitable for code navigation, documentation review and test-plan drafting.
+
+### Tier 2: Edit and test
+
+The agent gets a disposable writable checkout, approved package registries and isolated test services. It can create a branch or patch but cannot access production or merge. This should cover most feature, bug-fix and refactoring work.
+
+### Tier 3: External integration
+
+The task needs a private registry, error tracker or staging API. Add brokered, short-lived credentials and destination-specific network rules. Record every external call. Require review from the system owner.
+
+### Tier 4: Operational change
+
+The task could affect infrastructure, customer data or a deployment. Split planning from execution. Let the agent prepare the command, patch or runbook in a lower tier, then require a human-controlled production workflow to apply it.
+
+Do not make "full access" a fifth tier. If a task genuinely requires broad production authority, it is too large for one autonomous execution boundary. Break it into observable, reversible steps.
+
+This consequence-based approach complements the identity design in [Your AI Agent Needs Its Own Identity](/blog/ai-agent-identity-saas-access-blueprint). Identity determines who the agent is; the sandbox determines what its processes can touch.
+
+## Failure Modes That Look Like Convenience
+
+### Running the agent on a founder's laptop
+
+The task inherits access to private keys, browser sessions, local databases and every reachable internal service. A worktree prevents Git conflicts; it does not create a security boundary.
+
+### Passing the entire CI secret set
+
+Most tasks need zero secrets. Giving every agent the normal deployment environment makes a small code task equivalent to a release operator.
+
+### Allowing all network access for package installation
+
+Installation is when untrusted dependency code may execute. Install from an allowlisted registry, use a lockfile, then tighten egress before the agent runs tests or tools.
+
+### Reusing a warm environment between repositories
+
+Caches, shell history, tool configuration and background processes can cross project boundaries. Reuse a sanitized base image, not a previously active workspace.
+
+### Treating a green test suite as approval
+
+Tests show that checked behavior passed. They do not prove the task was correctly scoped, the architecture is sound or no sensitive behavior changed. The [vibe-coded MVP audit](/blog/what-to-audit-in-a-vibe-coded-mvp-before-real-users-see-it) is still relevant after an agent produces a polished diff.
+
+### Letting the agent change its own policy unnoticed
+
+A one-line edit to a setup workflow can expose new credentials or network access. Put policy files behind explicit ownership and show those changes separately in review.
+
+## A Seven-Step Rollout for a Small SaaS Team
+
+1. **Inventory actual access.** On one representative agent run, list readable paths, environment variables, network destinations, repository permissions and external tools. Do not rely on the product's marketing description.
+2. **Create a disposable default.** Start every coding task in a fresh checkout with no host home-directory mount and no inherited credentials. Preserve only the patch, logs and test evidence.
+3. **Split setup from execution.** Allow the package sources required to reproduce the lockfile, install dependencies, then switch to a smaller egress policy for task execution.
+4. **Create agent-specific credentials.** Replace copied developer and CI secrets with short-lived tokens or a credential broker. Scope them to staging resources and one task identity.
+5. **Enforce the pull-request boundary.** Require protected branches, human review, code-owner approval for sensitive paths and mandatory checks. Prevent the agent from changing or bypassing those requirements.
+6. **Define consequence tiers.** Document which tasks may read, write, call external systems or prepare operational changes. Route higher-risk work to stronger isolation and more review.
+7. **Run adversarial tests.** Place a fake prompt injection in a fixture, attempt to read a forbidden path, call an unapproved domain, print a canary secret and modify a policy file. Confirm each attempt is blocked or clearly escalated.
+
+Repeat the exercise when you add a new agent, MCP server, package registry, self-hosted runner or deployment integration. Each one changes the reachable system, even if the model stays the same.
+
+## The Sandbox Is a Product Boundary
+
+Coding agents compress implementation time by combining reasoning with tools. The tool access—not the chat interface—is what changes the risk.
+
+A strong default is straightforward: one disposable environment per task, a minimal filesystem, phased network access, secrets kept outside the runtime, strict resource limits and no direct merge or production authority. Add exceptions deliberately and attach them to a task, not to every future session.
+
+For a small SaaS team, this is less about buying an enterprise platform than refusing to run untrusted automation inside a trusted personal environment. Start with Tier 2, make the safe path convenient and keep production execution separate.
+
+If agent-written changes are already moving toward real users, combine this sandbox blueprint with a [production-readiness review](/services/production-readiness-upgrade). The goal is not to slow the agent down. It is to ensure the fastest possible failure is still contained, visible and reversible.
