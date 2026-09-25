@@ -1,0 +1,271 @@
+---
+title: "GPT-6 Sol and Luna for SaaS: Route Workloads, Don't Replace Everything"
+metaTitle: "GPT-6 Sol and Luna: A SaaS Model Routing Guide"
+description: "A practical model-routing plan for SaaS teams adopting GPT-6 Sol and Luna: classify tasks, measure quality, control cost, and roll out safely."
+date: "2026-09-23"
+updated: "2026-09-23"
+author: "Somanath Khadanga"
+category: "AI SaaS"
+tags:
+  - GPT-6 Sol
+  - GPT-6 Luna
+  - AI model routing
+  - SaaS AI architecture
+readTime: "12 min read"
+shareImage: "/images/blog/gpt-6-sol-luna-saas-model-routing.png"
+---
+
+![A model router directing SaaS tasks to Luna, Sol and Astra processing lanes](/images/blog/gpt-6-sol-luna-saas-model-routing.png)
+
+OpenAI released GPT-6 Sol and GPT-6 Luna on September 22, 2026. For a SaaS team, the important change is not that there are two new model IDs to paste into an environment variable.
+
+It is that one model no longer needs to serve every AI workflow in your product.
+
+The official [OpenAI API changelog](https://developers.openai.com/api/docs/changelog) describes both models as accepting text and image inputs and producing text through the Responses and Chat Completions APIs. Sol is positioned as the balance of intelligence and cost; Luna is the efficient option for focused, high-volume work.
+
+That makes model routing a product decision. A support-ticket classifier, a customer-facing report, and an autonomous account-reconciliation workflow do not have the same cost of failure. They should not automatically receive the same model or reasoning budget.
+
+The right rollout is not “replace the old model everywhere.” It is: define task classes, choose the cheapest configuration that clears each class's quality bar, and keep an explicit promotion path for harder cases.
+
+## Start With Workload Contracts, Not Model Names
+
+A model router should know what a task is expected to do before it chooses where to send it.
+
+For each AI-powered feature, write a small workload contract:
+
+- What input does the model receive?
+- What output shape must it return?
+- Can a human review the output before it matters?
+- Can the action be reversed?
+- Which tools or customer data can it access?
+- What happens when confidence is low or validation fails?
+- What are the latency and cost budgets for one completed task?
+
+Consider three common SaaS workflows.
+
+**Ticket triage** reads a subject and message, then returns a category and urgency label. The output is structured, easy to validate, frequent, and usually reversible. This is a reasonable Luna candidate.
+
+**Account health summaries** combine usage, support, and billing signals into a narrative for a customer-success manager. The work needs judgment, faithful synthesis, and consistent explanation. Sol may be the better starting point.
+
+**Contract exception review** must compare documents, identify ambiguity, use tools, and explain why a clause needs attention. The cost of a plausible but incomplete answer is higher. This may require Sol with more reasoning or Astra, plus mandatory human review.
+
+These are starting hypotheses, not permanent assignments. OpenAI's [model selection guidance](https://developers.openai.com/api/docs/guides/model-selection) similarly frames Luna for scoped tasks, triage, and frequent automations; Sol for everyday work that needs judgment; and Astra for ambiguous, demanding work. It also recommends testing the same inputs and keeping the lightest setting that meets the required quality bar.
+
+## Use Three Lanes, Not a Clever Black Box
+
+Early routing logic should be boring enough to audit.
+
+### Lane 1: Luna for bounded, repeatable work
+
+Use Luna first when the task has clear inputs, a narrow output schema, and cheap validation. Examples include:
+
+- Classifying feedback into a controlled taxonomy
+- Extracting fields from consistent documents
+- Rewriting text to a defined length and tone
+- Drafting internal summaries that a person will review
+- Applying a known transformation to many similar records
+
+Do not send a task to Luna merely because the prompt is short. A four-line request to cancel accounts, change permissions, or issue refunds can have more consequence than a long document summary.
+
+### Lane 2: Sol for work that needs judgment
+
+Use Sol when the workflow must combine evidence, make trade-offs, or produce a customer-visible deliverable. Examples include:
+
+- Synthesizing several sources into an account brief
+- Drafting a response that must follow nuanced policy
+- Reviewing code or configuration changes
+- Planning a multi-step workflow with tool calls
+- Resolving an ambiguous request against product context
+
+Sol should be the ordinary escalation target, not the automatic default for every request.
+
+### Lane 3: Astra for the hardest cases
+
+Reserve Astra for tasks whose ambiguity, breadth, or consequence justifies the stronger model. A complex investigation across tools, an unfamiliar codebase change, or a high-value deliverable with many interacting constraints may belong here.
+
+This lane still needs limits. “Use the best model” is not a safety policy. Keep tool permissions, approval gates, timeouts, and output validation independent from model choice. The model may improve; the consequences of a bad tool call remain yours.
+
+## Route on Consequence and Complexity
+
+A useful router can begin with explicit product signals instead of asking another model to guess which model it needs.
+
+```ts
+type TaskClass =
+  | "ticket_classification"
+  | "account_summary"
+  | "contract_review";
+
+const policy = {
+  ticket_classification: {
+    model: "gpt-6-luna",
+    reasoning: "low",
+    humanReview: false,
+  },
+  account_summary: {
+    model: "gpt-6-sol",
+    reasoning: "medium",
+    humanReview: true,
+  },
+  contract_review: {
+    model: "gpt-6-astra",
+    reasoning: "high",
+    humanReview: true,
+  },
+} as const;
+
+export function routeTask(taskClass: TaskClass) {
+  return policy[taskClass];
+}
+```
+
+The exact mapping should come from your evaluations. The valuable architectural decision is that the product supplies `taskClass`; free-form user text does not select the expensive or privileged lane directly.
+
+Add routing inputs only when they are stable and explainable:
+
+- Task class
+- Customer plan or feature entitlement
+- Required output schema
+- Tool set
+- Maximum acceptable latency
+- Consequence tier
+- Previous validation failure
+
+Avoid a maze of hidden thresholds. If an engineer cannot explain why a request reached Astra from one trace, the router is already too complex.
+
+## Calculate Cost Per Completed Task
+
+Token price matters, but it is not the unit your customer buys.
+
+The current [OpenAI pricing page](https://developers.openai.com/api/docs/pricing) lists Standard short-context rates of $2 input and $10 output per million tokens for GPT-6 Sol, and $0.10 input and $0.50 output for GPT-6 Luna. Cached input has a lower rate, while long-context and other processing tiers have different prices.
+
+Those numbers make Luna attractive for volume, but a cheap first call is not cheap if it frequently needs a Sol retry, manual correction, or a second tool sequence.
+
+Track this instead:
+
+```text
+completed task cost =
+  first attempt
+  + automatic retries
+  + escalation calls
+  + tool charges
+  + review or correction cost
+```
+
+For a hypothetical month with 5 million uncached input tokens and 1 million output tokens, the published Standard short-context token rates would produce a raw model bill of $20 on Sol or $1 on Luna. That is an illustration, not a forecast: real requests may use different token volumes, context tiers, tools, retries, and reasoning behavior.
+
+Measure cost alongside acceptance rate. A route is successful only when it completes the task at the required quality, not when it generates the cheapest response.
+
+## Treat Reasoning Effort as Part of the Route
+
+Model choice is only one control. Reasoning effort changes the operating point inside a model family.
+
+OpenAI's current [GPT-6 model guidance](https://developers.openai.com/api/docs/guides/latest-model) says Sol and Luna support `none`, `low`, `medium`, `high`, `xhigh`, and `max`, while Astra does not support `none`. It also recommends the Responses API for tool use; reasoning with tools through Chat Completions has compatibility limits.
+
+Start low for bounded transformations. Increase effort when your evals show that the task benefits from more deliberate reasoning. Do not use maximum effort as a substitute for better context, clearer tools, or a narrower workflow.
+
+A practical order is:
+
+1. Improve the task contract and output schema.
+2. Test a higher reasoning effort on the same model.
+3. Promote to the next model lane if quality still misses the bar.
+4. Route to human review when the system cannot establish a safe answer.
+
+That order gives you a traceable explanation for both quality and cost changes.
+
+## Build Evals From Real Failure Modes
+
+Do not decide from five polished demo prompts.
+
+Build a small evaluation set for each workload from representative, permission-safe examples. Include ordinary cases, edge cases, adversarial instructions, missing data, conflicting evidence, and inputs that should produce a refusal or request for clarification.
+
+OpenAI's [evaluation best-practices guide](https://developers.openai.com/api/docs/guides/evaluation-best-practices) recommends task-specific evaluation criteria and notes that comparison, classification, and scoring against defined criteria are often more reliable than open-ended judging.
+
+For ticket triage, score exact category, urgency, schema validity, and false escalation rate. For an account summary, score factual grounding, coverage of required signals, unsupported claims, and reviewer acceptance. For a tool-using workflow, score tool selection, argument correctness, permission compliance, final state, and recovery from tool failure.
+
+Run every candidate configuration against the same frozen set:
+
+| Candidate | Quality gate | Operational gate |
+|---|---|---|
+| Luna, low | Meets task-specific accuracy and safety bar | Fits latency and cost budget |
+| Luna, medium | Improves failed cases without new regressions | Added cost is justified |
+| Sol, low or medium | Clears judgment-heavy cases | Escalation rate remains bounded |
+| Astra | Clears the hardest approved class | Reserved for cases worth the cost |
+
+Do not average away severe failures. A configuration that succeeds on 98 routine examples but leaks restricted data on two adversarial examples does not pass.
+
+The broader process in [How to Evaluate AI Agents Before Production](/blog/how-to-evaluate-ai-agents-before-production) applies even when the “agent” is only a single structured model call: define the outcome, test failures, and observe production behavior.
+
+## Keep Caching Separate From Routing
+
+Routing chooses the model. Prompt caching determines whether repeated prefix work can be reused. They affect cost together, but they solve different problems.
+
+OpenAI's [prompt caching documentation](https://developers.openai.com/api/docs/guides/prompt-caching) says caching is enabled by default for supported models and that reuse depends on a matching prompt prefix. For GPT-5.6 and later models, cache writes and reads have different prices, and the documentation recommends keeping stable instructions and tool definitions before dynamic content.
+
+That suggests two practical rules:
+
+- Keep each route's stable instructions, tool definitions, and examples in a consistent prefix.
+- Do not distort the routing policy merely to chase a cache hit.
+
+A Luna request cannot reuse a Sol cache entry as if the models were interchangeable. Track cache efficiency per route, then optimize prompts that repeat often. Keep customer- or workspace-specific cache accounting separated where your billing and privacy model requires it.
+
+## Design Escalation Without Duplicate Side Effects
+
+The dangerous version of fallback is “if anything fails, run the whole task again on a stronger model.”
+
+If the first attempt already sent an email, changed a record, or charged a card, replaying the task can repeat the side effect. Escalation must preserve workflow state.
+
+Separate reasoning from execution:
+
+1. Ask the model for a structured plan or proposed action.
+2. Validate schema, permissions, identifiers, and business rules in code.
+3. Escalate the proposal if confidence or validation is insufficient.
+4. Execute an approved action once with an idempotency key.
+5. Record which route proposed and approved the action.
+
+For long-running or tool-using workflows, carry forward verified tool results rather than making the stronger model rediscover the world. Redact data it does not need. A higher model tier should not automatically receive broader permissions.
+
+If you also need provider portability, keep the model policy behind a product-owned interface. The decisions in [Make Your AI SaaS Portable](/blog/openai-agent-builder-sunset-ai-saas-portability) are relevant here: prompts, evals, tool contracts, and traces should remain assets you control.
+
+## Common Routing Mistakes
+
+### Routing by prompt length
+
+Long does not mean difficult, and short does not mean safe. Use task type, ambiguity, and consequence.
+
+### Letting users choose the expensive lane
+
+A visible “best model” switch can be a product feature, but it should have entitlement and budget controls. Do not let arbitrary prompt text silently promote itself.
+
+### Comparing only answer style
+
+A more confident or polished answer is not necessarily more correct. Score the facts, schema, tool behavior, and completed outcome.
+
+### Hiding model changes inside a generic alias
+
+Convenient aliases can make behavior drift difficult to investigate. For critical routes, record the requested model, returned model or snapshot information when available, reasoning setting, prompt version, and router version.
+
+### Ignoring residency and processing constraints
+
+Model availability does not guarantee that every processing tier fits your data commitments. The official pricing and model guidance currently note that EU data residency for GPT-6 Sol and Luna is available only with Standard processing. Recheck this before promising a region or latency tier, and review the architecture questions in [Regional AI Inference](/blog/regional-ai-inference-data-residency-saas).
+
+## A Seven-Step Rollout Plan
+
+1. **Inventory every AI workflow.** Record its input, output, volume, tools, current model, reasoning effort, latency, review path, and consequence of failure.
+2. **Create three consequence tiers.** Separate bounded reversible tasks, judgment-heavy customer work, and high-consequence or ambiguous workflows.
+3. **Build representative eval sets.** Use real failure patterns, remove sensitive data, and define hard safety gates separately from average quality.
+4. **Benchmark the lightest candidate first.** Test Luna and low reasoning on bounded tasks, then increase effort or promote to Sol only where evidence supports it.
+5. **Add explicit escalation.** Preserve validated context, prevent duplicate side effects, and make human review a valid terminal route.
+6. **Shadow before switching.** Run the candidate route without affecting users, compare outputs, and inspect disagreements on consequential cases.
+7. **Release gradually and watch task economics.** Monitor completed-task cost, acceptance, correction, escalation, latency, and safety failures by route and prompt version.
+
+## What I Would Do Now
+
+I would not migrate every production call to GPT-6 Sol or Luna this week.
+
+I would choose one high-volume, reversible workflow and test Luna against its current model with a frozen evaluation set. I would choose one judgment-heavy workflow and test Sol. I would keep Astra as an explicit escalation lane for cases whose value and complexity justify it.
+
+Then I would ship the router as versioned product policy: named task classes, explicit model and reasoning settings, observable decisions, and a human route for cases the system should not resolve alone.
+
+Sol and Luna make finer-grained AI economics possible. The durable advantage is not getting onto the newest model fastest. It is building a product that knows which work deserves which level of intelligence—and can prove that the choice still works.
+
+If your AI feature is still a single prompt wired directly to a provider, a focused [SaaS MVP development review](/services/saas-mvp-development) can turn that experiment into a testable, observable product boundary before model routing becomes another layer of hidden complexity.
