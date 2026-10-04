@@ -1,0 +1,226 @@
+---
+title: "npm Release Controls: Stage, Approve, and Promote Without Tokens"
+metaTitle: "npm Release Controls With OIDC and Dist-Tags"
+description: "Design a safer npm release path with OIDC, staged publishing, human approval, and narrowly scoped dist-tag promotion—without long-lived tokens."
+date: "2026-10-02"
+updated: "2026-10-02"
+author: "Somanath Khadanga"
+category: "Security"
+tags:
+  - npm trusted publishing
+  - npm dist-tags
+  - software supply chain security
+  - OIDC release automation
+readTime: "11 min read"
+shareImage: "/images/blog/npm-release-control-oidc-dist-tags.png"
+---
+
+![An npm release flow separating package staging, human approval and dist-tag promotion](/images/blog/npm-release-control-oidc-dist-tags.png)
+
+An npm release is not one decision. It is at least three:
+
+1. Is this artifact the one the repository intended to build?
+2. Is this exact version safe to make available in the registry?
+3. Should a consumer asking for `latest`, `next`, or `beta` receive it now?
+
+Many release pipelines collapse those decisions into one privileged CI job. The job builds a tarball, publishes it, and moves a distribution tag. If the workflow or one long-lived token is compromised, the attacker inherits the entire path from source to consumer.
+
+On September 30, npm added the missing control for splitting that authority. A trusted publishing configuration can now receive an opt-in `Allow npm dist-tag` permission. It uses short-lived OIDC credentials, defaults to off, and is independent of direct publishing permission. A stage-only configuration can therefore manage tags without being allowed to publish a new version directly ([GitHub changelog](https://github.blog/changelog/2026-09-30-opt-in-dist-tag-permissions-for-npm-trusted-publishing/)).
+
+That sounds like a small permissions update. For a SaaS team that publishes SDKs, UI libraries, CLIs, integrations, or shared internal packages, it is a chance to redesign releases around separate trust boundaries.
+
+## A Dist-Tag Is a Deployment Pointer
+
+An npm version is immutable after publication, but the name consumers resolve can move. By default, publishing without another tag associates the version with `latest`, and installing a package by name normally resolves that tag. Other tags such as `next`, `beta`, and `canary` can represent different release channels ([npm dist-tag documentation](https://docs.npmjs.com/adding-dist-tags-to-packages/)).
+
+That makes a dist-tag operationally closer to a deployment pointer than harmless package metadata.
+
+Consider a public SDK:
+
+```text
+@acme/sdk@4.8.0        immutable version
+@acme/sdk@next         evaluation channel -> 4.8.0
+@acme/sdk@latest       default channel    -> 4.7.3
+```
+
+Publishing `4.8.0` creates the artifact. Moving `next` exposes it to early adopters. Moving `latest` changes the default version seen by new installs and by update tooling that follows the stable channel. Those actions may happen minutes or days apart, and they should not require the same authority.
+
+This is the central design shift: treat artifact creation, registry approval, and channel promotion as distinct production changes.
+
+## Use Three Gates, Not One Release Job
+
+A safer release path has three explicit gates.
+
+### Gate 1: CI builds and stages the package
+
+The build job should run from a narrow, reviewed workflow. It checks the source revision, installs with a locked dependency graph, runs tests, produces the package, and calls `npm stage publish` instead of publishing directly.
+
+Trusted publishing removes the stored npm token. npm exchanges the CI provider's identity for short-lived credentials and binds access to a configured repository, workflow, and optional environment. The live npm guidance recommends stage-only trusted publishers for the strongest posture, and it permits multiple independent publisher configurations for a package ([npm trusted publishing documentation](https://docs.npmjs.com/trusted-publishers/)).
+
+The workflow has authority to submit a candidate. It does not have authority to make that candidate installable.
+
+### Gate 2: A maintainer approves the exact candidate
+
+Staged publishing puts the package in a review queue. A maintainer can inspect the stage, download its tarball, reject it, or approve it. Approval requires a two-factor authentication challenge, whether it happens in the CLI or on npmjs.com ([npm staged publishing documentation](https://docs.npmjs.com/staged-publishing/)).
+
+The important object of review is the packed artifact, not merely the Git commit.
+
+Before approval, check at least:
+
+- package name, version, and intended channel;
+- the tarball file list and unexpected generated files;
+- bundled dependency and install-script changes;
+- provenance and the source revision that produced the package;
+- the changelog and compatibility promise attached to the version.
+
+Approval then makes that immutable version available. It still does not have to make the version the stable default.
+
+### Gate 3: A separate workflow promotes a dist-tag
+
+After approval, a promotion workflow can move `next` or `latest` to the reviewed version. Its trusted publisher configuration enables `npm dist-tag` but keeps direct `npm publish` disabled.
+
+This identity cannot create a new version. The staging identity cannot silently promote a version. A human must approve the staged candidate, and the promotion workflow can operate only on a version that already exists.
+
+No single control stops every supply-chain attack. This arrangement makes an attacker cross several independently visible boundaries instead of inheriting one all-powerful secret.
+
+## Model Release Authority Explicitly
+
+Write the policy down before editing workflow files. A small matrix is enough:
+
+| Identity | Stage version | Direct publish | Approve stage | Move dist-tag |
+| --- | --- | --- | --- | --- |
+| Build workflow | Yes | No | No | No |
+| Human maintainer | Review action | No | Yes, with 2FA | Emergency only |
+| Promotion workflow | No | No | No | Yes |
+
+The exact roles can vary, but two properties should survive:
+
+1. CI cannot both create an unreviewed version and make it the stable default.
+2. The normal release path does not depend on a reusable npm write token.
+
+If you publish many packages from a monorepo, do not automatically give every release workflow access to every package. Bind each trusted publisher to the smallest useful workflow and environment, then keep the promotion inputs package-specific. Multiple configurations are additive, so an overly broad configuration can bypass the careful narrow ones beside it.
+
+This complements workflow-trigger controls. The earlier guide to [GitHub Actions execution policies](/blog/github-actions-execution-policies-saas) covers who and what may start a privileged workflow. Trusted publishing controls what an accepted workflow may do at npm. You need both boundaries.
+
+## Build the GitHub Actions Path in Two Workflows
+
+For GitHub Actions, a job must have `id-token: write` before it can request an OIDC token. That permission allows token issuance; it does not itself grant npm access. The receiving service still evaluates the token claims and its own trust configuration ([GitHub OIDC reference](https://docs.github.com/en/actions/reference/security/oidc)).
+
+A stripped-down staging job looks like this:
+
+```yaml
+name: Stage npm package
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  stage:
+    environment: npm-stage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npm test
+      - run: npm pack --dry-run
+      - run: npm stage publish --tag next
+```
+
+Treat this as a shape, not a paste-and-forget template. Pin third-party actions according to your policy, use the npm and Node versions required by the current npm documentation, and bind the npm trusted publisher to this exact workflow filename and environment.
+
+The promotion workflow should accept an explicit version, verify that the version exists, and then move one allowed tag:
+
+```yaml
+- name: Verify candidate
+  run: npm view "@acme/sdk@${VERSION}" version
+
+- name: Promote stable channel
+  run: npm dist-tag add "@acme/sdk@${VERSION}" latest
+
+- name: Verify pointer
+  run: test "$(npm view @acme/sdk@latest version)" = "${VERSION}"
+```
+
+Do not discover the target by asking for “whatever was built last.” Require a concrete semantic version and record the workflow run, commit, approver, previous tag target, and new tag target.
+
+## Promote Evidence, Not Hope
+
+The time between approval and promotion is valuable. Use it to test the same artifact consumers will install.
+
+For a library, create a clean fixture project and install the candidate by exact version. For a CLI, run its real entry point in the oldest and newest supported runtimes. For an SDK, exercise authentication, one read operation, one write operation, pagination, error handling, and generated types. For a React package, check both server and client consumption, tree shaking, and peer dependency behavior.
+
+The promotion decision should answer:
+
+- Did the registry serve the expected tarball?
+- Can a clean consumer install it without repository-local state?
+- Does the package expose only the intended files and entry points?
+- Does it work in the supported runtime and module formats?
+- Are there new install scripts, network calls, or permission requirements?
+- Is rollback simply a tag move, or did the release change an external contract?
+
+This is also where a cooldown can help. The [Dependabot cooldown guide](/blog/github-dependabot-cooldown-saas-policy) explains why time can create useful detection space for dependencies. Your own `next` channel creates similar observation space before you move `latest`, without changing the immutable candidate.
+
+## Know What a Tag Rollback Can and Cannot Undo
+
+If `4.8.0` is faulty, moving `latest` back to `4.7.3` changes what future default resolutions see. It does not erase `4.8.0`, modify lockfiles that already selected it, or undo side effects caused by the package.
+
+That means a rollback runbook needs four actions:
+
+1. Move the affected channel to the last known-good version.
+2. Verify the registry now resolves the intended target.
+3. Deprecate the bad version with a useful message when appropriate.
+4. Communicate whether consumers must change lockfiles, rebuild, rotate credentials, or take another action.
+
+Store the previous tag target before every promotion. A rollback should consume that recorded value, not rely on someone remembering which release was safe during an incident.
+
+## Avoid Five Common Release-Control Mistakes
+
+### Giving one workflow every permission
+
+OIDC removes a stored token, but an overpowered workflow is still an overpowered workflow. If the same identity can publish directly and move `latest`, a malicious workflow change can still reach consumers in one run.
+
+### Treating stage-only tokens as harmless
+
+npm introduced stage-only granular tokens as a migration path for automation that cannot yet use trusted publishing. They prevent direct publication of a new version, but retain other write capabilities, including dist-tag changes. npm is targeting January 2027 to remove direct publishing through bypass-2FA tokens ([GitHub stage-only token announcement](https://github.blog/changelog/2026-09-18-stage-only-npm-tokens-for-safer-automation/)).
+
+Use a stage-only token when it is the best available transition, but protect it as a write credential and plan to remove it.
+
+### Approving from source instead of the tarball
+
+Build steps can add files that are absent from the repository view. Review `npm pack --dry-run` output in CI and download the staged artifact when the release has meaningful blast radius.
+
+### Promoting before consumer tests finish
+
+A successful publish proves that the registry accepted the package. It does not prove that a clean application can install and use it. Keep candidate verification ahead of the tag move.
+
+### Calling a tag move a complete rollback
+
+The pointer is reversible; an installed version and its effects may not be. Write the consumer response before you need it.
+
+## A Seven-Step Migration Plan
+
+1. **Inventory release authority.** List every npm token, trusted publisher, workflow, maintainer, package, and automation path that can publish or move tags.
+2. **Define channels.** Decide what `latest`, `next`, `beta`, and any custom tag mean. Remove channels with no owner or promotion rule.
+3. **Create a stage-only trusted publisher.** Bind it to the exact repository, workflow file, and protected environment used to build candidates.
+4. **Require artifact review.** Make the staged tarball, provenance, file list, test result, version, and source revision visible before 2FA approval.
+5. **Create a separate promotion identity.** Enable dist-tag permission only for the narrow workflow that promotes an already published version.
+6. **Test promotion and rollback.** Use a non-stable channel first. Record both tag targets, verify registry resolution, and rehearse returning the pointer.
+7. **Retire stored credentials.** After OIDC staging and promotion work reliably, disallow token publishing where appropriate and revoke obsolete automation tokens.
+
+The broad npm changes in [the earlier supply-chain security guide](/blog/recent-npm-security-changes-what-saas-teams-should-fix-right-now) explain why long-lived publishing credentials deserve attention. The new dist-tag permission lets teams finish that migration without keeping a token solely for channel management.
+
+## The Release Path Should Explain Itself
+
+A good release pipeline makes authority visible. One workflow produces a candidate. A maintainer approves the exact artifact with proof of presence. Another narrowly scoped workflow changes the consumer-facing channel. Every transition leaves evidence, and none requires a long-lived token in the normal path.
+
+That is more than npm configuration. It is a small, defensible production system with explicit identities, reversible pointers, and a human decision at the point where an artifact becomes public.
+
+If your package release path is only one part of a larger chain from pull request to production, a focused [production-readiness review](/services/production-readiness-upgrade) can map the same authority, evidence, and rollback questions across the rest of the system.
