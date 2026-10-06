@@ -10,6 +10,8 @@ export interface PostFrontmatter {
     description: string;
     /** Optional SEO-focused title for <title> tag. Falls back to `title` when absent. Used to keep on-page H1 expressive while keeping the SERP title under 60 chars. */
     metaTitle?: string;
+    /** Primary search phrase this post targets (used in schema keywords + writing checklist). */
+    primaryKeyword?: string;
     readTime?: string;
     category?: string;
     tags?: string[];
@@ -17,6 +19,13 @@ export interface PostFrontmatter {
     shareImage?: string;
     /** Optional explicit last-updated date (ISO). Otherwise inferred from file mtime. */
     updated?: string;
+    /** Related commercial URL for internal linking / schema about. */
+    relatedService?: string;
+    /**
+     * Optional FAQ pairs rendered into FAQPage JSON-LD when present.
+     * Keep answers factual and present on the page.
+     */
+    faq?: Array<{ question: string; answer: string }>;
 }
 
 export interface Post {

@@ -21,7 +21,8 @@ function renderStoryHtml(slug: string) {
   const baseUrl = "https://somanathkhadanga.com";
   // encodeURI preserves slashes but encodes spaces and special chars in filenames
   const posterUrl = `${baseUrl}${encodeURI(story.poster)}`;
-  const canonicalUrl = `${baseUrl}/stories/${story.slug}`;
+  // Prefer the source blog as the indexable URL; stories stay shareable but noindex.
+  const canonicalUrl = `${baseUrl}${story.sourceBlogUrl}`;
   const serviceUrl = `${baseUrl}${story.serviceUrl}`;
   const sourceBlogUrl = `${baseUrl}${story.sourceBlogUrl}`;
   const pageMarkup = story.pages
@@ -81,6 +82,7 @@ function renderStoryHtml(slug: string) {
     <meta charset="utf-8">
     <title>${escapeHtml(story.title)} | Web Story | Somanath Studio</title>
     <link rel="canonical" href="${canonicalUrl}">
+    <meta name="robots" content="noindex,follow">
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
     <meta name="description" content="${escapeHtml(story.description)}">
     <meta property="og:type" content="article">

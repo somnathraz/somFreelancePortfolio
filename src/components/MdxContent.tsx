@@ -69,11 +69,33 @@ export const mdxComponents = {
     code: ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => (
         <code className={`relative rounded bg-white/10 px-[0.3rem] py-[0.2rem] font-mono text-sm text-blue-200 ${className || ''}`} {...props} />
     ),
-    img: ({ className, alt, ...props }: React.ImgHTMLAttributes<HTMLImageElement>) => (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img className={`rounded-xl border border-white/10 my-8 w-full ${className || ''}`} alt={alt} {...props} />
+    img: ({ className, alt, src, ...props }: React.ImgHTMLAttributes<HTMLImageElement>) => {
+        const resolvedAlt =
+            typeof alt === "string" && alt.trim().length > 0
+                ? alt.trim()
+                : typeof src === "string"
+                  ? `Illustration for ${src.split("/").pop()?.replace(/[-_]/g, " ").replace(/\.[^.]+$/, "") || "blog topic"}`
+                  : "Blog illustration";
+        return (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+                className={`rounded-xl border border-white/10 my-8 w-full ${className || ""}`}
+                alt={resolvedAlt}
+                src={src}
+                {...props}
+            />
+        );
+    },
+    Image: (props: React.ComponentProps<typeof Image>) => (
+        <Image
+            {...props}
+            alt={
+                props.alt && props.alt.trim().length > 0
+                    ? props.alt
+                    : "Blog illustration"
+            }
+        />
     ),
-    Image: (props: React.ComponentProps<typeof Image>) => <Image {...props} />,
     AlertTriangle,
     Bot,
     Bug,

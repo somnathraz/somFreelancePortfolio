@@ -1,9 +1,13 @@
 import { getAllPosts } from '@/lib/blog';
-import { webStories } from '@/lib/web-stories';
 import { MetadataRoute } from 'next';
 
 const BASE_URL = 'https://somanathkhadanga.com';
 
+/**
+ * Sitemap focused on indexable commercial + blog URLs.
+ * Web Stories and redirect aliases are intentionally omitted so Google
+ * spends crawl budget on /blog and /services instead of duplicate formats.
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
     const posts = getAllPosts();
 
@@ -14,30 +18,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.8,
     }));
 
-    const stories = webStories.map((story) => ({
-        url: `${BASE_URL}/stories/${story.slug}`,
-        lastModified: new Date(),
-        changeFrequency: 'monthly' as const,
-        priority: 0.7,
-    }));
-
     const routes = [
         '',
         '/about',
         '/blog',
-        '/book',
         '/contact',
         '/case-studies',
-        '/case-studies/paperchai',
         '/case-studies/studio-booking-platform',
         '/case-studies/outspokn',
         '/case-studies/vgt',
         '/case-studies/paperchai-invoice',
+        '/projects/paperchai',
         '/hire-saas-mvp-developer',
         '/agency-development-partner',
         '/saas-mvp-audit',
-        '/projects/paperchai',
-        '/stories',
         '/services',
         '/services/saas-mvp-development',
         '/services/custom-software-development',
@@ -48,8 +42,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
         url: `${BASE_URL}${route}`,
         lastModified: new Date(),
         changeFrequency: 'weekly' as const,
-        priority: 1.0,
+        priority: route === '' || route.startsWith('/services') ? 1.0 : 0.9,
     }));
 
-    return [...routes, ...blogs, ...stories];
+    return [...routes, ...blogs];
 }

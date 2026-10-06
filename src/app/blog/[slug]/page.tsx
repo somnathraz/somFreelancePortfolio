@@ -38,31 +38,46 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const { slug } = await params;
     const post = getPostBySlug(slug);
     const shareImage = getPostShareImage(post);
+    const seoTitle = post.frontmatter.metaTitle
+        ? post.frontmatter.metaTitle
+        : `${post.frontmatter.title} — Somanath Studio`;
+    const keywords = [
+        post.frontmatter.primaryKeyword,
+        post.frontmatter.category,
+        ...(post.frontmatter.tags || []),
+    ].filter((value): value is string => Boolean(value));
 
     return {
-        title: post.frontmatter.metaTitle
-            ? post.frontmatter.metaTitle
-            : `${post.frontmatter.title} — Somanath Studio`,
+        title: seoTitle,
         description: post.frontmatter.description,
+        authors: [{ name: 'Somanath Khadanga', url: `${siteUrl}/about` }],
+        creator: 'Somanath Khadanga',
+        keywords: keywords.length ? keywords : undefined,
         alternates: {
             canonical: `/blog/${post.slug}`,
         },
         openGraph: {
-            title: post.frontmatter.title,
+            title: seoTitle,
             description: post.frontmatter.description,
             type: 'article',
             publishedTime: post.frontmatter.date,
             modifiedTime: post.lastModified,
+            authors: ['Somanath Khadanga'],
+            section: post.frontmatter.category,
+            tags: post.frontmatter.tags,
             url: `${siteUrl}/blog/${post.slug}`,
             images: [
                 {
                     url: shareImage,
+                    width: 1200,
+                    height: 630,
+                    alt: post.frontmatter.title,
                 },
             ],
         },
         twitter: {
             card: 'summary_large_image',
-            title: post.frontmatter.title,
+            title: seoTitle,
             description: post.frontmatter.description,
             images: [shareImage],
         },
@@ -80,19 +95,48 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
     const formattedDate = format(new Date(post.frontmatter.date), 'MMMM d, yyyy');
     const postUrl = `${siteUrl}/blog/${post.slug}`;
     const shareImage = getPostShareImage(post);
+    const wordCount = post.content
+        .replace(/```[\s\S]*?```/g, ' ')
+        .replace(/[#>*`\[\]()|_~-]/g, ' ')
+        .split(/\s+/)
+        .filter(Boolean).length;
+    const keywords = [
+        post.frontmatter.primaryKeyword,
+        post.frontmatter.category,
+        ...(post.frontmatter.tags || []),
+    ].filter((value): value is string => Boolean(value));
+
     const articleJsonLd = {
         '@context': 'https://schema.org',
         '@type': 'BlogPosting',
+        '@id': `${postUrl}#article`,
         headline: post.frontmatter.title,
+        name: post.frontmatter.title,
         datePublished: post.frontmatter.date,
         dateModified: post.lastModified,
         description: post.frontmatter.description,
-        image: shareImage,
+        articleSection: post.frontmatter.category,
+        keywords: keywords.length ? keywords.join(', ') : undefined,
+        wordCount,
+        image: {
+            '@type': 'ImageObject',
+            url: shareImage,
+            width: 1200,
+            height: 630,
+        },
         url: postUrl,
-        mainEntityOfPage: postUrl,
+        mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': postUrl,
+        },
         author: {
             '@type': 'Person',
             name: 'Somanath Khadanga',
+            url: `${siteUrl}/about`,
+            sameAs: [
+                'https://www.linkedin.com/in/somnath-khadanga/',
+                'https://github.com/somnathraz',
+            ],
         },
         publisher: {
             '@type': 'Organization',
@@ -104,6 +148,20 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                 url: siteLogoUrl,
             },
         },
+        isPartOf: {
+            '@type': 'Blog',
+            '@id': `${siteUrl}/blog#blog`,
+            name: 'Somanath Studio Blog',
+            url: `${siteUrl}/blog`,
+        },
+        about: post.frontmatter.relatedService
+            ? {
+                  '@type': 'Service',
+                  url: post.frontmatter.relatedService.startsWith('http')
+                      ? post.frontmatter.relatedService
+                      : `${siteUrl}${post.frontmatter.relatedService}`,
+              }
+            : undefined,
         inLanguage: 'en',
     };
     const breadcrumbJsonLd = {
@@ -130,6 +188,21 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             },
         ],
     };
+    const faqJsonLd =
+        post.frontmatter.faq && post.frontmatter.faq.length > 0
+            ? {
+                  '@context': 'https://schema.org',
+                  '@type': 'FAQPage',
+                  mainEntity: post.frontmatter.faq.map((item) => ({
+                      '@type': 'Question',
+                      name: item.question,
+                      acceptedAnswer: {
+                          '@type': 'Answer',
+                          text: item.answer,
+                      },
+                  })),
+              }
+            : null;
 
     return (
         <main className="min-h-screen bg-black text-foreground selection:bg-white/20">
@@ -146,6 +219,12 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
             />
+            {faqJsonLd ? (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+                />
+            ) : null}
 
             <article className="pt-32 pb-20 px-4 md:px-0">
                 <div className="container mx-auto max-w-[700px]">

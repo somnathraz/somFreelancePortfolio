@@ -1,0 +1,121 @@
+---
+description: SEO-friendly blog writing standards for SomSite MDX posts (schema, alt, titles, internal links)
+globs: content/blog/**/*.mdx
+alwaysApply: false
+---
+
+# Blog SEO Rules — Somanath Studio
+
+When creating or editing posts under `content/blog/**/*.mdx`, follow this checklist. Keep the honest engineering voice. Do not write polished agency fluff.
+
+## Required frontmatter
+
+```yaml
+---
+title: "Expressive H1-style title (can be longer)"
+metaTitle: "SERP title ≤60 chars with primary keyword"
+description: "120–160 chars. Include primary keyword + clear outcome. No fluff."
+primaryKeyword: "main search phrase"
+date: "YYYY-MM-DD"
+updated: "YYYY-MM-DD"   # set whenever content meaningfully changes
+readTime: "X min read"
+category: "One of: SaaS MVP | Production Readiness | Next.js Performance | AI SaaS | Security | SaaS Architecture | Case Study | How We Work"
+tags: ["3-6 specific tags"]
+shareImage: "/images/blog/descriptive-kebab-name.png"  # 1200×630 preferred
+relatedService: "/services/..."   # one commercial URL this post supports
+intro: "Optional 1-sentence hook shown under H1"
+faq:                              # optional; only if answers appear in the article
+  - question: "..."
+    answer: "..."
+---
+```
+
+### Length rules
+- `metaTitle`: **50–60 characters** (hard max 60). Do not append “— Somanath Studio” inside `metaTitle` (layout may add brand elsewhere).
+- `description`: **120–160 characters**.
+- Body: prefer **1,200+ words** for commercial/evergreen posts; news/security briefs can be shorter if dense and linked.
+
+## Structure
+
+1. One H1 only — comes from `title` in the page template. **Do not add `#` H1 in MDX.**
+2. Start with a hero image that has a descriptive alt:
+   - Markdown: `![Concrete alt describing the visual + topic](/images/blog/....png)`
+   - Or Next `Image` with non-empty `alt=`.
+3. Open with 2–4 sentences stating who it’s for and the outcome.
+4. Use `##` H2 sections (at least 4 for long posts). Use `###` for sub-points.
+5. Include a practical checklist, table, or decision framework — not only opinion.
+6. End with **Related Reading** (3–4 internal blog links) and a **Next step** CTA to `/contact` or the `relatedService` URL.
+
+## Internal linking (required)
+
+Every post must include:
+- **≥2 links** to related `/blog/...` posts
+- **≥1 link** to a commercial page (`relatedService`, `/contact`, `/hire-saas-mvp-developer`, or `/case-studies/...`)
+- Natural anchor text (not “click here”)
+
+Blog → Service → Contact funnel is preferred for commercial topics.
+
+## Images & alt text
+
+- Every image needs a unique, specific alt (what is shown + topic).
+- Bad: `image`, `screenshot`, `diagram`
+- Good: `Next.js App Router caching flow for a multi-tenant SaaS dashboard`
+- Prefer WebP/PNG under `/public/images/blog/`
+- Set `shareImage` in frontmatter (don’t rely on generic `/og` fallback)
+
+## Schema (handled by `src/app/blog/[slug]/page.tsx`)
+
+The site auto-emits:
+- `BlogPosting` (headline, dates, author, publisher, image, keywords, wordCount, breadcrumbs)
+- Optional `FAQPage` when `faq:` is present in frontmatter
+
+You do **not** paste raw JSON-LD into MDX. Keep `faq` answers consistent with visible on-page FAQ content.
+
+## Keyword usage
+
+- Put `primaryKeyword` in: `metaTitle`, first 100 words, one H2, and naturally 2–4 times in body.
+- Do not stuff keywords. Prefer clear founder/engineer language.
+- Secondary phrases go in H2s and tags.
+
+## Voice & compliance
+
+- Honest, technical, founder-facing.
+- Label metrics clearly (verified client result vs illustrative).
+- No fake testimonials, no invented stats.
+- Prefer “senior-led / flexible team” commercial framing over “I alone do everything” when discussing delivery.
+
+## Copy-paste prompt for new posts
+
+Use this prompt when drafting a new article:
+
+```text
+Write a new SomSite blog post as MDX for content/blog/<slug>.mdx.
+
+Topic: <TOPIC>
+Primary keyword: <KEYWORD>
+Related service URL: <SERVICE_PATH>
+Audience: SaaS founders / technical buyers
+Goal: rank + convert to /contact or the related service
+
+Requirements:
+1. Frontmatter with title, metaTitle (≤60 chars), description (120–160), primaryKeyword, date, updated, readTime, category, tags (3–6), shareImage path, relatedService, optional faq (2–4 Q&As that also appear in the article).
+2. No H1 in the body. Use ## / ### only.
+3. 1,200+ words unless this is a short security/news brief.
+4. Hero image markdown with descriptive alt text.
+5. Practical sections: problem, what breaks, how to evaluate, checklist, when to get help.
+6. ≥2 internal blog links and ≥1 link to relatedService or /contact.
+7. Related Reading + Next step CTA.
+8. Honest engineering tone. No agency fluff. No keyword stuffing.
+9. If citing performance/cost numbers, label them as verified, internal, or illustrative.
+```
+
+## Before finishing an edit
+
+- [ ] metaTitle ≤60
+- [ ] description 120–160
+- [ ] primaryKeyword + relatedService set
+- [ ] shareImage set (or note why fallback is OK)
+- [ ] all images have alt
+- [ ] no MDX `#` H1
+- [ ] ≥2 blog links + ≥1 commercial link
+- [ ] updated date bumped on material changes

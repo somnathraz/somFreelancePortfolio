@@ -10,6 +10,10 @@ export const metadata: Metadata = {
   title: "Web Stories | Somanath Studio",
   description:
     "Short-form Web Stories on SaaS MVP planning, performance, and production readiness.",
+  robots: {
+    index: false,
+    follow: true,
+  },
   alternates: {
     canonical: "/stories",
   },
