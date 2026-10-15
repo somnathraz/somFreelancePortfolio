@@ -1,0 +1,195 @@
+---
+title: "GitHub App Tokens Got Longer: A Migration Guide for SaaS Teams"
+metaTitle: "GitHub App Token Migration for SaaS Teams"
+description: "Audit your SaaS integration for GitHub's longer stateless App tokens: fix storage, proxies, validation, redaction, caching, and rollback safely."
+primaryKeyword: "GitHub App token migration"
+date: "2026-10-07"
+updated: "2026-10-07"
+author: "Somanath Khadanga"
+readTime: "10 min read"
+category: "SaaS Architecture"
+tags:
+  - GitHub App tokens
+  - SaaS integrations
+  - API authentication
+  - production migration
+shareImage: "/images/blog/github-app-token-format-migration.png"
+relatedService: "/services/production-readiness-upgrade"
+---
+
+![GitHub App token pipeline showing secure minting, intact passage through infrastructure, and log redaction](/images/blog/github-app-token-format-migration.png)
+
+A GitHub integration can keep returning successful authentication responses while a hidden assumption breaks somewhere else in the system. A database column truncates the credential. A gateway rejects the longer header. A redaction pattern masks the old form but writes the new one into logs.
+
+That risk is now current. GitHub completed its rollout of stateless GitHub App installation tokens on October 2, 2026. Newly minted tokens still begin with `ghs_`, but the new form is about 520 characters rather than 40. GitHub says permissions, repository scoping, the one-hour expiration, and the token-creation endpoint are unchanged. The [rollout announcement](https://github.blog/changelog/2026-10-02-stateless-github-app-installation-tokens-rolled-out/) also sets November 30, 2026 as the deprecation date for the temporary format-override header.
+
+This GitHub App token migration is therefore not an authentication redesign. It is a compatibility audit across every component that handles the token between issuance and use.
+
+## What Changed—and What Did Not
+
+The new token is a stateless, JWT-format credential. Its visible shape changed substantially: it is longer, contains additional separators, and looks structured.
+
+Your application should still treat it as an opaque secret.
+
+Do not decode the token to make authorization decisions. Do not build routing, tenancy, cache keys, or business logic from its apparent claims. Do not assume the current length or delimiter count is a permanent interface. The supported contract is the token GitHub returns, the expiration and permissions in the response, and the API behavior when that token is presented.
+
+The stable parts matter:
+
+- an installation token still represents a GitHub App installation, not a human user;
+- its access cannot exceed the repositories and permissions granted to the installation;
+- the token expires after one hour;
+- the creation flow still uses `POST /app/installations/{installation_id}/access_tokens`;
+- an existing token remains valid until it expires.
+
+GitHub's [installation-token documentation](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-an-installation-access-token-for-a-github-app) also allows the request to narrow repository access and permissions below the installation's full grant. That is the boundary worth designing around. Token length is not.
+
+## Why a Format Change Can Break a Healthy Integration
+
+Most failures will not happen in the code that asks GitHub for a token. They will happen in infrastructure that was built around a sample value years ago.
+
+Trace the credential through its complete path:
+
+```text
+GitHub token endpoint
+  -> authentication library
+  -> in-memory cache or secret store
+  -> job payload or service boundary
+  -> HTTP client
+  -> proxy / gateway / service mesh
+  -> GitHub API
+  -> application logs and traces
+```
+
+Every arrow is a possible compatibility boundary.
+
+A team may test token creation and conclude the migration is complete while a background worker still serializes credentials into a schema with a 64-character limit. Another service may accept the value but log the entire `Authorization` header because its masking rule expects exactly 40 characters after `ghs_`. A home-grown validator may reject dots or underscores before the request ever reaches GitHub.
+
+This is the same production lesson behind [boring architecture for SaaS](/blog/boring-architecture-for-saas): simple components are valuable only when their contracts are explicit. An undocumented credential shape is still accidental complexity.
+
+## Audit the Entire Token Path
+
+Start with inventory, not code changes.
+
+List every place that can mint, receive, copy, cache, persist, transmit, inspect, or log an installation token. Include scheduled jobs, webhook consumers, deployment automation, customer-facing integrations, support tooling, data pipelines, and local developer utilities.
+
+For each component, record:
+
+| Boundary | Question to answer |
+| --- | --- |
+| Application types | Is the value an unrestricted string, or a fixed-length branded type? |
+| Validation | Does a regex or parser assume the legacy shape? |
+| Storage | Can the field hold the token without truncation or indexing it? |
+| Serialization | Do queues, events, or RPC schemas impose a maximum length? |
+| Transport | Do clients, proxies, gateways, or middleware preserve the header? |
+| Observability | Is the full value removed from logs, traces, errors, and replays? |
+| Caching | Is the token reused only within its expiration window and access scope? |
+| Recovery | Can the system mint a replacement without duplicating the operation? |
+
+Search for more than the literal `ghs_` prefix. Look for length checks, restrictive character classes, `VARCHAR(40)` or `VARCHAR(64)` fields, request-header size policies, generic object logging, and serializers with maximum string lengths.
+
+If several services independently handle the credential, centralize the inventory before centralizing the implementation. You need to understand which boundaries exist before deciding which ones should disappear.
+
+## Remove Token-Shape Validation from Business Logic
+
+The cleanest application contract is usually: the credential is a non-empty secret string returned by the trusted token client and used before its reported expiration.
+
+An integration should not need to know whether the string contains two dots. That detail was useful during rollout testing, but it is not proof of validity and does not belong in authorization logic.
+
+If a boundary must perform input validation, validate the container rather than the token format:
+
+```ts
+type InstallationCredential = {
+  token: string
+  expiresAt: string
+  installationId: number
+}
+
+function assertCredential(value: InstallationCredential) {
+  if (typeof value.token !== "string" || value.token.length === 0) {
+    throw new Error("Installation token is missing")
+  }
+
+  if (!Number.isFinite(Date.parse(value.expiresAt))) {
+    throw new Error("Installation token expiry is invalid")
+  }
+}
+```
+
+This deliberately does not assert an exact prefix, length, or JWT structure. The API call to GitHub remains the authority on whether the credential is accepted.
+
+The exception is defensive secret detection. During the staged rollout, GitHub published `ghs_[A-Za-z0-9\.\-_]{36,}` as a pattern that matches both formats. The [temporary-header guidance](https://github.blog/changelog/2026-05-15-github-app-installation-tokens-per-request-override-header/) is useful for redaction scanners and repository searches, but even there a broader rule that removes the entire `Authorization` value is safer than maintaining a token grammar.
+
+## Fix Storage and Transport Without Normalizing the Secret
+
+Installation tokens are short-lived, so many SaaS integrations do not need to persist them in a database at all. Prefer an in-memory or encrypted cache close to the GitHub client. Keep the app's private key in a dedicated secret manager and mint installation tokens when required.
+
+If the architecture genuinely requires shared token storage, use an encrypted secret field with comfortable headroom rather than choosing a new exact maximum of 520. Do not index the raw credential. Store scope metadata—installation ID, permitted repositories, permissions, and expiry—separately from the encrypted token.
+
+Then test every transport hop with a real token minted in a safe test installation:
+
+1. create the token through the production client library;
+2. pass it through the same cache, queue, RPC, or service boundary used in production;
+3. send an authenticated, read-only GitHub API request through the normal egress path;
+4. confirm the value was not truncated or rewritten;
+5. verify no raw token appears in application, proxy, error, trace, or audit output.
+
+Do not print the token to compare lengths. Compare success, expiration metadata, a one-way diagnostic fingerprint if necessary, and the absence of secrets in observability systems.
+
+GitHub's [App security guidance](https://docs.github.com/en/enterprise-cloud@latest/apps/creating-github-apps/about-creating-github-apps/best-practices-for-creating-a-github-app) recommends secure credential storage, least-privilege permissions, caching installation tokens until expiry, and immediate revocation when a token is compromised. A format migration is a good moment to check those controls, but it is not a reason to broaden permissions or increase token lifetime.
+
+## Redaction Must Happen Before Logs Leave the Process
+
+The most dangerous migration failure may still return HTTP 200.
+
+If a new credential bypasses a legacy masker, it can spread into log aggregators, error trackers, distributed traces, queue dead-letter payloads, support exports, and replay systems. Deleting one application log line will not remove every copy.
+
+Redact at the earliest boundary:
+
+- never log `Authorization`, cookies, private keys, or token response bodies;
+- configure HTTP clients and tracing libraries to denylist sensitive headers;
+- sanitize structured error objects before they reach the logger;
+- prevent job frameworks from serializing credentials into failure payloads;
+- scan sampled non-production telemetry for `ghs_` without returning the matching value;
+- test that both the old and new token shapes are fully removed.
+
+GitHub's general [secret-storage guidance](https://docs.github.com/en/get-started/learning-to-code/storing-your-secrets-safely) explicitly recommends redacting secrets before logging and treating even a briefly exposed credential as compromised. For installation tokens, revoke the affected token, inspect relevant activity, fix the leak path, and mint a replacement.
+
+This belongs beside the broader controls in the [GitHub Actions execution policy guide](/blog/github-actions-execution-policies-saas). Workflow-start restrictions reduce who can invoke automation; token redaction limits what escapes when that automation runs.
+
+## Test Failure and Renewal, Not Only the Happy Path
+
+A one-hour credential creates normal renewal events. Your migration test should include them.
+
+Confirm that concurrent workers do not all mint new tokens at once, that a cache entry is tied to the correct installation and scope, and that the client refreshes with enough margin before expiry. If an API call returns an authentication error, refresh once through the credential provider rather than placing an unbounded retry loop around the business operation.
+
+Keep side effects outside the authentication retry boundary. Creating a release, posting a comment, or merging a pull request should use an idempotency design appropriate to that action. A token refresh must not silently repeat a completed write.
+
+Observe outcomes rather than secrets: mint latency, cache hit rate, refresh failures, authenticated request failures, failure counts by service and installation, and retry outcomes. The [minimum viable observability guide](/blog/minimum-viable-observability-saas) explains how to connect those service signals to the customer workflow they protect.
+
+## A Seven-Step GitHub App Token Migration Plan
+
+1. **Map the credential path.** Inventory every component that mints, stores, forwards, validates, or logs installation tokens.
+2. **Remove shape assumptions.** Delete fixed lengths, JWT parsing, restrictive token types, and format-driven business logic.
+3. **Harden secret handling.** Prefer short-lived in-memory caching; encrypt unavoidable shared storage and separate scope metadata.
+4. **Test the real route.** Mint through the production client, traverse normal infrastructure, and perform a harmless authenticated API read.
+5. **Prove redaction.** Inspect logs, traces, errors, dead letters, and support tooling without printing the credential during the test.
+6. **Exercise expiry and failure.** Test renewal, concurrent refresh, revoked tokens, retries, and duplicate-side-effect protection.
+7. **Remove the temporary header.** After both formats have been validated, delete `X-GitHub-Stateless-S2S-Token` handling before November 30, 2026.
+
+## When a Focused Fix Is Enough
+
+A small integration with one server process, an official SDK, in-memory token caching, no intermediary gateway, and verified header redaction may need only a code search, one end-to-end test, and removal of the temporary override header.
+
+Get broader help when tokens cross multiple services, enter persistent storage, travel through customer-controlled infrastructure, or appear in shared observability systems. The same applies when nobody can name the app's effective repository permissions, renewal owner, or breach response.
+
+The token format is the trigger. The real engineering question is whether the integration has a documented, testable credential boundary.
+
+## Related Reading
+
+- [GitHub Actions Execution Policies: A SaaS CI Hardening Plan](/blog/github-actions-execution-policies-saas)
+- [Minimum Viable Observability for SaaS](/blog/minimum-viable-observability-saas)
+- [Why Boring Architecture Wins for SaaS](/blog/boring-architecture-for-saas)
+
+## Next Step
+
+If your GitHub App is part of deployment, customer onboarding, repository analysis, billing automation, or another production workflow, prepare a token-path inventory, the current permission model, and a sanitized failure trace. A [production-readiness review](/services/production-readiness-upgrade) can then verify storage, transport, redaction, renewal, and recovery as one system before a hidden format assumption becomes an outage or secret leak.

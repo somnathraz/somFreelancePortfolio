@@ -1,0 +1,264 @@
+---
+title: "OpenAI Decisions API: A Safe Routing Blueprint for SaaS"
+metaTitle: "OpenAI Decisions API for SaaS Routing"
+description: "Use OpenAI's Decisions API for fast SaaS classification and routing without turning model confidence into unchecked business authority."
+primaryKeyword: "OpenAI Decisions API"
+date: "2026-10-09"
+updated: "2026-10-09"
+author: "Somanath Khadanga"
+readTime: "11 min read"
+category: "AI SaaS"
+tags:
+  - OpenAI Decisions API
+  - AI SaaS routing
+  - LLM classification
+  - AI product architecture
+shareImage: "/images/blog/openai-decisions-api-saas-routing.png"
+relatedService: "/services/ai-saas-development"
+---
+
+![A dark decision-routing infographic showing predicate, choice, and score paths](/images/blog/openai-decisions-api-saas-routing.png)
+
+Many SaaS products do not need another chatbot. They need to make one small judgment quickly: which queue should receive a ticket, whether a document matches a condition, or how urgently an item needs review.
+
+On October 6, 2026, OpenAI released the Decisions API in public beta. The dedicated endpoint accepts text or images and returns bounded, typed answers rather than open-ended prose. OpenAI currently supports three question types—predicate, choice, and score—using `gpt-6-luna`, and describes responses as about 10 times faster than using the same model through the Responses API. Those are current product claims, not a guarantee for every workload, so benchmark your own traffic. The release is recorded in the [OpenAI API changelog](https://developers.openai.com/api/docs/changelog).
+
+For a SaaS team, the interesting part is not merely lower latency. It is the narrower contract.
+
+A bounded answer is easier to validate, route, observe, and review than generated prose. But it is still a model judgment. A confidence field is not permission to refund a payment, suspend an account, reject an applicant, or expose tenant data.
+
+The safe architecture is:
+
+**Let the model estimate. Let product policy decide what happens next.**
+
+## What the Decisions API Actually Changes
+
+The API separates shared evidence from the questions asked about that evidence. Each question has a type, a name, instructions, and—where relevant—allowed choices or score levels. The result returns answers in a predictable shape.
+
+The [official Decisions guide](https://developers.openai.com/api/docs/guides/decisions) defines the three available types:
+
+- **Predicate:** estimate the probability that a condition is true.
+- **Choice:** select one value from a fixed set and return a probability distribution plus confidence.
+- **Score:** assess an input against ordered levels and return a score plus the level probabilities.
+
+That makes the API a fit for bounded classification and prioritization. Examples include routing feedback, detecting whether a support message is about cancellation, classifying a document type, or scoring issue severity against a written rubric.
+
+It is not a general replacement for the Responses API. OpenAI explicitly recommends Structured Outputs when you need an object that follows your own JSON schema, such as extracted invoice fields or a written explanation. Function calling remains the better fit when the model must propose a tool call with arguments.
+
+This boundary matters. “Which of these four queues fits?” is a decision. “Extract the customer, invoice number, line items, currency, and explanation” is structured generation. “Call the billing tool with a validated account ID and amount” is a tool workflow.
+
+Do not force all three jobs through one endpoint because they appear next to each other in the product.
+
+## Start With a Decision Contract
+
+Before writing the request, define the product contract around it.
+
+For every proposed decision, answer:
+
+- What evidence may the model receive?
+- What exact condition, categories, or ordered levels exist?
+- Are the categories mutually clear?
+- What should happen when no category fits?
+- Which mistakes are false positives and which are false negatives?
+- Can a person review the answer before it matters?
+- Is the downstream action reversible?
+- What deterministic rules must still pass?
+
+Consider support-ticket routing. “Classify this ticket” is underspecified. A useful contract might define `billing`, `technical`, `account_access`, and `other`, with a plain-language description of each. The `other` option is not wasted capacity. It is the escape hatch that prevents the model from squeezing an unfamiliar request into a plausible but wrong category.
+
+The official guide recommends a fallback option for uncovered cases and suggests sending it to a general review queue. That should be a product capability, not an afterthought.
+
+The categories also need ownership. If the support team changes its queues, version the choice definitions and evaluation set together. Otherwise, a reporting shift can look like model drift when the taxonomy itself changed.
+
+## Keep Judgment Separate From Authority
+
+The model response should never be the final authorization boundary.
+
+A useful design has three layers:
+
+1. **Model judgment:** The Decisions API returns a predicate, choice, score, probability distribution, confidence, or refusal.
+2. **Product policy:** Your code applies thresholds, entitlements, state checks, and consequence rules.
+3. **Execution:** A deterministic handler routes, queues, suggests, or requests human approval.
+
+For a support ticket, automated queue assignment may be low consequence and reversible. For an account-security report, the same classification might only prioritize human review. For a refund request, the decision can suggest a route but should not bypass refund eligibility, payment state, amount limits, or approval requirements.
+
+This distinction also protects you from a subtle mistake: treating “high confidence” as “safe to act.” Confidence describes the model's answer, not the user's authority, the account's current state, or the reversibility of the action.
+
+The same principle appears in the site's [AI agent identity blueprint](/blog/ai-agent-identity-saas-access-blueprint): approval should follow consequence, not model confidence. A faster classifier does not weaken that rule.
+
+## Build a Review Lane Into the Code
+
+Here is a simplified TypeScript shape for ticket routing:
+
+```ts
+import OpenAI from "openai";
+
+const client = new OpenAI();
+
+type Queue = "billing" | "technical" | "account_access" | "other";
+
+export async function suggestTicketQueue(message: string) {
+  const decision = await client.decisions.create({
+    model: "gpt-6-luna",
+    input: message,
+    questions: [
+      {
+        type: "choice",
+        name: "support_queue",
+        instructions: "Which support queue should review this request?",
+        choices: [
+          { value: "billing", description: "Invoices, charges, refunds, or plans." },
+          { value: "technical", description: "Product errors or broken behavior." },
+          { value: "account_access", description: "Sign-in, recovery, or verification." },
+          { value: "other", description: "Anything outside the listed queues." },
+        ],
+      },
+    ],
+  });
+
+  const answer = decision.answers[0];
+
+  if (!answer || answer.type === "refusal" || answer.type !== "choice") {
+    return { route: "manual_review" as const, reason: "no_usable_answer" };
+  }
+
+  const queue = answer.choice as Queue;
+
+  if (queue === "other" || !passesEvaluatedThreshold(queue, answer.confidence)) {
+    return { route: "manual_review" as const, reason: "uncertain_or_uncovered" };
+  }
+
+  return { route: "suggested_queue" as const, queue };
+}
+```
+
+The important function is not the API call. It is `passesEvaluatedThreshold`.
+
+That policy should come from labeled examples from your application, not an attractive round number copied from a demo. The API documentation recommends choosing thresholds according to the cost of false positives and false negatives. A billing ticket sent to technical support creates delay. An account-takeover report sent to a routine queue may create much greater harm. They should not inherit one global threshold merely because both are “support.”
+
+Keep execution outside this function. Returning a suggested queue is safer than moving records, notifying customers, or changing account state inside the same model-call path.
+
+## Treat Probabilities as Inputs to Policy
+
+Probability distributions can make a product more honest about ambiguity, but only when the surrounding policy uses them deliberately.
+
+Start with four routes:
+
+- **Accept:** The answer clears an evaluated threshold for a low-consequence, reversible action.
+- **Review:** The answer is plausible but the consequence or uncertainty requires a person.
+- **Fallback:** No supplied category fits, required evidence is missing, or a deterministic check fails.
+- **Refuse:** The API returns a refusal; log the outcome safely and use a defined alternate path.
+
+Do not show raw confidence to end users unless it helps them make a better decision. “The model is 91% confident” can create false precision without explaining the category definitions, data distribution, or consequences. Operators usually need a clear state—routed, needs review, or blocked—plus the evidence and policy reason.
+
+Also avoid using the score output as if it were an objective measurement. A score is an assessment against levels you define. If adjacent levels such as “medium” and “high” do not have distinct observable criteria, decimals between them do not repair the rubric.
+
+The Decisions guide recommends observable criteria, separate questions for separate concerns, and clearly differentiated levels. That is product-design work, not prompt decoration.
+
+## Evaluate the Decision, Then the Workflow
+
+A valid response shape does not prove the routing system works.
+
+Build a labeled dataset from permission-safe examples that reflect real variation:
+
+- Clear examples from every category
+- Requests that fit more than one category
+- Messages with missing context
+- Unrelated or unsupported requests
+- Adversarial instructions inside the input
+- Rare cases where the wrong route has a high cost
+- Examples that should reach `other`, review, or refusal handling
+
+Then measure per category. Overall accuracy can hide a route that performs well on common billing questions but misses rare account-access emergencies.
+
+Track at least:
+
+- False positives and false negatives by route
+- Coverage: how often the system automates instead of reviewing
+- Review acceptance and correction rate
+- Latency at the product boundary, not only API duration
+- Failures, refusals, and malformed integration states
+- Downstream outcome, such as first-response delay or reroute rate
+
+OpenAI's [evaluation best-practices guide](https://developers.openai.com/api/docs/guides/evaluation-best-practices) recommends task-specific criteria and continuous evaluation rather than relying on generic metrics. The broader process in [How to Evaluate AI Agents Before Production](/blog/how-to-evaluate-ai-agents-before-production) applies here too: freeze representative examples, test changes against known failures, and turn production corrections into regression cases.
+
+Run the new decision path in shadow mode before it controls user-visible routing. Record what it would have chosen, compare it with the existing route or reviewer label, and investigate disagreement. Do not replay downstream side effects during this phase.
+
+## Design for Beta Without Building a Dead End
+
+The Decisions API is currently public beta and supports only `gpt-6-luna`. That is enough reason to keep the integration behind a product-owned adapter.
+
+Your domain code should ask for a business decision such as `classifySupportQueue(input)`, not import provider response objects across the codebase. The adapter can translate predicate, choice, score, and refusal results into your internal result type.
+
+Store enough metadata to investigate behavior:
+
+- Decision-contract version
+- Model returned by the API
+- Question type and category or rubric version
+- Policy version and route taken
+- Latency and usage
+- Review outcome or later correction
+
+Do not log raw customer content by default. Preserve only what your incident, audit, and evaluation processes genuinely need, with retention and tenant boundaries.
+
+The API's current [reference documentation](https://developers.openai.com/api/reference/typescript/resources/decisions/methods/create) also shows constraints worth testing explicitly: inputs are text or user messages with text and inline images, answers may be refusals, and the output shapes differ by question type. Treat those as union types, not optimistic casts.
+
+If regional processing or regulated data matters, verify account eligibility and configuration rather than inferring compliance from the endpoint name. OpenAI's [data-controls documentation](https://developers.openai.com/api/docs/guides/your-data) currently lists `/v1/decisions` in supported API regions, with regional processing in the United States and Europe, and documents conditions around Zero Data Retention and HIPAA eligibility. Availability does not automatically satisfy your data-flow, logging, vendor, or contractual requirements.
+
+## Failure Modes to Remove Before Launch
+
+### The taxonomy has no escape hatch
+
+Without `other`, review, or refusal handling, unfamiliar inputs are forced into familiar buckets. Add a deliberate non-answer route.
+
+### One confidence threshold governs every consequence
+
+Thresholds should reflect category-specific error costs. Keep high-consequence actions behind deterministic checks or approval even when confidence is high.
+
+### The model both decides and acts
+
+Separate judgment from execution. Validate authorization, current state, idempotency, and business rules in code.
+
+### A prompt edit silently changes production policy
+
+Version the instructions, choices, score levels, dataset, and routing policy. Require evaluation results before promotion.
+
+### Review becomes an invisible backlog
+
+A safe fallback that nobody owns is a delayed failure. Measure queue age, assign responsibility, and expose why the item needs review.
+
+### The beta endpoint becomes the only path
+
+Define timeouts and a degraded mode. A support ticket can enter a general queue when the service is unavailable. A synchronous checkout should not become unavailable because an optional classifier timed out.
+
+## A Seven-Step Decisions API Rollout
+
+1. **Choose one bounded decision.** Start with a frequent, reversible classification whose outcome already has an owner.
+2. **Write the contract.** Define evidence, categories or levels, `other`, refusal handling, error costs, and the allowed downstream action.
+3. **Build the adapter.** Convert provider-specific answers into a small internal result type and keep execution separate.
+4. **Create the labeled set.** Include normal, ambiguous, missing-context, adversarial, and high-cost error cases from your product.
+5. **Set policy from evidence.** Choose category-specific thresholds and review rules from measured false-positive and false-negative costs.
+6. **Shadow the workflow.** Compare proposed routes with current outcomes, inspect disagreements, and test outage and refusal paths.
+7. **Release gradually.** Automate only the low-consequence slice, monitor corrections and queue age, and promote more traffic when the evidence supports it.
+
+## When to Use Rules, Decisions, or a Generative Workflow
+
+Use deterministic rules when the input already contains the fact you need. An active subscription flag, tenant ID, account role, payment state, or numeric limit should not become a model opinion.
+
+Use the Decisions API when unstructured text or images must map to a bounded condition, category, or rubric and your application can define a safe review lane.
+
+Use Structured Outputs or a tool-capable Responses workflow when you need richer extraction, explanation, planning, or action proposals. The [Structured Outputs guide](https://developers.openai.com/api/docs/guides/structured-outputs?api-mode=responses) notes that schema adherence does not eliminate semantic mistakes, especially when unrelated input is forced into a schema. Keep validation and fallback handling there too.
+
+This is the useful product boundary: rules for known facts, bounded model judgment for ambiguity, and explicit workflows for richer reasoning or action.
+
+## Related Reading
+
+- [Which AI Features Are Worth Building in SaaS?](/blog/which-ai-features-are-worth-building-in-saas)
+- [GPT-6 Sol and Luna: A SaaS Model Routing Guide](/blog/gpt-6-sol-luna-saas-model-routing)
+- [How to Evaluate AI Agents Before Production](/blog/how-to-evaluate-ai-agents-before-production)
+
+## Next Step
+
+If your SaaS already has a slow classifier, a fragile prompt that returns JSON, or an AI feature that acts without a clear review boundary, start by mapping one decision contract and its failure costs.
+
+When the hard part is designing the complete path—from evidence and evaluation to permissions, fallback, observability, and rollout—a focused [AI SaaS development review](/services/ai-saas-development) can turn the model call into a production-ready product boundary before automation reaches consequential actions.
