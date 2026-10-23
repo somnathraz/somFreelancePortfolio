@@ -7,6 +7,8 @@ import { ClientMobileNav } from "@/components/ClientMobileNav";
 import { PhoneFrameGallery } from "@/components/projects/PhoneFrameGallery";
 import { WideShotGallery } from "@/components/projects/WideShotGallery";
 import { CaseStudyDeliverySummary } from "@/components/CaseStudyDeliverySummary";
+import { JsonLd } from "@/components/JsonLd";
+import { caseStudySchema } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Case Study: VGT — Truck Logistics & Payment Platform | Somanath Studio",
@@ -21,6 +23,15 @@ export const metadata: Metadata = {
     images: [{ url: "/images/project-10.png", width: 3024, height: 1662 }],
   },
 };
+
+const schema = caseStudySchema({
+  path: "/case-studies/vgt",
+  name: "VGT — Truck Logistics & Payment Platform",
+  description:
+    "VGT manages ticketing, challans, driver payments, truck tracking and money inflow/outflow for delivery and logistics operations.",
+  image: "/images/project-10.png",
+  keywords: ["truck logistics software", "driver payments", "fleet tracking"],
+});
 
 const TECH = [
   "Ticketing",
@@ -51,7 +62,9 @@ const MOBILE_SHOTS = [
 
 export default function VgtCaseStudyPage() {
   return (
-    <main className="min-h-screen bg-black text-white">
+    <>
+      <JsonLd data={schema} />
+      <main className="min-h-screen bg-black text-white">
       <Navbar />
 
       <article className="container mx-auto max-w-3xl px-4 pb-16 pt-28 md:pb-24 md:pt-32">
@@ -191,5 +204,6 @@ export default function VgtCaseStudyPage() {
       <Footer />
       <ClientMobileNav />
     </main>
+    </>
   );
 }

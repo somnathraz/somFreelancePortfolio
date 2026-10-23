@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AiSaasDevelopmentClient } from "@/components/services/AiSaasDevelopmentClient";
 import { siteLogoUrl } from "@/lib/site";
+import { faqPageJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "AI SaaS Development Services for Startups | Somanath Studio",
@@ -79,6 +80,34 @@ export default function AiSaasDevelopmentPage() {
     ],
   };
 
+  const faqJsonLd = faqPageJsonLd([
+    {
+      question: "What kinds of AI features can you build?",
+      answer:
+        "The ones tied to a workflow — search that actually returns the right thing, summaries the user trusts, copilots that draft work the user would have written anyway. I avoid open-ended chat features that don't have a clear job.",
+    },
+    {
+      question: "Can you help decide whether AI is even the right choice?",
+      answer:
+        "Yes. Part of the work is deciding where AI adds real value and where regular product logic is the better solution.",
+    },
+    {
+      question: "Is this only for brand-new AI startups?",
+      answer:
+        "No. This service also fits existing SaaS products that want to add practical AI capabilities.",
+    },
+    {
+      question: "Can you integrate AI into an existing app?",
+      answer:
+        "Yes. In many cases, the best path is adding AI into an existing workflow rather than rebuilding the whole product around it.",
+    },
+    {
+      question: "Do you work only with OpenAI?",
+      answer:
+        "Not necessarily. If your product uses OpenAI, I design integrations around current platform best practices and stable production patterns.",
+    },
+  ]);
+
   return (
     <>
       <script
@@ -88,6 +117,10 @@ export default function AiSaasDevelopmentPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <AiSaasDevelopmentClient />
     </>

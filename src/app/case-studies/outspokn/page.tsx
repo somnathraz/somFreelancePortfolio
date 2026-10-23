@@ -6,6 +6,8 @@ import { Footer } from "@/components/Footer";
 import { ClientMobileNav } from "@/components/ClientMobileNav";
 import { PhoneFrameGallery } from "@/components/projects/PhoneFrameGallery";
 import { CaseStudyDeliverySummary } from "@/components/CaseStudyDeliverySummary";
+import { JsonLd } from "@/components/JsonLd";
+import { caseStudySchema } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Case Study: Outspokn — AI English Learning App | Somanath Studio",
@@ -20,6 +22,15 @@ export const metadata: Metadata = {
     images: [{ url: "/images/outspokn-1.webp", width: 1420, height: 2438 }],
   },
 };
+
+const schema = caseStudySchema({
+  path: "/case-studies/outspokn",
+  name: "Outspokn — AI English Learning App",
+  description:
+    "Outspokn is an AI English learning app built with React Native and Django. Open LLM models, tuned RAG retrieval and courses tailored to each student’s learning tracks.",
+  image: "/images/outspokn-1.webp",
+  keywords: ["AI English learning app", "React Native", "Django", "RAG"],
+});
 
 const TECH = [
   "React Native",
@@ -47,7 +58,9 @@ const SCREENSHOTS = [
 
 export default function OutspoknCaseStudyPage() {
   return (
-    <main className="min-h-screen bg-black text-white">
+    <>
+      <JsonLd data={schema} />
+      <main className="min-h-screen bg-black text-white">
       <Navbar />
 
       <article className="container mx-auto max-w-3xl px-4 pb-16 pt-28 md:pb-24 md:pt-32">
@@ -184,5 +197,6 @@ export default function OutspoknCaseStudyPage() {
       <Footer />
       <ClientMobileNav />
     </main>
+    </>
   );
 }

@@ -5,17 +5,22 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ClientMobileNav } from "@/components/ClientMobileNav";
 import { ContactForm } from "@/components/ContactForm";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbJsonLd, webPageJsonLd, SITE_URL, SITE_NAME } from "@/lib/seo";
 import { CONTACT_EMAIL, LINKEDIN_URL, whatsappUrl } from "@/lib/contact";
 
+const TITLE = "Contact Somanath Studio | Talk to a Software Engineer";
+const DESCRIPTION =
+  "Tell an engineer what you're building. Your first conversation focuses on requirements, technical risks, delivery options, and the correct team setup — not a sales pitch.";
+
 export const metadata: Metadata = {
-  title: "Contact Somanath Studio | Talk to a Software Engineer",
-  description:
-    "Tell an engineer what you're building. Your first conversation focuses on requirements, technical risks, delivery options, and the correct team setup — not a sales pitch.",
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: {
     canonical: "/contact",
   },
   openGraph: {
-    title: "Contact Somanath Studio | Talk to a Software Engineer",
+    title: TITLE,
     description:
       "Your first discussion focuses on scope, risks, delivery options, and what should happen next.",
     url: "/contact",
@@ -31,9 +36,38 @@ export const metadata: Metadata = {
   },
 };
 
+const contactSchema = [
+  webPageJsonLd({
+    path: "/contact",
+    name: TITLE,
+    description: DESCRIPTION,
+    type: "ContactPage",
+  }),
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Contact", path: "/contact" },
+  ]),
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: SITE_URL,
+    email: CONTACT_EMAIL,
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "sales",
+      email: CONTACT_EMAIL,
+      availableLanguage: ["English"],
+    },
+    sameAs: [LINKEDIN_URL],
+  },
+];
+
 export default function ContactPage() {
   return (
-    <main className="min-h-screen bg-black text-foreground selection:bg-white/20">
+    <>
+      <JsonLd data={contactSchema} />
+      <main className="min-h-screen bg-black text-foreground selection:bg-white/20">
       <Navbar />
 
       <section className="relative overflow-hidden border-b border-white/5 px-4 pb-16 pt-28 md:pb-24 md:pt-32">
@@ -131,5 +165,6 @@ export default function ContactPage() {
       <Footer />
       <ClientMobileNav />
     </main>
+    </>
   );
 }

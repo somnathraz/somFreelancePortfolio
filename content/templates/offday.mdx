@@ -1,0 +1,76 @@
+---
+title: "OFFDAY — Premium Energy Drink Brand"
+metaTitle: "OFFDAY: 3D Energy Drink Template | Next.js + React Three Fiber"
+description: "Independent premium energy-drink template with a live 3D can, flavor palettes, sticky scroll chapters, sample-pack bag, and Motion storytelling. Next.js App Router + React Three Fiber + Three.js."
+category: "3D Brand"
+tags:
+  [
+    "WebGL",
+    "Three.js",
+    "React Three Fiber",
+    "Motion",
+    "Energy Drink",
+    "Ecommerce UI",
+    "Product Page",
+  ]
+date: "2026-10-24"
+status: "live"
+stack:
+  [
+    "Next.js App Router",
+    "TypeScript",
+    "React Three Fiber",
+    "Three.js",
+    "Motion",
+    "Tailwind CSS",
+  ]
+demoUrl: "https://demo.somanathkhadanga.com/offday"
+shareImage: "/images/templates/offday.png"
+difficulty: "Advanced"
+features:
+  - "Live 3D can with wraparound label, metallic rims, pull tab, and condensation"
+  - "Three flavor palettes that update the can and hero environment"
+  - "Pointer and arrow-key model rotation"
+  - "Sticky scroll chapters synchronized with product rotation"
+  - "Sample-pack quantities, editable bag, totals, and local saving"
+  - "Responsive layouts and reduced-motion preferences"
+  - "WebGL failure fallback and offscreen rendering pauses"
+  - "Isolated procedural can renderer — independent of Aura Studio"
+---
+
+OFFDAY — good energy. Great detours. An independent premium energy-drink template that sits alongside Aura Studio, with its own visual system and product domain.
+
+## Tech stack
+
+- **Next.js App Router** — server route composition, metadata, global styles
+- **TypeScript** — product and bag domain types
+- **React Three Fiber + Three.js** — procedural can model and isolated WebGL renderer
+- **Motion** — scroll story, chapter reveals, and lifestyle transitions
+- **Local persistence** — sample selection saved to `offday-sample-box` (device-only; not an order)
+
+## Project structure
+
+```text
+src/
+  app/                    Server route composition, metadata, global styles
+  components/
+    sections/             Header, hero, scroll story, lifestyle, shop, footer
+    three/                Procedural can model and isolated WebGL renderer
+    ui/                   Shared reveal, brand mark, sample-bag provider
+  hooks/                  Scroll progress and chapter selection
+  lib/                    Flavor catalog and currency formatting
+  types/                  Product and bag domain types
+public/images/            Original generated lifestyle photograph
+docs/                     Architecture and customization guide
+```
+
+## Features in depth
+
+- Flavor switching drives both label materials and hero atmosphere
+- Sticky chapters keep the can in view while copy advances
+- Bag UI supports quantities, edits, and totals without a backend
+- Lifestyle photography was generated for this project; the can and label are original procedural assets
+
+## Scope
+
+OFFDAY is a fictional brand. No payment processor, fulfillment, analytics, or newsletter service. Prices, flavors, and claims are concept content. Local saving does not place an order. The on-page bag is session state and does not automatically restore the saved snapshot.

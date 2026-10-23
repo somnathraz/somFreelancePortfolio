@@ -5,7 +5,9 @@ import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { MicrosoftClarity } from "@/components/MicrosoftClarity";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { SiteHelper } from "@/components/ai-helper";
-import { siteLogoPath, siteLogoUrl } from "@/lib/site";
+import { siteLogoUrl } from "@/lib/site";
+import { CONTACT_EMAIL, GITHUB_URL, LINKEDIN_URL, PHONE_E164 } from "@/lib/contact";
+import { PERSON_IMAGE, PERSON_SAME_AS } from "@/lib/seo";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -61,8 +63,8 @@ export const metadata: Metadata = {
     images: ["/og?title=Somanath%20Studio"],
   },
   icons: {
-    icon: siteLogoPath,
-    apple: "/apple-icon.png",
+    icon: [{ url: "/icon", type: "image/png" }],
+    apple: [{ url: "/apple-icon", type: "image/png" }],
   },
 };
 
@@ -72,35 +74,59 @@ const jsonLd = {
     {
       "@type": "Organization",
       "@id": "https://somanathkhadanga.com/#organization",
-      "name": "Somanath Studio",
-      "url": "https://somanathkhadanga.com",
-      "logo": siteLogoUrl,
-      "description": "SaaS development partner for founders, agencies, freelancers and consultants. Next.js, Node.js and AI SaaS. White-label and NDA-friendly.",
-      "founder": {
+      name: "Somanath Studio",
+      url: "https://somanathkhadanga.com",
+      logo: {
+        "@type": "ImageObject",
+        url: siteLogoUrl,
+        width: 512,
+        height: 512,
+      },
+      image: siteLogoUrl,
+      description:
+        "SaaS development partner for founders, agencies, freelancers and consultants. Next.js, Node.js and AI SaaS. White-label and NDA-friendly.",
+      email: CONTACT_EMAIL,
+      telephone: PHONE_E164,
+      sameAs: [LINKEDIN_URL, GITHUB_URL],
+      founder: {
         "@type": "Person",
-        "name": "Somanath Khadanga"
-      }
+        "@id": "https://somanathkhadanga.com/#person",
+        name: "Somanath Khadanga",
+      },
+      contactPoint: [
+        {
+          "@type": "ContactPoint",
+          contactType: "sales",
+          email: CONTACT_EMAIL,
+          telephone: PHONE_E164,
+          availableLanguage: ["English"],
+          areaServed: "Worldwide",
+        },
+      ],
     },
     {
       "@type": "Person",
-      "name": "Somanath Khadanga",
-      "url": "https://somanathkhadanga.com",
-      "jobTitle": "Software Development Engineer 4",
-      "worksFor": {
-        "@type": "Organization",
-        "name": "IQVIA"
-      }
+      "@id": "https://somanathkhadanga.com/#person",
+      name: "Somanath Khadanga",
+      url: "https://somanathkhadanga.com/about",
+      image: PERSON_IMAGE,
+      jobTitle: "SaaS Engineer and Studio Lead",
+      worksFor: {
+        "@id": "https://somanathkhadanga.com/#organization",
+      },
+      sameAs: [...PERSON_SAME_AS],
     },
     {
       "@type": "WebSite",
-      "name": "Somanath Studio",
-      "url": "https://somanathkhadanga.com",
-      "publisher": {
-        "@id": "https://somanathkhadanga.com/#organization"
+      "@id": "https://somanathkhadanga.com/#website",
+      name: "Somanath Studio",
+      url: "https://somanathkhadanga.com",
+      publisher: {
+        "@id": "https://somanathkhadanga.com/#organization",
       },
-      "inLanguage": "en"
-    }
-  ]
+      inLanguage: "en-US",
+    },
+  ],
 };
 
 export default function RootLayout({

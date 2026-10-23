@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { NextjsPerformanceClient } from "@/components/services/NextjsPerformanceClient";
 import { siteLogoUrl } from "@/lib/site";
+import { faqPageJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
     title: "Next.js Performance Optimization Services | Somanath Studio",
@@ -79,6 +80,34 @@ export default function NextjsPerformancePage() {
         ],
     };
 
+    const faqJsonLd = faqPageJsonLd([
+        {
+            question: "Do you only optimize Next.js apps?",
+            answer:
+                "Mostly, yes. This page is built for Next.js products, but the same performance mindset applies to React-based SaaS products too.",
+        },
+        {
+            question: "Can you help if the app is already live?",
+            answer:
+                "Yes — this is especially useful for live products that have grown messy, slow, or harder to scale.",
+        },
+        {
+            question: "Will this require a full rewrite?",
+            answer:
+                "Usually not. In many cases the biggest wins come from focused improvements, not starting over from scratch.",
+        },
+        {
+            question: "Do you look at backend issues too?",
+            answer:
+                "Yes. If slow APIs, inefficient queries, or bad data-fetching patterns are contributing to the experience, I look at those too.",
+        },
+        {
+            question: "Is this mainly for Lighthouse scores?",
+            answer:
+                "No. Better scores can be useful, but the main goal is a faster, smoother experience for real users. The score is a byproduct.",
+        },
+    ]);
+
     return (
         <>
             <script
@@ -88,6 +117,10 @@ export default function NextjsPerformancePage() {
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
             />
             <NextjsPerformanceClient />
         </>

@@ -1,0 +1,79 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 0.55em;
+  color: #e6edf3;
+  font-size: 16px;
+  vertical-align: middle;
+}
+
+.mark {
+  display: block;
+  flex: none;
+  height: 100%;
+  width: auto;
+  overflow: visible;
+}
+
+.wordmark {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.name {
+  font-family: var(--font-sans), sans-serif;
+  font-size: 19px;
+  font-weight: 650;
+  letter-spacing: -0.85px;
+  line-height: 1;
+}
+
+.period { color: #67e8f9; }
+
+.studio {
+  color: #91a1af;
+  font-family: var(--font-mono), monospace;
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 3.7px;
+  line-height: 1;
+}
+
+.trace {
+  opacity: 0;
+  stroke-dasharray: 12 100;
+  stroke-dashoffset: 12;
+  animation: trace 7s ease-in-out infinite;
+}
+
+.signal {
+  transition: transform 300ms ease;
+  animation: signal 7s ease-in-out infinite;
+}
+
+.logo:hover .signal,
+a:focus-visible .signal { transform: translate(2px, -2px); }
+
+@keyframes trace {
+  0%, 12% { opacity: 0; stroke-dashoffset: 12; }
+  18% { opacity: 0.9; }
+  48% { opacity: 0.9; }
+  56%, 100% { opacity: 0; stroke-dashoffset: -100; }
+}
+
+@keyframes signal {
+  0%, 12%, 60%, 100% { opacity: 0.55; }
+  24%, 42% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trace, .signal { animation: none; transition: none; }
+  .logo:hover .signal, a:focus-visible .signal { transform: none; }
+}
+
+@media (max-width: 360px) {
+  .logo { gap: 6px; }
+  .name { font-size: 17px; }
+}

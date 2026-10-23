@@ -6,6 +6,8 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ClientMobileNav } from "@/components/ClientMobileNav";
 import { CaseStudyDeliverySummary } from "@/components/CaseStudyDeliverySummary";
+import { JsonLd } from "@/components/JsonLd";
+import { caseStudySchema } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Case Study: PaperChai Invoice — Chat-to-Invoice Ops | Somanath Studio",
@@ -21,6 +23,15 @@ export const metadata: Metadata = {
   },
 };
 
+const schema = caseStudySchema({
+  path: "/case-studies/paperchai-invoice",
+  name: "PaperChai Invoice — Chat-to-Invoice Ops",
+  description:
+    "Create invoices from WhatsApp, Slack or a normal message. Queue them, track payments, send reminders and keep projects organised — PaperChai Invoice / Money Autopilot.",
+  image: "/images/project-8.png",
+  keywords: ["WhatsApp invoice", "chat to invoice", "payment tracking"],
+});
+
 const TECH = [
   "WhatsApp",
   "Slack",
@@ -32,7 +43,9 @@ const TECH = [
 
 export default function PaperchaiInvoiceCaseStudyPage() {
   return (
-    <main className="min-h-screen bg-black text-white">
+    <>
+      <JsonLd data={schema} />
+      <main className="min-h-screen bg-black text-white">
       <Navbar />
 
       <article className="container mx-auto max-w-3xl px-4 pb-12 pt-28 md:pb-16 md:pt-32">
@@ -175,5 +188,6 @@ export default function PaperchaiInvoiceCaseStudyPage() {
       <Footer />
       <ClientMobileNav />
     </main>
+    </>
   );
 }

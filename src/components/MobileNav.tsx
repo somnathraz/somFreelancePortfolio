@@ -58,10 +58,11 @@ export function MobileNav() {
     ];
 
     return (
-        <div className="fixed bottom-6 left-6 right-6 z-[500] md:hidden">
+        <div className="fixed bottom-6 left-6 right-6 z-[500] lg:hidden">
             <FloatingDock
                 items={links}
-                mobileClassName="w-full justify-between px-6"
+                desktopClassName="md:hidden"
+                mobileClassName="w-full justify-between px-6 md:flex lg:hidden"
             />
         </div>
     );

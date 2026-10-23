@@ -64,9 +64,13 @@ export default function Home() {
       },
       {
         "@type": "Organization",
+        "@id": "https://somanathkhadanga.com/#organization",
         name: "Somanath Studio",
         url: "https://somanathkhadanga.com",
-        sameAs: ["https://somanathkhadanga.com"],
+        sameAs: [
+          "https://www.linkedin.com/in/somnath-khadanga/",
+          "https://github.com/somnathraz",
+        ],
         hasOfferCatalog: {
           "@type": "OfferCatalog",
           name: "SaaS engineering services",

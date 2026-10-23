@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { GrowthLandingPage } from "@/components/growth/GrowthLandingPage";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbJsonLd, serviceJsonLd, webPageJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "White-Label Software Development Partner for Agencies",
@@ -24,22 +26,31 @@ export const metadata: Metadata = {
 };
 
 export default function AgencyDevelopmentPartnerPage() {
+  const schema = [
+    webPageJsonLd({
+      path: "/agency-development-partner",
+      name: "Agency Development Partner",
+      description:
+        "White-label SaaS and custom application delivery for agencies with a senior-led flexible team.",
+    }),
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: "Agency Development Partner", path: "/agency-development-partner" },
+    ]),
+    serviceJsonLd({
+      path: "/agency-development-partner",
+      name: "White-Label Software Development Partner for Agencies",
+      serviceType: "White-Label Software Development",
+      description:
+        "White-label SaaS and custom application delivery for agencies with a senior-led flexible team.",
+      keywords:
+        "white label software development, agency development partner, white label saas development, nda development partner",
+    }),
+  ];
+
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Service",
-            name: "White-Label Software Development Partner for Agencies",
-            provider: { "@type": "Organization", name: "Somanath Studio" },
-            url: "https://somanathkhadanga.com/agency-development-partner",
-            description:
-              "White-label SaaS and custom application delivery for agencies with a senior-led flexible team.",
-          }),
-        }}
-      />
+      <JsonLd data={schema} />
       <GrowthLandingPage
         eyebrow="White-label software development partner"
         title="Your Client Relationship. Our Senior-Led Engineering Team."

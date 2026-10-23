@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ProductionReadinessClient } from "@/components/services/ProductionReadinessClient";
 import { siteLogoUrl } from "@/lib/site";
+import { faqPageJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "SaaS Production Readiness Audit & Upgrade | Somanath Studio",
@@ -79,6 +80,34 @@ export default function ProductionReadinessPage() {
     ],
   };
 
+  const faqJsonLd = faqPageJsonLd([
+    {
+      question: "What does 'production-ready' actually mean?",
+      answer:
+        "It means your product is in a much better state to support real users, future features, and day-to-day engineering work without falling apart under growth or pressure.",
+    },
+    {
+      question: "Do you only work on products you built yourself?",
+      answer:
+        "No. This service is especially useful for products built quickly by previous freelancers or early teams that now need cleanup, consistency, and stronger stability.",
+    },
+    {
+      question: "Is this a full rewrite?",
+      answer:
+        "Usually not. In most cases the best result comes from focused upgrades and targeted cleanup — not rebuilding everything from scratch.",
+    },
+    {
+      question: "Can this include security and deployment improvements?",
+      answer:
+        "Yes. Depending on the product, I can help improve auth, roles, release flow, stability, and common security weak points.",
+    },
+    {
+      question: "Can you continue supporting the product after the upgrade?",
+      answer:
+        "Yes. I can continue with feature work, performance improvements, and long-term technical direction after the core upgrade is done.",
+    },
+  ]);
+
   return (
     <>
       <script
@@ -88,6 +117,10 @@ export default function ProductionReadinessPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <ProductionReadinessClient />
     </>

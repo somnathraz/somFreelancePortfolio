@@ -11,7 +11,8 @@ import { Footer } from '@/components/Footer';
 import { getPostBySlug, getPostSlugs } from '@/lib/blog';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { BlogTracker } from '@/components/ai-helper/BlogTracker';
-import { siteLogoUrl, siteUrl } from '@/lib/site';
+import { siteUrl } from '@/lib/site';
+import { blogPostingJsonLd, breadcrumbJsonLd as crumbsJsonLd } from '@/lib/seo';
 
 function getPostShareImage(post: ReturnType<typeof getPostBySlug>) {
     const shareImage = post.frontmatter.shareImage;
@@ -93,7 +94,6 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
     }
 
     const formattedDate = format(new Date(post.frontmatter.date), 'MMMM d, yyyy');
-    const postUrl = `${siteUrl}/blog/${post.slug}`;
     const shareImage = getPostShareImage(post);
     const wordCount = post.content
         .replace(/```[\s\S]*?```/g, ' ')
@@ -106,88 +106,23 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
         ...(post.frontmatter.tags || []),
     ].filter((value): value is string => Boolean(value));
 
-    const articleJsonLd = {
-        '@context': 'https://schema.org',
-        '@type': 'BlogPosting',
-        '@id': `${postUrl}#article`,
-        headline: post.frontmatter.title,
-        name: post.frontmatter.title,
+    const articleJsonLd = blogPostingJsonLd({
+        path: `/blog/${post.slug}`,
+        title: post.frontmatter.title,
+        description: post.frontmatter.description,
         datePublished: post.frontmatter.date,
         dateModified: post.lastModified,
-        description: post.frontmatter.description,
-        articleSection: post.frontmatter.category,
-        keywords: keywords.length ? keywords.join(', ') : undefined,
+        image: shareImage,
         wordCount,
-        image: {
-            '@type': 'ImageObject',
-            url: shareImage,
-            width: 1200,
-            height: 630,
-        },
-        url: postUrl,
-        mainEntityOfPage: {
-            '@type': 'WebPage',
-            '@id': postUrl,
-        },
-        author: {
-            '@type': 'Person',
-            name: 'Somanath Khadanga',
-            url: `${siteUrl}/about`,
-            sameAs: [
-                'https://www.linkedin.com/in/somnath-khadanga/',
-                'https://github.com/somnathraz',
-            ],
-        },
-        publisher: {
-            '@type': 'Organization',
-            '@id': `${siteUrl}/#organization`,
-            name: 'Somanath Studio',
-            url: siteUrl,
-            logo: {
-                '@type': 'ImageObject',
-                url: siteLogoUrl,
-            },
-        },
-        isPartOf: {
-            '@type': 'Blog',
-            '@id': `${siteUrl}/blog#blog`,
-            name: 'Somanath Studio Blog',
-            url: `${siteUrl}/blog`,
-        },
-        about: post.frontmatter.relatedService
-            ? {
-                  '@type': 'Service',
-                  url: post.frontmatter.relatedService.startsWith('http')
-                      ? post.frontmatter.relatedService
-                      : `${siteUrl}${post.frontmatter.relatedService}`,
-              }
-            : undefined,
-        inLanguage: 'en',
-    };
-    const breadcrumbJsonLd = {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-            {
-                '@type': 'ListItem',
-                position: 1,
-                name: 'Home',
-                item: `${siteUrl}/`,
-            },
-            {
-                '@type': 'ListItem',
-                position: 2,
-                name: 'Blog',
-                item: `${siteUrl}/blog`,
-            },
-            {
-                '@type': 'ListItem',
-                position: 3,
-                name: post.frontmatter.title,
-                item: postUrl,
-            },
-        ],
-    };
+        keywords: keywords.length ? keywords : undefined,
+        category: post.frontmatter.category,
+        relatedService: post.frontmatter.relatedService,
+    });
+    const breadcrumbJsonLd = crumbsJsonLd([
+        { name: 'Home', path: '/' },
+        { name: 'Blog', path: '/blog' },
+        { name: post.frontmatter.title, path: `/blog/${post.slug}` },
+    ]);
     const faqJsonLd =
         post.frontmatter.faq && post.frontmatter.faq.length > 0
             ? {

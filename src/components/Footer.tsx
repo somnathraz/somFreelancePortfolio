@@ -58,6 +58,8 @@ export function Footer() {
                         <Link href="/hire-saas-mvp-developer" className="hover:text-white transition-colors">Hire MVP Dev</Link>
                         <Link href="/case-studies" className="hover:text-white transition-colors">Case Studies</Link>
                         <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
+                        <Link href="/labs" className="hover:text-white transition-colors">Labs</Link>
+                        <Link href="/templates" className="hover:text-white transition-colors">Templates</Link>
                         <Link href="/blog" className="hover:text-white transition-colors">Writing</Link>
                         <Link href="/services/saas-mvp-development" className="hover:text-white transition-colors">SaaS MVP Development</Link>
                         <Link href="/services/custom-software-development" className="hover:text-white transition-colors">Custom Software</Link>

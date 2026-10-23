@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
 import { ServicesIndexClient } from "@/components/services/ServicesIndexClient";
+import { JsonLd } from "@/components/JsonLd";
+import {
+  breadcrumbJsonLd,
+  faqPageJsonLd,
+  itemListJsonLd,
+  webPageJsonLd,
+} from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "SaaS Engineering Services for Founders and Agencies",
@@ -32,43 +39,85 @@ export const metadata: Metadata = {
   },
 };
 
+const serviceItems = [
+  {
+    name: "SaaS MVP Development",
+    path: "/services/saas-mvp-development",
+    description:
+      "Build your first usable SaaS product fast with production-minded foundations.",
+  },
+  {
+    name: "Custom Software Development",
+    path: "/services/custom-software-development",
+    description:
+      "Internal tools, booking systems, logistics platforms, and business software.",
+  },
+  {
+    name: "Next.js Performance Optimization",
+    path: "/services/nextjs-performance-optimization",
+    description:
+      "Fix slow pages, Core Web Vitals issues, and frontend/backend bottlenecks.",
+  },
+  {
+    name: "Production Readiness Upgrade",
+    path: "/services/production-readiness-upgrade",
+    description: "Audit and harden fragile MVPs before they crack under growth.",
+  },
+  {
+    name: "AI SaaS Development",
+    path: "/services/ai-saas-development",
+    description:
+      "Add practical AI features that improve real product workflows and outcomes.",
+  },
+] as const;
+
+const faqs = [
+  {
+    question: "Do I work with one engineer or a team?",
+    answer:
+      "Every engagement is senior-led. Focused work stays with one engineer. MVPs and larger platforms add specialists only when the scope needs them.",
+  },
+  {
+    question: "Is this an agency with account managers?",
+    answer:
+      "No. You work directly with the engineers building the product. No sales-to-development handoff.",
+  },
+  {
+    question: "Can agencies white-label the work?",
+    answer:
+      "Yes. See the agency development partner page for white-label delivery, NDAs, and no-poaching terms.",
+  },
+] as const;
+
 export default function ServicesPage() {
-  const servicesJsonLd = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "WebPage",
-        name: "Services",
-        url: "https://somanathkhadanga.com/services",
-        description:
-          "SaaS engineering for founders: production-ready MVP builds, Next.js 16 optimization, vibe-coded MVP audits, and AI feature development.",
-      },
-      {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: "Home",
-            item: "https://somanathkhadanga.com/",
-          },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: "Services",
-            item: "https://somanathkhadanga.com/services",
-          },
-        ],
-      },
-    ],
-  };
+  const schema = [
+    webPageJsonLd({
+      path: "/services",
+      name: "Services",
+      description:
+        "SaaS engineering for founders: production-ready MVP builds, Next.js optimization, vibe-coded MVP audits, and AI feature development.",
+    }),
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: "Services", path: "/services" },
+    ]),
+    itemListJsonLd({
+      path: "/services",
+      name: "SaaS engineering services",
+      description:
+        "Senior-led SaaS engineering services for founders and agencies.",
+      items: serviceItems.map((s) => ({
+        name: s.name,
+        path: s.path,
+        description: s.description,
+      })),
+    }),
+    faqPageJsonLd([...faqs]),
+  ];
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(servicesJsonLd) }}
-      />
+      <JsonLd data={schema} />
       <ServicesIndexClient />
     </>
   );

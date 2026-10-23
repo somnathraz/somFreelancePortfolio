@@ -1,5 +1,7 @@
 import { BookingPage } from "@/components/BookingPage";
 import { Metadata } from "next";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbJsonLd, serviceJsonLd, webPageJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
     title: "Book a Call — Somanath Studio",
@@ -30,41 +32,29 @@ export const metadata: Metadata = {
 };
 
 export default function BookPage() {
-    const bookingJsonLd = {
-        "@context": "https://schema.org",
-        "@graph": [
-            {
-                "@type": "WebPage",
-                name: "Book a Call",
-                url: "https://somanathkhadanga.com/book",
-                description: "Book a free 20-minute strategy call with Somanath. Select a time that works for you.",
-            },
-            {
-                "@type": "BreadcrumbList",
-                itemListElement: [
-                    {
-                        "@type": "ListItem",
-                        position: 1,
-                        name: "Home",
-                        item: "https://somanathkhadanga.com/",
-                    },
-                    {
-                        "@type": "ListItem",
-                        position: 2,
-                        name: "Book a Call",
-                        item: "https://somanathkhadanga.com/book",
-                    },
-                ],
-            },
-        ],
-    };
+    const schema = [
+        webPageJsonLd({
+            path: "/book",
+            name: "Book a Call",
+            description:
+                "Book a free 20-minute strategy call with Somanath. Select a time that works for you.",
+        }),
+        breadcrumbJsonLd([
+            { name: "Home", path: "/" },
+            { name: "Book a Call", path: "/book" },
+        ]),
+        serviceJsonLd({
+            path: "/book",
+            name: "Free strategy call",
+            serviceType: "Consultation",
+            description:
+                "Free 20-minute strategy call to discuss SaaS MVP, performance, production readiness, or AI product work.",
+        }),
+    ];
 
     return (
         <>
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(bookingJsonLd) }}
-            />
+            <JsonLd data={schema} />
             <BookingPage />
         </>
     );

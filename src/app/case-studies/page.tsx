@@ -7,6 +7,8 @@ import { Footer } from "@/components/Footer";
 import { MobileNav } from "@/components/MobileNav";
 import { Button } from "@/components/ui/button";
 import { Metadata } from "next";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbJsonLd, itemListJsonLd, webPageJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
     title: "Case Studies — SaaS MVP, Performance & Production Readiness | Somanath Studio",
@@ -40,42 +42,56 @@ export const metadata: Metadata = {
 };
 
 export default function CaseStudiesPage() {
-    const caseStudiesJsonLd = {
-        "@context": "https://schema.org",
-        "@graph": [
-            {
-                "@type": "CollectionPage",
-                name: "Case Studies",
-                url: "https://somanathkhadanga.com/case-studies",
-                description:
-                    "Examples of SaaS MVP builds, performance optimization, and production-grade improvements.",
-            },
-            {
-                "@type": "BreadcrumbList",
-                itemListElement: [
-                    {
-                        "@type": "ListItem",
-                        position: 1,
-                        name: "Home",
-                        item: "https://somanathkhadanga.com/",
-                    },
-                    {
-                        "@type": "ListItem",
-                        position: 2,
-                        name: "Case Studies",
-                        item: "https://somanathkhadanga.com/case-studies",
-                    },
-                ],
-            },
-        ],
-    };
+    const schema = [
+        webPageJsonLd({
+            path: "/case-studies",
+            name: "Case Studies",
+            description:
+                "Examples of SaaS MVP builds, performance optimization, and production-grade improvements.",
+            type: "CollectionPage",
+        }),
+        breadcrumbJsonLd([
+            { name: "Home", path: "/" },
+            { name: "Case Studies", path: "/case-studies" },
+        ]),
+        itemListJsonLd({
+            path: "/case-studies",
+            name: "Case studies",
+            description:
+                "Selected SaaS MVP, performance, and production-readiness case studies.",
+            items: [
+                {
+                    name: "VGT — Video generation platform",
+                    path: "/case-studies/vgt",
+                    description: "SaaS MVP and production delivery for video generation workflows.",
+                },
+                {
+                    name: "Outspokn — AI learning product",
+                    path: "/case-studies/outspokn",
+                    description: "AI SaaS engineering and product delivery.",
+                },
+                {
+                    name: "Studio booking platform",
+                    path: "/case-studies/studio-booking-platform",
+                    description: "Booking and operations SaaS for studio businesses.",
+                },
+                {
+                    name: "PaperChai Invoice",
+                    path: "/case-studies/paperchai-invoice",
+                    description: "Invoice and billing product work for PaperChai.",
+                },
+                {
+                    name: "PaperChai",
+                    path: "/case-studies/paperchai",
+                    description: "AI website and booking SaaS — live product.",
+                },
+            ],
+        }),
+    ];
 
     return (
         <main className="min-h-screen bg-black text-foreground selection:bg-white/20">
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(caseStudiesJsonLd) }}
-            />
+            <JsonLd data={schema} />
             <Navbar />
 
             <section className="relative z-10 border-b border-white/5 bg-black pt-28 pb-12 md:pt-32 md:pb-16">

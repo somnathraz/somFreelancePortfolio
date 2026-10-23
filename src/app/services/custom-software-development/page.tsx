@@ -7,6 +7,7 @@ import { ClientMobileNav } from "@/components/ClientMobileNav";
 import { DeliveryModelSection } from "@/components/DeliveryModelSection";
 import { DeferredParticles } from "@/components/DeferredParticles";
 import { siteLogoUrl } from "@/lib/site";
+import { breadcrumbJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Custom Software Development Company for Startups and Businesses",
@@ -50,20 +51,32 @@ export default function CustomSoftwareDevelopmentPage() {
     serviceType: "Custom Software Development",
     provider: {
       "@type": "Organization",
+      "@id": "https://somanathkhadanga.com/#organization",
       name: "Somanath Studio",
       url: "https://somanathkhadanga.com",
       logo: siteLogoUrl,
     },
+    areaServed: "Worldwide",
     url: "https://somanathkhadanga.com/services/custom-software-development",
     description:
       "Custom software built by a senior-led flexible team for startups and businesses.",
   };
+
+  const crumbs = breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Services", path: "/services" },
+    { name: "Custom Software Development", path: "/services/custom-software-development" },
+  ]);
 
   return (
     <main className="min-h-screen bg-black text-foreground selection:bg-white/20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }}
       />
       <Navbar />
 

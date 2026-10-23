@@ -6,6 +6,8 @@ import { Footer } from "@/components/Footer";
 import { ClientMobileNav } from "@/components/ClientMobileNav";
 import { WideShotGallery } from "@/components/projects/WideShotGallery";
 import { CaseStudyDeliverySummary } from "@/components/CaseStudyDeliverySummary";
+import { JsonLd } from "@/components/JsonLd";
+import { caseStudySchema } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Case Study: Calendar Booking System | Somanath Studio",
@@ -20,6 +22,15 @@ export const metadata: Metadata = {
     images: [{ url: "/images/project-11.png", width: 2942, height: 1704 }],
   },
 };
+
+const schema = caseStudySchema({
+  path: "/case-studies/studio-booking-platform",
+  name: "Calendar Booking System",
+  description:
+    "Studio and calendar booking platform with real-time availability, payments and admin ops — fewer scheduling errors, clearer payment tracking.",
+  image: "/images/project-11.png",
+  keywords: ["calendar booking system", "studio booking platform", "Next.js"],
+});
 
 const TECH = [
   "Next.js",
@@ -43,7 +54,9 @@ const SCREENSHOTS = [
 
 export default function StudioBookingCaseStudyPage() {
   return (
-    <main className="min-h-screen bg-black text-white">
+    <>
+      <JsonLd data={schema} />
+      <main className="min-h-screen bg-black text-white">
       <Navbar />
 
       <article className="container mx-auto max-w-3xl px-4 pb-16 pt-28 md:pb-20 md:pt-32">
@@ -164,5 +177,6 @@ export default function StudioBookingCaseStudyPage() {
       <Footer />
       <ClientMobileNav />
     </main>
+    </>
   );
 }

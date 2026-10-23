@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { GrowthLandingPage } from "@/components/growth/GrowthLandingPage";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbJsonLd, serviceJsonLd, webPageJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Hire a SaaS MVP Developer or Product Team | Somanath Studio",
@@ -24,22 +26,31 @@ export const metadata: Metadata = {
 };
 
 export default function HireSaasMvpDeveloperPage() {
+  const schema = [
+    webPageJsonLd({
+      path: "/hire-saas-mvp-developer",
+      name: "Hire a SaaS MVP Developer",
+      description:
+        "Hire a SaaS MVP developer or scale to a senior-led product team.",
+    }),
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: "Hire SaaS MVP Developer", path: "/hire-saas-mvp-developer" },
+    ]),
+    serviceJsonLd({
+      path: "/hire-saas-mvp-developer",
+      name: "Hire SaaS MVP Developer",
+      serviceType: "SaaS MVP Development",
+      description:
+        "Hire a SaaS MVP developer or scale to a senior-led product team for founders and agencies.",
+      keywords:
+        "hire saas mvp developer, hire next.js developer, saas product team, white-label mvp development",
+    }),
+  ];
+
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Service",
-            name: "Hire SaaS MVP Developer",
-            provider: { "@type": "Organization", name: "Somanath Studio" },
-            url: "https://somanathkhadanga.com/hire-saas-mvp-developer",
-            description:
-              "Hire a SaaS MVP developer or scale to a senior-led product team.",
-          }),
-        }}
-      />
+      <JsonLd data={schema} />
       <GrowthLandingPage
         eyebrow="Hire SaaS MVP developer"
         title="Hire a SaaS MVP Developer—or Scale to a Complete Product Team"

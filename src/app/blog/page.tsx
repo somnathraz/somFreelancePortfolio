@@ -58,10 +58,24 @@ export default async function BlogIndex(props: {
         "@graph": [
             {
                 "@type": "CollectionPage",
+                "@id": "https://somanathkhadanga.com/blog#webpage",
                 name: "Somanath Studio Blog",
                 url: "https://somanathkhadanga.com/blog",
                 description:
                     "Practical articles for SaaS founders on MVP scope, performance, and production-ready decisions.",
+                isPartOf: { "@id": "https://somanathkhadanga.com/#website" },
+                about: { "@id": "https://somanathkhadanga.com/blog#blog" },
+            },
+            {
+                "@type": "Blog",
+                "@id": "https://somanathkhadanga.com/blog#blog",
+                name: "Somanath Studio Blog",
+                url: "https://somanathkhadanga.com/blog",
+                description:
+                    "Practical articles for SaaS founders on MVP scope, performance, and production-ready decisions.",
+                publisher: { "@id": "https://somanathkhadanga.com/#organization" },
+                author: { "@id": "https://somanathkhadanga.com/#person" },
+                inLanguage: "en-US",
             },
             {
                 "@type": "BreadcrumbList",
@@ -82,6 +96,7 @@ export default async function BlogIndex(props: {
             },
             {
                 "@type": "ItemList",
+                name: "Latest blog posts",
                 itemListElement: posts.map((post, index) => ({
                     "@type": "ListItem",
                     position: index + 1,

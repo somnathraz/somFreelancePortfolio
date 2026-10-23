@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { GrowthLandingPage } from "@/components/growth/GrowthLandingPage";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbJsonLd, serviceJsonLd, webPageJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "SaaS MVP Audit | Production Readiness Review",
@@ -24,22 +26,31 @@ export const metadata: Metadata = {
 };
 
 export default function SaasMvpAuditPage() {
+  const schema = [
+    webPageJsonLd({
+      path: "/saas-mvp-audit",
+      name: "SaaS MVP Audit",
+      description:
+        "SaaS MVP and production-readiness audit covering auth, APIs, env, dependencies, deploy and AI trust boundaries.",
+    }),
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: "SaaS MVP Audit", path: "/saas-mvp-audit" },
+    ]),
+    serviceJsonLd({
+      path: "/saas-mvp-audit",
+      name: "SaaS MVP Audit",
+      serviceType: "Technical Audit",
+      description:
+        "SaaS MVP and production-readiness audit covering auth, APIs, env, dependencies, deploy and AI trust boundaries.",
+      keywords:
+        "saas mvp audit, vibe coded mvp audit, production readiness review, ai mvp security audit",
+    }),
+  ];
+
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Service",
-            name: "SaaS MVP Audit",
-            provider: { "@type": "Person", name: "Somanath Khadanga" },
-            url: "https://somanathkhadanga.com/saas-mvp-audit",
-            description:
-              "SaaS MVP and production-readiness audit covering auth, APIs, env, dependencies, deploy and AI trust boundaries.",
-          }),
-        }}
-      />
+      <JsonLd data={schema} />
       <GrowthLandingPage
         eyebrow="SaaS MVP audit"
         title="Find what will break before your users do."

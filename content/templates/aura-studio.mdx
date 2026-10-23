@@ -1,0 +1,79 @@
+---
+title: "Aura Studio — Luxury Headphone Showcase"
+metaTitle: "Aura Studio: Luxury 3D Headphone Template | Next.js + React Three Fiber"
+description: "Luxury headphone storytelling with interactive 3D configuration — sticky scroll chapters, live material finishes, exploded assembly, and Motion-driven entrances. Next.js App Router + React Three Fiber."
+category: "3D Product"
+tags:
+  [
+    "WebGL",
+    "Three.js",
+    "React Three Fiber",
+    "Motion",
+    "Product Configurator",
+    "Luxury",
+    "Headphones",
+  ]
+date: "2026-10-24"
+status: "live"
+stack:
+  [
+    "Next.js App Router",
+    "TypeScript",
+    "React Three Fiber",
+    "Three.js",
+    "Motion",
+    "Tailwind CSS",
+  ]
+demoUrl: "https://demo.somanathkhadanga.com/aura"
+shareImage: "/images/templates/aura-studio.jpg"
+difficulty: "Advanced"
+features:
+  - "Hero entrance and floating 3D headphone product"
+  - "Sticky scroll-driven product rotation synchronized with story chapters"
+  - "Three live material finishes with pointer and keyboard rotation"
+  - "Exploded assembly view for form, sound, and fit storytelling"
+  - "Skippable full-screen product zoom entrance"
+  - "Interactive particle field with optional stereo panning audio demo"
+  - "Accessible confirmation dialog; configuration stored locally on device"
+  - "Responsive layout, reduced-motion support, skip link, and visible focus"
+  - "WebGL failure fallback; offscreen scenes pause rendering"
+  - "Device pixel ratio capped for smoother performance"
+---
+
+Aura Studio is a standalone luxury headphone concept. Built for brands that want a cinematic product site — not a brochure with a stock render.
+
+## Tech stack
+
+- **Next.js App Router** — server route composition, metadata, and static sections as server components
+- **TypeScript** — shared product and finish domain types
+- **React Three Fiber + Three.js** — procedural headphone model in an isolated WebGL renderer (dynamically imported, SSR disabled)
+- **Motion** — entrance timelines, scroll chapters, and particle motion
+- **Google Fonts** — optional external request with system-font fallbacks
+
+## Project structure
+
+```text
+src/
+  app/                   Route composition, metadata, global design system
+  components/
+    sections/            Page-level story and configurator sections
+    product/             Lazy-loaded WebGL scene and procedural model
+    ui/                  Shared presentation primitives
+  hooks/                 Reusable browser behavior
+  lib/                   Product catalog and formatting utilities
+  types/                 Shared domain types
+public/                  Static assets
+```
+
+Change finishes and price in `src/lib/product.ts`. Edit model geometry in `src/components/product/headphones.tsx`. Global tokens live in `src/app/globals.css`.
+
+## Experience highlights
+
+- Synchronized form / sound / fit chapters with projected 3D callouts
+- Live finish switching without page reloads
+- Scroll progress stored in a ref to avoid React rerenders on every frame
+- Sound visualization is illustrative; the audible demo is stereo panning (not Dolby / head-tracked spatial)
+
+## Scope
+
+Aura is a fictional brand. Specs and pricing are illustrative. No checkout, payments, authentication, or backend. The 3D model is procedural — not manufactured CAD. WebGL is required for the interactive model.
