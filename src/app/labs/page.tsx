@@ -3,7 +3,6 @@ import { getAllTemplates } from "@/lib/templates";
 import { LabsHero } from "@/components/labs/LabsHero";
 import { FeaturedWork } from "@/components/labs/FeaturedWork";
 import { LabsCta } from "@/components/labs/LabsCta";
-import { LabsSmokeTrail } from "@/components/labs/LabsSmokeTrail";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
@@ -87,7 +86,6 @@ export default function LabsPage() {
             <JsonLd data={schema} />
             <main className="min-h-screen bg-black text-white selection:bg-indigo-500/20">
                 <Navbar />
-                <LabsSmokeTrail />
                 <LabsHero />
                 <FeaturedWork templates={templates} />
                 <LabsCta />
