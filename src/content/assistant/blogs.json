@@ -1,158 +1,654 @@
 [
   {
     "slug": "5-signs-your-mvp-is-not-production-ready",
-    "title": "5 Signs Your MVP Is Not Production Ready",
-    "serviceIds": ["production-readiness", "saas-mvp"],
-    "journeyIds": ["build-saas", "improve-product"]
+    "title": "5 Signs Your MVP Is Not Production-Ready",
+    "serviceIds": [
+      "production-readiness",
+      "saas-mvp"
+    ],
+    "journeyIds": [
+      "build-saas",
+      "improve-product"
+    ]
+  },
+  {
+    "slug": "ai-agent-identity-saas-access-blueprint",
+    "title": "Your AI Agent Needs Its Own Identity: A SaaS Access Blueprint",
+    "serviceIds": [
+      "ai-saas"
+    ],
+    "journeyIds": [
+      "add-ai"
+    ]
+  },
+  {
+    "slug": "ai-saas-fraud-abuse-controls",
+    "title": "AI SaaS Fraud Controls: Protect Trials, Payments, and Model Spend",
+    "serviceIds": [
+      "ai-saas"
+    ],
+    "journeyIds": [
+      "add-ai"
+    ]
   },
   {
     "slug": "boring-architecture-for-saas",
-    "title": "Boring Architecture for SaaS",
-    "serviceIds": ["saas-mvp", "production-readiness"],
-    "journeyIds": ["build-saas", "improve-product"]
+    "title": "Why I Prefer Boring Architecture for SaaS (And Why It Wins Long-Term)",
+    "serviceIds": [
+      "saas-mvp",
+      "production-readiness"
+    ],
+    "journeyIds": [
+      "build-saas",
+      "improve-product"
+    ]
   },
   {
     "slug": "building-paperchai-booking-ready-website",
-    "title": "Building PaperChai: A Booking-Ready Website",
-    "serviceIds": ["saas-mvp"],
-    "journeyIds": ["build-saas"]
+    "title": "Building PaperChai: Turning Existing Business Information into a Booking-Ready Website",
+    "serviceIds": [
+      "saas-mvp"
+    ],
+    "journeyIds": [
+      "build-saas"
+    ]
   },
   {
     "slug": "choosing-technology-for-client-projects",
-    "title": "Choosing Technology for Client Projects",
-    "serviceIds": ["saas-mvp", "ongoing-partner"],
-    "journeyIds": ["build-saas", "explore"]
+    "title": "How I Choose Technology for Client Projects (And When I Say No)",
+    "serviceIds": [
+      "saas-mvp",
+      "agency-partner"
+    ],
+    "journeyIds": [
+      "build-saas",
+      "explore"
+    ]
+  },
+  {
+    "slug": "chrome-unload-event-migration",
+    "title": "Chrome Stopped Firing Unload: A SaaS Migration Playbook",
+    "serviceIds": [
+      "production-readiness"
+    ],
+    "journeyIds": [
+      "explore"
+    ]
+  },
+  {
+    "slug": "coding-agent-sandbox-saas-security",
+    "title": "Your Coding Agent Needs a Sandbox: A SaaS Security Blueprint",
+    "serviceIds": [
+      "ai-saas"
+    ],
+    "journeyIds": [
+      "improve-product",
+      "add-ai"
+    ]
   },
   {
     "slug": "firebase-technical-debt",
-    "title": "Firebase Technical Debt",
-    "serviceIds": ["production-readiness"],
-    "journeyIds": ["improve-product"]
+    "title": "The 'Hidden Technical Debt' of Using Firebase Too Long",
+    "serviceIds": [
+      "production-readiness"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
   },
   {
     "slug": "first-mcp-server-saas-founder-guide",
-    "title": "First MCP Server: A SaaS Founder Guide",
-    "serviceIds": ["ai-saas"],
-    "journeyIds": ["add-ai"]
+    "title": "Building Your First MCP Server: A SaaS Founder's Shortest Path to an AI Product",
+    "serviceIds": [
+      "ai-saas"
+    ],
+    "journeyIds": [
+      "add-ai"
+    ]
   },
   {
     "slug": "from-saas-idea-to-production",
-    "title": "From SaaS Idea to Production",
-    "serviceIds": ["saas-mvp"],
-    "journeyIds": ["build-saas"]
+    "title": "How I Take a SaaS Idea From Concept to Production (My Real Process)",
+    "serviceIds": [
+      "saas-mvp"
+    ],
+    "journeyIds": [
+      "build-saas"
+    ]
+  },
+  {
+    "slug": "ghostapproval-ai-coding-assistant-security-risk",
+    "title": "GhostApproval Explained: Can AI Coding Assistants Turn a Malicious Repository Into a Security Breach?",
+    "serviceIds": [
+      "ai-saas"
+    ],
+    "journeyIds": [
+      "improve-product",
+      "add-ai"
+    ]
+  },
+  {
+    "slug": "github-actions-execution-policies-saas",
+    "title": "GitHub Actions Execution Policies: A SaaS CI Hardening Plan",
+    "serviceIds": [
+      "saas-mvp"
+    ],
+    "journeyIds": [
+      "explore"
+    ]
+  },
+  {
+    "slug": "github-actions-workflow-lockfiles-saas",
+    "title": "GitHub Actions Workflow Lockfiles: A Safe Rollout Guide for SaaS",
+    "serviceIds": [
+      "saas-mvp"
+    ],
+    "journeyIds": [
+      "explore"
+    ]
+  },
+  {
+    "slug": "github-app-token-format-migration",
+    "title": "GitHub App Tokens Got Longer: A Migration Guide for SaaS Teams",
+    "serviceIds": [
+      "saas-mvp"
+    ],
+    "journeyIds": [
+      "explore"
+    ]
+  },
+  {
+    "slug": "github-dependabot-cooldown-saas-policy",
+    "title": "Dependabot's New 3-Day Cooldown: A Safer Update Policy for SaaS",
+    "serviceIds": [
+      "production-readiness"
+    ],
+    "journeyIds": [
+      "explore"
+    ]
+  },
+  {
+    "slug": "github-outage-saas-release-continuity",
+    "title": "When GitHub Goes Down: A SaaS Release Continuity Playbook",
+    "serviceIds": [
+      "saas-mvp"
+    ],
+    "journeyIds": [
+      "explore"
+    ]
   },
   {
     "slug": "google-io-2026-developer-announcements",
-    "title": "Google I/O 2026 Developer Announcements",
-    "serviceIds": ["ai-saas"],
-    "journeyIds": ["add-ai", "explore"]
+    "title": "Google I/O 2026: What Every Developer Actually Needs to Know",
+    "serviceIds": [
+      "ai-saas"
+    ],
+    "journeyIds": [
+      "add-ai",
+      "explore"
+    ]
+  },
+  {
+    "slug": "gpt-6-sol-luna-saas-model-routing",
+    "title": "GPT-6 Sol and Luna for SaaS: Route Workloads, Don't Replace Everything",
+    "serviceIds": [
+      "saas-mvp"
+    ],
+    "journeyIds": [
+      "explore"
+    ]
+  },
+  {
+    "slug": "how-to-evaluate-ai-agents-before-production",
+    "title": "How to Evaluate AI Agents Before Production: A Practical SaaS Checklist",
+    "serviceIds": [
+      "ai-saas"
+    ],
+    "journeyIds": [
+      "improve-product",
+      "add-ai"
+    ]
+  },
+  {
+    "slug": "how-to-hire-saas-mvp-developer",
+    "title": "How to Hire a SaaS MVP Developer Without Wasting Your Budget",
+    "serviceIds": [
+      "hire-mvp-developer"
+    ],
+    "journeyIds": [
+      "build-saas"
+    ]
+  },
+  {
+    "slug": "kubernetes-node-swap-saas-production",
+    "title": "Kubernetes Node Swap: A Safe Density Playbook for SaaS",
+    "serviceIds": [
+      "production-readiness"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
+  },
+  {
+    "slug": "mcp-2026-stateless-migration-saas",
+    "title": "MCP 2026 Is Stateless: A Migration Guide for SaaS Teams",
+    "serviceIds": [
+      "ai-saas"
+    ],
+    "journeyIds": [
+      "add-ai"
+    ]
+  },
+  {
+    "slug": "minimum-viable-observability-saas",
+    "title": "Minimum Viable Observability: What Your SaaS Needs Before It Scales",
+    "serviceIds": [
+      "production-readiness"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
   },
   {
     "slug": "nextjs-16-app-router-caching-changes-saas",
-    "title": "Next.js 16 App Router Caching Changes for SaaS",
-    "serviceIds": ["nextjs-performance"],
-    "journeyIds": ["improve-product"]
+    "title": "Next.js 16 App Router Caching Changed — Here's What to Update in Your SaaS",
+    "serviceIds": [
+      "nextjs-performance"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
+  },
+  {
+    "slug": "nextjs-avif-windows-rce-exposure-audit",
+    "title": "Two Critical Next.js RCEs: A Self-Hosting Exposure Audit",
+    "serviceIds": [
+      "nextjs-performance"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
+  },
+  {
+    "slug": "nextjs-instant-navigation-saas-preview",
+    "title": "Next.js 16.3 Instant Navigations: What SaaS Teams Should Test Now",
+    "serviceIds": [
+      "nextjs-performance"
+    ],
+    "journeyIds": [
+      "explore"
+    ]
+  },
+  {
+    "slug": "nextjs-july-2026-security-release",
+    "title": "Next.js Security Release on July 20: What SaaS Teams Should Do Before Patch Day",
+    "serviceIds": [
+      "production-readiness"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
+  },
+  {
+    "slug": "nextjs-turbopack-build-cache-ci-guide",
+    "title": "Your Next.js CI Is Rebuilding Everything: A Turbopack Cache Guide",
+    "serviceIds": [
+      "nextjs-performance"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
+  },
+  {
+    "slug": "nextjs-turbopack-chunking-saas-performance",
+    "title": "Next.js Turbopack Chunking: Tune Bytes, Requests, and Cache Reuse",
+    "serviceIds": [
+      "nextjs-performance"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
+  },
+  {
+    "slug": "nodejs-26-saas-production-upgrade",
+    "title": "Node.js 26 for SaaS: Test Now or Wait for LTS?",
+    "serviceIds": [
+      "ai-saas"
+    ],
+    "journeyIds": [
+      "improve-product",
+      "add-ai"
+    ]
+  },
+  {
+    "slug": "npm-release-control-oidc-dist-tags",
+    "title": "npm Release Controls: Stage, Approve, and Promote Without Tokens",
+    "serviceIds": [
+      "production-readiness"
+    ],
+    "journeyIds": [
+      "explore"
+    ]
   },
   {
     "slug": "npm-supply-chain-attacks-april-2026-saas-checklist",
-    "title": "NPM Supply Chain Attacks April 2026: SaaS Checklist",
-    "serviceIds": ["production-readiness"],
-    "journeyIds": ["improve-product"]
+    "title": "The April 2026 npm Supply Chain Wave: A SaaS Founder's 48-Hour Checklist",
+    "serviceIds": [
+      "production-readiness"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
+  },
+  {
+    "slug": "openai-12-hour-prompt-caching-saas",
+    "title": "OpenAI 12-Hour Prompt Caching: Pay More Only When Reuse Is Real",
+    "serviceIds": [
+      "ai-saas"
+    ],
+    "journeyIds": [
+      "improve-product",
+      "add-ai"
+    ]
+  },
+  {
+    "slug": "openai-agent-builder-sunset-ai-saas-portability",
+    "title": "Agent Builder Is Winding Down: Make Your AI SaaS Portable",
+    "serviceIds": [
+      "ai-saas"
+    ],
+    "journeyIds": [
+      "add-ai"
+    ]
   },
   {
     "slug": "openai-aws-bedrock-ai-saas-provider-shift",
-    "title": "OpenAI vs AWS Bedrock: AI SaaS Provider Shift",
-    "serviceIds": ["ai-saas"],
-    "journeyIds": ["add-ai"]
+    "title": "OpenAI on AWS Bedrock: The AI SaaS Provider Landscape Just Shifted",
+    "serviceIds": [
+      "ai-saas"
+    ],
+    "journeyIds": [
+      "add-ai"
+    ]
+  },
+  {
+    "slug": "openai-decisions-api-saas-routing",
+    "title": "OpenAI Decisions API: A Safe Routing Blueprint for SaaS",
+    "serviceIds": [
+      "ai-saas"
+    ],
+    "journeyIds": [
+      "add-ai"
+    ]
   },
   {
     "slug": "paperchai-from-idea-to-running-saas",
-    "title": "PaperChai: From Idea to Running SaaS",
-    "serviceIds": ["saas-mvp"],
-    "journeyIds": ["build-saas"]
+    "title": "From Idea to a Running SaaS: Building PaperChai as a Real-World Product",
+    "serviceIds": [
+      "saas-mvp"
+    ],
+    "journeyIds": [
+      "build-saas"
+    ]
+  },
+  {
+    "slug": "passkeys-saas-rollout-recovery",
+    "title": "Passkeys for SaaS: A Rollout Plan That Preserves Recovery",
+    "serviceIds": [
+      "production-readiness"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
+  },
+  {
+    "slug": "postgresql-19-saas-upgrade-rehearsal",
+    "title": "PostgreSQL 19 Beta 3: Rehearse Your SaaS Upgrade Now",
+    "serviceIds": [
+      "saas-mvp"
+    ],
+    "journeyIds": [
+      "explore"
+    ]
   },
   {
     "slug": "production-ready-saas-mvp",
-    "title": "Production-Ready SaaS MVP",
-    "serviceIds": ["production-readiness", "saas-mvp"],
-    "journeyIds": ["build-saas", "improve-product"]
+    "title": "What Makes a SaaS MVP Production-Ready (Most MVPs Are Not)",
+    "serviceIds": [
+      "production-readiness",
+      "saas-mvp"
+    ],
+    "journeyIds": [
+      "build-saas",
+      "improve-product"
+    ]
+  },
+  {
+    "slug": "react-19-3-saas-upgrade-guide",
+    "title": "React 19.3 for SaaS: What to Adopt, Test, and Defer",
+    "serviceIds": [
+      "saas-mvp"
+    ],
+    "journeyIds": [
+      "explore"
+    ]
   },
   {
     "slug": "react-compiler-nextjs-16-production",
-    "title": "React Compiler in Next.js 16 for Production",
-    "serviceIds": ["nextjs-performance"],
-    "journeyIds": ["improve-product"]
+    "title": "What React Compiler Actually Does in a Production Next.js 16 SaaS (And What It Doesn't)",
+    "serviceIds": [
+      "nextjs-performance"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
   },
   {
     "slug": "recent-npm-security-changes-what-saas-teams-should-fix-right-now",
-    "title": "Recent NPM Security Changes: What SaaS Teams Should Fix Right Now",
-    "serviceIds": ["production-readiness"],
-    "journeyIds": ["improve-product"]
+    "title": "Recent npm Security Changes: What SaaS Teams Should Fix Right Now",
+    "serviceIds": [
+      "production-readiness"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
   },
   {
     "slug": "reducing-latency-without-rewrites",
-    "title": "Reducing Latency Without Rewrites",
-    "serviceIds": ["nextjs-performance"],
-    "journeyIds": ["improve-product"]
+    "title": "How I Helped Clients Reduce Latency by 60% (Without Rewriting Everything)",
+    "serviceIds": [
+      "nextjs-performance"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
+  },
+  {
+    "slug": "regional-ai-inference-data-residency-saas",
+    "title": "Regional AI Inference: What SaaS Teams Must Check Before Promising Data Residency",
+    "serviceIds": [
+      "ai-saas"
+    ],
+    "journeyIds": [
+      "add-ai"
+    ]
+  },
+  {
+    "slug": "saas-background-jobs-queue-cron-workflow",
+    "title": "Cron, Queue, or Workflow? A SaaS Background Jobs Guide",
+    "serviceIds": [
+      "saas-mvp"
+    ],
+    "journeyIds": [
+      "explore"
+    ]
   },
   {
     "slug": "saas-mvp-cost-2026",
-    "title": "SaaS MVP Cost in 2026",
-    "serviceIds": ["saas-mvp"],
-    "journeyIds": ["build-saas"]
+    "title": "How Much Should a SaaS MVP Cost in 2026? A Founder’s Practical Guide",
+    "serviceIds": [
+      "saas-mvp"
+    ],
+    "journeyIds": [
+      "build-saas"
+    ]
+  },
+  {
+    "slug": "saas-tenant-isolation-authorization-blueprint",
+    "title": "Your SaaS Login Is Not Tenant Isolation: A Founder’s Blueprint",
+    "serviceIds": [
+      "production-readiness"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
+  },
+  {
+    "slug": "saas-workflow-wedge-ai-era",
+    "title": "The AI-Era SaaS Playbook: Own One Workflow End to End",
+    "serviceIds": [
+      "ai-saas"
+    ],
+    "journeyIds": [
+      "add-ai"
+    ]
   },
   {
     "slug": "shai-hulud-2-npm-worm-saas-defense",
-    "title": "Shai-Hulud 2 NPM Worm: SaaS Defense",
-    "serviceIds": ["production-readiness"],
-    "journeyIds": ["improve-product"]
+    "title": "Shai-Hulud 2.0: The npm Worm Spreading Through SAP and Intercom Packages This Week",
+    "serviceIds": [
+      "production-readiness"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
+  },
+  {
+    "slug": "soft-navigation-core-web-vitals-saas",
+    "title": "Soft Navigation Core Web Vitals: A SaaS RUM Guide",
+    "serviceIds": [
+      "nextjs-performance"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
+  },
+  {
+    "slug": "supabase-declarative-schemas-pg-delta",
+    "title": "Supabase Declarative Schemas 2.0: A Safe Migration Workflow",
+    "serviceIds": [
+      "saas-mvp"
+    ],
+    "journeyIds": [
+      "explore"
+    ]
   },
   {
     "slug": "tanstack-npm-compromise-2026",
-    "title": "TanStack NPM Compromise 2026",
-    "serviceIds": ["production-readiness"],
-    "journeyIds": ["improve-product"]
+    "title": "TanStack Was Compromised Yesterday. Here's What SaaS Teams Need to Do Right Now.",
+    "serviceIds": [
+      "production-readiness"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
+  },
+  {
+    "slug": "vercel-deployment-retention-rollback-plan",
+    "title": "Vercel Deployment Retention: Cut Storage Without Losing Rollback Safety",
+    "serviceIds": [
+      "ai-saas"
+    ],
+    "journeyIds": [
+      "add-ai"
+    ]
   },
   {
     "slug": "vercel-security-incident-production-readiness",
-    "title": "Vercel Security Incident and Production Readiness",
-    "serviceIds": ["production-readiness"],
-    "journeyIds": ["improve-product"]
+    "title": "What the Vercel Security Incident Should Teach SaaS Teams About Production Readiness",
+    "serviceIds": [
+      "production-readiness"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
+  },
+  {
+    "slug": "vercel-websockets-realtime-saas",
+    "title": "Vercel WebSockets Are GA: A Realtime SaaS Architecture Guide",
+    "serviceIds": [
+      "production-readiness"
+    ],
+    "journeyIds": [
+      "explore"
+    ]
   },
   {
     "slug": "vibe-coding-security-risks-2026",
-    "title": "Vibe Coding Security Risks in 2026",
-    "serviceIds": ["production-readiness", "saas-mvp"],
-    "journeyIds": ["build-saas", "improve-product"]
+    "title": "Vibe Coding is Creating a Security Nightmare Nobody is Talking About",
+    "serviceIds": [
+      "production-readiness",
+      "saas-mvp"
+    ],
+    "journeyIds": [
+      "build-saas",
+      "improve-product"
+    ]
   },
   {
     "slug": "what-to-audit-in-a-vibe-coded-mvp-before-real-users-see-it",
     "title": "What to Audit in a Vibe-Coded MVP Before Real Users See It",
-    "serviceIds": ["production-readiness", "saas-mvp"],
-    "journeyIds": ["build-saas", "improve-product"]
+    "serviceIds": [
+      "production-readiness",
+      "saas-mvp"
+    ],
+    "journeyIds": [
+      "build-saas",
+      "improve-product"
+    ]
   },
   {
     "slug": "when-a-founder-needs-a-technical-partner",
-    "title": "When a Founder Needs a Technical Partner",
-    "serviceIds": ["ongoing-partner", "saas-mvp"],
-    "journeyIds": ["build-saas", "explore"]
+    "title": "When a Founder Needs a Technical Partner — Not Just a Freelance Developer",
+    "serviceIds": [
+      "agency-partner",
+      "saas-mvp"
+    ],
+    "journeyIds": [
+      "build-saas",
+      "explore"
+    ]
   },
   {
     "slug": "which-ai-features-are-worth-building-in-saas",
-    "title": "Which AI Features Are Worth Building in SaaS",
-    "serviceIds": ["ai-saas"],
-    "journeyIds": ["add-ai"]
+    "title": "Which AI Features Are Actually Worth Building in a SaaS Product Right Now?",
+    "serviceIds": [
+      "ai-saas"
+    ],
+    "journeyIds": [
+      "add-ai"
+    ]
   },
   {
     "slug": "why-most-saas-mvps-fail-after-launch",
-    "title": "Why Most SaaS MVPs Fail After Launch",
-    "serviceIds": ["saas-mvp", "production-readiness"],
-    "journeyIds": ["build-saas", "improve-product"]
+    "title": "Why Most SaaS MVPs Fail After Launch (And How to Avoid It)",
+    "serviceIds": [
+      "saas-mvp",
+      "production-readiness"
+    ],
+    "journeyIds": [
+      "build-saas",
+      "improve-product"
+    ]
   },
   {
     "slug": "why-your-nextjs-app-feels-slow-after-launch",
     "title": "Why Your Next.js App Feels Slow After Launch",
-    "serviceIds": ["nextjs-performance"],
-    "journeyIds": ["improve-product"]
+    "serviceIds": [
+      "nextjs-performance"
+    ],
+    "journeyIds": [
+      "improve-product"
+    ]
   }
 ]

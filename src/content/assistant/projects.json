@@ -2,12 +2,21 @@
   {
     "id": "paperchai",
     "title": "PaperChai",
-    "description": "India-first AI-powered newspaper booking SaaS platform.",
+    "description": "India-first AI-powered newspaper booking SaaS platform — live product with booking, payments, and AI workflows.",
     "tech": ["Next.js", "TypeScript", "PostgreSQL", "AI APIs", "Razorpay"],
     "role": "Founder & Full-stack Developer",
     "serviceId": "saas-mvp",
     "url": "https://paperchaiapp.com",
-    "caseStudyUrl": "/projects/paperchai"
+    "caseStudyUrl": "/case-studies/paperchai"
+  },
+  {
+    "id": "paperchai-invoice",
+    "title": "PaperChai Invoice",
+    "description": "Invoice and billing product work for PaperChai.",
+    "tech": ["Next.js", "TypeScript", "PostgreSQL"],
+    "role": "Founder & Full-stack Developer",
+    "serviceId": "saas-mvp",
+    "caseStudyUrl": "/case-studies/paperchai-invoice"
   },
   {
     "id": "localboynaniseafoods",
@@ -15,38 +24,14 @@
     "description": "Production e-commerce platform with real-time delivery tracking across 3 cities.",
     "tech": ["Next.js", "Tailwind CSS", "Cloudflare R2", "Node.js"],
     "role": "Full-stack Developer",
-    "serviceId": "production-readiness",
+    "serviceId": "custom-software",
     "url": "https://localboynaniseafoods.com"
-  },
-  {
-    "id": "ai-tools-directory",
-    "title": "AI Tools Directory",
-    "description": "Curated discovery platform for AI tools with advanced search.",
-    "tech": ["React", "Framer Motion", "Algolia", "Vercel Edge"],
-    "role": "Developer",
-    "serviceId": "ai-saas"
-  },
-  {
-    "id": "ai-code-review",
-    "title": "AI Code Review Assistant",
-    "description": "Automated AI-powered code review integrated with GitHub Actions.",
-    "tech": ["Python", "GitHub Actions", "OpenAI API", "Redis"],
-    "role": "Developer",
-    "serviceId": "ai-saas"
-  },
-  {
-    "id": "image-wall",
-    "title": "High-Throughput Image Wall",
-    "description": "WebGL-powered virtualized image gallery handling thousands of images.",
-    "tech": ["React Virtualized", "WebGL", "Next.js", "CDN"],
-    "role": "Developer",
-    "serviceId": "nextjs-performance"
   },
   {
     "id": "outspokn",
     "title": "Outspokn",
     "description": "AI English learning app with open LLMs, tuned RAG retrieval, and adaptive learning tracks.",
-    "tech": ["React Native", "Python", "Django", "Open LLMs", "RAG", "Adaptive Learning Tracks"],
+    "tech": ["React Native", "Python", "Django", "Open LLMs", "RAG"],
     "role": "Full-stack Developer",
     "serviceId": "ai-saas",
     "caseStudyUrl": "/case-studies/outspokn"
@@ -55,9 +40,38 @@
     "id": "vgt",
     "title": "VGT",
     "description": "Truck logistics ticketing, challans, payments, and driver cash flow management platform.",
-    "tech": ["Ticketing", "Challans", "Payments", "Tracking", "Operations Dashboards"],
+    "tech": ["Ticketing", "Payments", "Tracking", "Operations Dashboards"],
     "role": "Full-stack Developer",
-    "serviceId": "saas-mvp",
+    "serviceId": "custom-software",
     "caseStudyUrl": "/case-studies/vgt"
+  },
+  {
+    "id": "studio-booking-platform",
+    "title": "Studio Booking Platform",
+    "description": "Booking and operations SaaS for studio businesses.",
+    "tech": ["Next.js", "Booking", "Scheduling", "Operations"],
+    "role": "Full-stack Developer",
+    "serviceId": "custom-software",
+    "caseStudyUrl": "/case-studies/studio-booking-platform"
+  },
+  {
+    "id": "aura-studio",
+    "title": "Aura Studio (Labs)",
+    "description": "Luxury headphone 3D showcase template — scroll-driven storytelling, live material finishes, Motion + React Three Fiber.",
+    "tech": ["Next.js App Router", "TypeScript", "React Three Fiber", "Three.js", "Motion"],
+    "role": "Creator",
+    "serviceId": "labs",
+    "url": "https://demo.somanathkhadanga.com/aura",
+    "caseStudyUrl": "/templates/aura-studio"
+  },
+  {
+    "id": "offday",
+    "title": "OFFDAY (Labs)",
+    "description": "Premium energy-drink brand template — live 3D can, flavor palettes, sticky scroll chapters, sample-pack bag UI.",
+    "tech": ["Next.js App Router", "TypeScript", "React Three Fiber", "Three.js", "Motion"],
+    "role": "Creator",
+    "serviceId": "labs",
+    "url": "https://demo.somanathkhadanga.com/offday",
+    "caseStudyUrl": "/templates/offday"
   }
 ]

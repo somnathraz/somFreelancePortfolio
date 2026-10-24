@@ -4,15 +4,16 @@
     "title": "Build a SaaS MVP",
     "label": "Build a SaaS MVP",
     "icon": "Rocket",
-    "serviceIds": ["saas-mvp"],
-    "projectIds": ["paperchai", "vgt"],
+    "serviceIds": ["saas-mvp", "hire-mvp-developer"],
+    "projectIds": ["paperchai", "studio-booking-platform", "vgt"],
     "blogSlugs": [
       "saas-mvp-cost-2026",
       "from-saas-idea-to-production",
+      "how-to-hire-saas-mvp-developer",
       "building-paperchai-booking-ready-website"
     ],
     "firstSectionId": "services",
-    "message": "I'll show you how I help founders turn an idea into a working SaaS product.",
+    "message": "I'll show you how Somanath Studio helps founders turn an idea into a working SaaS product.",
     "primaryCTA": {
       "label": "Discuss your SaaS idea",
       "action": "open-booking"
@@ -24,10 +25,11 @@
     "label": "Add AI to a product",
     "icon": "Brain",
     "serviceIds": ["ai-saas"],
-    "projectIds": ["paperchai", "ai-code-review", "outspokn"],
+    "projectIds": ["paperchai", "outspokn"],
     "blogSlugs": [
       "which-ai-features-are-worth-building-in-saas",
       "openai-aws-bedrock-ai-saas-provider-shift",
+      "how-to-evaluate-ai-agents-before-production",
       "first-mcp-server-saas-founder-guide"
     ],
     "firstSectionId": "services",
@@ -42,17 +44,51 @@
     "title": "Improve an existing application",
     "label": "Improve an existing application",
     "icon": "Gauge",
-    "serviceIds": ["nextjs-performance", "production-readiness"],
+    "serviceIds": ["nextjs-performance", "production-readiness", "saas-mvp-audit"],
     "projectIds": ["localboynaniseafoods", "paperchai"],
     "blogSlugs": [
       "why-your-nextjs-app-feels-slow-after-launch",
       "5-signs-your-mvp-is-not-production-ready",
+      "what-to-audit-in-a-vibe-coded-mvp-before-real-users-see-it",
       "reducing-latency-without-rewrites"
     ],
     "firstSectionId": "services",
-    "message": "Your product may need a performance or production-readiness review. I'll show you the relevant options.",
+    "message": "Your product may need a performance, security, or production-readiness review. I'll show you the relevant options.",
     "primaryCTA": {
       "label": "Request an audit",
+      "action": "open-booking"
+    }
+  },
+  {
+    "id": "custom-software",
+    "title": "Build custom software",
+    "label": "Build custom software",
+    "icon": "Layers",
+    "serviceIds": ["custom-software", "agency-partner"],
+    "projectIds": ["vgt", "studio-booking-platform", "localboynaniseafoods"],
+    "blogSlugs": [
+      "choosing-technology-for-client-projects",
+      "boring-architecture-for-saas"
+    ],
+    "firstSectionId": "services",
+    "message": "I'll show custom software work — booking, logistics, commerce, and agency white-label delivery.",
+    "primaryCTA": {
+      "label": "Talk about custom software",
+      "action": "open-booking"
+    }
+  },
+  {
+    "id": "labs",
+    "title": "Explore Labs / templates",
+    "label": "Explore Labs / templates",
+    "icon": "Sparkles",
+    "serviceIds": ["labs"],
+    "projectIds": ["aura-studio", "offday"],
+    "blogSlugs": [],
+    "firstSectionId": "services",
+    "message": "Labs is Somanath Studio's creative side — interactive 3D templates like Aura Studio and OFFDAY. Open /labs or a template page from the recommendations.",
+    "primaryCTA": {
+      "label": "Talk about Labs",
       "action": "open-booking"
     }
   },
@@ -61,14 +97,14 @@
     "title": "Evaluate my experience",
     "label": "Evaluate my experience",
     "icon": "Briefcase",
-    "serviceIds": ["saas-mvp", "ai-saas", "nextjs-performance", "production-readiness"],
-    "projectIds": ["paperchai", "localboynaniseafoods", "ai-code-review", "outspokn", "vgt"],
+    "serviceIds": ["saas-mvp", "custom-software", "ai-saas", "nextjs-performance", "production-readiness"],
+    "projectIds": ["paperchai", "localboynaniseafoods", "outspokn", "vgt", "studio-booking-platform"],
     "blogSlugs": [
       "building-paperchai-booking-ready-website",
       "paperchai-from-idea-to-running-saas"
     ],
     "firstSectionId": "work",
-    "message": "I'll show you the most relevant experience, projects and technology skills.",
+    "message": "I'll show the most relevant experience, projects, and technology skills from Somanath Studio.",
     "primaryCTA": {
       "label": "Get in touch",
       "action": "open-booking"
@@ -79,8 +115,8 @@
     "title": "Just exploring",
     "label": "Just exploring",
     "icon": "Compass",
-    "serviceIds": ["saas-mvp", "ai-saas"],
-    "projectIds": ["paperchai", "localboynaniseafoods", "vgt"],
+    "serviceIds": ["saas-mvp", "custom-software", "ai-saas", "labs"],
+    "projectIds": ["paperchai", "localboynaniseafoods", "vgt", "aura-studio"],
     "blogSlugs": [
       "from-saas-idea-to-production",
       "choosing-technology-for-client-projects"

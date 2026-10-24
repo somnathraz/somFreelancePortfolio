@@ -4,7 +4,7 @@ import { useHelperStore } from "@/features/visitor-guide/helper-store";
 import { getAllJourneys } from "@/features/visitor-guide/journey-config";
 import { helperAnalytics } from "@/features/visitor-guide/helper-analytics";
 import { helperActions } from "@/features/visitor-guide/action-runner";
-import { ArrowRight, Rocket, Brain, Gauge, Briefcase, Compass, Calendar } from "lucide-react";
+import { ArrowRight, Rocket, Brain, Gauge, Briefcase, Compass, Calendar, Layers, Sparkles } from "lucide-react";
 import type { JourneyConfig } from "@/features/visitor-guide/helper-types";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -14,6 +14,8 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Briefcase,
   Compass,
   Calendar,
+  Layers,
+  Sparkles,
 };
 
 export function HelperOptions() {

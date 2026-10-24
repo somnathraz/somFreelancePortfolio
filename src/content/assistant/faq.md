@@ -1,28 +1,25 @@
-# Frequently Asked Questions
+# FAQ — Archon Knowledge
 
-## What technologies do you use?
-The primary stack is React, Next.js, TypeScript, and Tailwind CSS on the frontend, with Node.js, PostgreSQL, and MongoDB on the backend. For AI features, I work with the OpenAI API and other AI providers. Infrastructure typically runs on AWS, Vercel, or Cloudflare depending on the project.
+## What does Somanath Studio do?
+Somanath Studio helps founders and agencies ship SaaS products, custom software, AI features, and production upgrades. Labs is the creative side — interactive 3D web experiences and free templates.
 
-## Do you build MVPs?
-Yes. SaaS MVP development is a core service. I take projects from idea through architecture, development, and launch — with production MVPs shipped in as little as 21 days.
+## How is the team structured?
+Engagements are senior-led. You work with a focused engineer, a compact product team, or an extended team. Specialists are added for frontend, backend, AI, design, QA, or cloud when the product needs them.
 
-## Can you improve an existing product?
-Absolutely. I offer both Next.js performance optimization and production readiness upgrades. This includes Lighthouse audits, latency reduction, security reviews, and stability improvements for applications that are already live or preparing to launch.
+## Can you work white-label for agencies?
+Yes. Agency Development Partner engagements are NDA-ready with no client poaching. See `/agency-development-partner`.
 
-## Can you integrate AI?
-Yes. I build AI-powered features and full AI SaaS products. This includes integrating large language models, building AI workflows, and shipping AI features that solve real user problems.
+## What is Labs?
+Labs is Somanath Studio’s creative initiative for interactive / WebGL product sites. Free templates: Aura Studio and OFFDAY. Browse `/labs` and `/templates`, or open live demos on demo.somanathkhadanga.com.
 
-## Do you work with international clients?
-Yes. I'm based in India (IST timezone) and work with clients internationally. Communication is async-friendly, and I typically respond within 24 hours.
+## Do you only build SaaS?
+No. SaaS MVP is a core offer, but custom software (booking, logistics, commerce, internal tools), performance work, production audits, and AI features are all in scope.
 
-## How does the development process work?
-It starts with a 20-minute strategy call to understand your goals and requirements. From there, I provide a scope document, timeline, and clear milestones. Development follows an iterative process with regular check-ins and demos.
+## How long does an MVP take?
+Typical MVP scopes land in weeks, not months — some production MVPs have shipped in about 21 days when scope is tight. Timeline depends on features, integrations, and readiness.
 
-## How can someone book a call?
-Use the booking link on the website to schedule a free 20-minute strategy call. You can also reach out through the contact form.
+## Do you take over vibe-coded MVPs?
+Yes. Production Readiness Upgrade and SaaS MVP Audit exist specifically for fragile or AI-generated codebases that need hardening before real users.
 
-## What is your typical timeline?
-A SaaS MVP typically takes 3–8 weeks depending on scope. Performance audits and production readiness reviews can start within a week. Ongoing partnerships are structured on a monthly basis.
-
-## Do you offer ongoing support?
-Yes. The Ongoing Technical Partner service provides continuous development, architecture guidance, and technical leadership on a monthly basis — without the overhead of a full-time hire.
+## How do I start?
+Book a call at `/book` or send details via `/contact`. Share the problem, current stack, and timeline.

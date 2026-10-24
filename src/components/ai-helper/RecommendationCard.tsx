@@ -22,8 +22,12 @@ export function RecommendationCard() {
     helperAnalytics.serviceOpened(service.id, selectedJourneyId ?? undefined);
     trackViewedService(service.id);
 
-    // Scroll to services section and highlight, then optionally navigate
-    helperActions.scrollAndHighlight(service.sectionId);
+    // Prefer in-page highlight; fall back to the service page (e.g. Labs).
+    if (typeof document !== "undefined" && document.getElementById(service.sectionId)) {
+      helperActions.scrollAndHighlight(service.sectionId);
+      return;
+    }
+    helperActions.openService(service.pageUrl);
   };
 
   const handleServiceNavigate = (service: Service) => {

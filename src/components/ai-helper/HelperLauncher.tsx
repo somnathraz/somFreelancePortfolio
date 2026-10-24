@@ -58,18 +58,17 @@ const DEFAULT_NUDGE: NudgeContent = {
   cta: "Talk to me",
 };
 
-const MAX_NUDGES = 3;
-const NUDGE_SESSION_KEY = "archon_nudge_count";
+const NUDGE_DISMISSED_KEY = "archon_nudge_dismissed";
 
 /* ─── helpers ─── */
-function getNudgeCount(): number {
-  if (typeof sessionStorage === "undefined") return 0;
-  return parseInt(sessionStorage.getItem(NUDGE_SESSION_KEY) || "0", 10);
+function isNudgeDismissedForSession(): boolean {
+  if (typeof sessionStorage === "undefined") return false;
+  return sessionStorage.getItem(NUDGE_DISMISSED_KEY) === "1";
 }
-function incrementNudgeCount() {
+
+function dismissNudgeForSession() {
   if (typeof sessionStorage === "undefined") return;
-  const count = getNudgeCount() + 1;
-  sessionStorage.setItem(NUDGE_SESSION_KEY, String(count));
+  sessionStorage.setItem(NUDGE_DISMISSED_KEY, "1");
 }
 
 function detectSection(): string | null {
@@ -135,23 +134,24 @@ export function HelperLauncher() {
   const showNudge = useCallback(
     (content: NudgeContent) => {
       if (isOpen || dismissed) return;
-      if (getNudgeCount() >= MAX_NUDGES) return;
+      if (isNudgeDismissedForSession()) return;
       setNudge(content);
       setNudgeVisible(true);
     },
     [isOpen, dismissed]
   );
 
-  /* ── close nudge ── */
+  /* ── close nudge — stays closed for the rest of this session ── */
   const closeNudge = useCallback(() => {
+    dismissNudgeForSession();
     setNudgeVisible(false);
-    incrementNudgeCount();
     setTimeout(() => setNudge(null), 300); // wait for fade-out
   }, []);
 
   /* ── intro nudge (8s after mount) ── */
   useEffect(() => {
     if (!buttonVisible || dismissed || isOpen || introTimerFired.current) return;
+    if (isNudgeDismissedForSession()) return;
     const timer = window.setTimeout(() => {
       introTimerFired.current = true;
       const section = detectSection();
@@ -164,6 +164,7 @@ export function HelperLauncher() {
   /* ── section tracking (scroll-based, throttled) ── */
   useEffect(() => {
     if (!buttonVisible || dismissed) return;
+    if (isNudgeDismissedForSession()) return;
 
     const handleScroll = () => {
       const section = detectSection();
@@ -172,13 +173,14 @@ export function HelperLauncher() {
 
       // If nudge is currently showing, don't re-nudge
       if (nudgeVisible) return;
-      if (getNudgeCount() >= MAX_NUDGES) return;
+      if (isNudgeDismissedForSession()) return;
 
       // Clear any existing section timer
       if (sectionTimer.current) window.clearTimeout(sectionTimer.current);
 
       sectionTimer.current = window.setTimeout(() => {
         if (isOpen) return;
+        if (isNudgeDismissedForSession()) return;
         const content = SECTION_NUDGES[section] || DEFAULT_NUDGE;
         showNudge(content);
       }, 5000);
@@ -205,11 +207,12 @@ export function HelperLauncher() {
   /* ── exit intent nudge (desktop) ── */
   useEffect(() => {
     if (!buttonVisible || dismissed) return;
+    if (isNudgeDismissedForSession()) return;
 
     const onMouseOut = (e: MouseEvent) => {
       if (e.clientY > 0 || e.relatedTarget) return;
       if (isOpen || nudgeVisible) return;
-      if (getNudgeCount() >= MAX_NUDGES) return;
+      if (isNudgeDismissedForSession()) return;
       showNudge(DEFAULT_NUDGE);
     };
 
@@ -217,9 +220,10 @@ export function HelperLauncher() {
     return () => document.removeEventListener("mouseout", onMouseOut);
   }, [buttonVisible, dismissed, isOpen, nudgeVisible, showNudge]);
 
-  /* ── hide nudge when panel opens ── */
+  /* ── hide nudge when panel opens; don't show again this session ── */
   useEffect(() => {
     if (isOpen && nudgeVisible) {
+      dismissNudgeForSession();
       setNudgeVisible(false);
       setTimeout(() => setNudge(null), 200);
     }

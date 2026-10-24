@@ -2,84 +2,150 @@
   {
     "id": "saas-mvp",
     "title": "SaaS MVP Development",
-    "summary": "Go from idea to a working, deployed SaaS product. I handle architecture, development, and launch so you can focus on your business.",
-    "audience": ["founder", "startup", "product-owner"],
+    "summary": "Go from idea to a working, deployed SaaS product. Senior-led architecture, development, and launch — specialists added when scope needs them.",
+    "audience": ["founder", "startup", "product-owner", "agency"],
     "problems": ["need-mvp", "need-technical-partner"],
     "tags": ["mvp", "saas", "startup", "launch", "product"],
     "sectionId": "services",
     "pageUrl": "/services/saas-mvp-development",
-    "relatedProjects": ["paperchai", "vgt"],
+    "relatedProjects": ["paperchai", "vgt", "studio-booking-platform"],
     "relatedBlogs": [
       "saas-mvp-cost-2026",
       "from-saas-idea-to-production",
+      "how-to-hire-saas-mvp-developer",
       "building-paperchai-booking-ready-website"
     ],
     "primaryCTA": "Discuss your SaaS MVP"
   },
   {
+    "id": "custom-software",
+    "title": "Custom Software Development",
+    "summary": "Custom software for startups and businesses — internal tools, booking systems, logistics platforms, e-commerce, and AI-enabled workflows. Senior-led flexible team.",
+    "audience": ["founder", "business", "agency", "operations"],
+    "problems": ["need-custom-software", "internal-tools", "business-software"],
+    "tags": ["custom-software", "internal-tools", "booking", "logistics", "business"],
+    "sectionId": "services",
+    "pageUrl": "/services/custom-software-development",
+    "relatedProjects": ["vgt", "studio-booking-platform", "localboynaniseafoods"],
+    "relatedBlogs": [
+      "choosing-technology-for-client-projects",
+      "boring-architecture-for-saas"
+    ],
+    "primaryCTA": "Talk about custom software"
+  },
+  {
     "id": "nextjs-performance",
     "title": "Next.js Performance Optimization",
-    "summary": "Diagnose and fix performance bottlenecks in your Next.js application. Improve Lighthouse scores, reduce latency, and deliver a faster user experience.",
+    "summary": "Fix slow Next.js pages and Core Web Vitals without a full rewrite. LCP, INP, App Router bottlenecks, and senior-led remediation.",
     "audience": ["technical-founder", "cto", "engineering-lead"],
     "problems": ["slow-app", "poor-lighthouse", "high-latency"],
-    "tags": ["performance", "nextjs", "lighthouse", "latency", "speed"],
+    "tags": ["performance", "nextjs", "lighthouse", "latency", "core-web-vitals"],
     "sectionId": "services",
     "pageUrl": "/services/nextjs-performance-optimization",
     "relatedProjects": ["localboynaniseafoods"],
     "relatedBlogs": [
       "why-your-nextjs-app-feels-slow-after-launch",
       "reducing-latency-without-rewrites",
-      "nextjs-16-app-router-caching-changes-saas"
+      "nextjs-16-app-router-caching-changes-saas",
+      "soft-navigation-core-web-vitals-saas"
     ],
     "primaryCTA": "Get a performance audit"
   },
   {
     "id": "production-readiness",
     "title": "Production Readiness Upgrade",
-    "summary": "Audit and upgrade your application for production. Fix stability issues, address security concerns, and ensure your product is ready for real users.",
-    "audience": ["founder", "cto", "product-team"],
-    "problems": ["unstable-app", "not-production-ready", "security-concerns"],
-    "tags": ["production", "security", "stability", "audit", "upgrade"],
+    "summary": "Audit and harden fragile or vibe-coded MVPs — architecture, security, auth, deploy, and monitoring before real users hit the product.",
+    "audience": ["founder", "cto", "product-team", "agency"],
+    "problems": ["unstable-app", "not-production-ready", "security-concerns", "vibe-coded-mvp"],
+    "tags": ["production", "security", "stability", "audit", "vibe-coding"],
     "sectionId": "services",
     "pageUrl": "/services/production-readiness-upgrade",
     "relatedProjects": ["paperchai", "localboynaniseafoods"],
     "relatedBlogs": [
       "5-signs-your-mvp-is-not-production-ready",
       "production-ready-saas-mvp",
-      "what-to-audit-in-a-vibe-coded-mvp-before-real-users-see-it"
+      "what-to-audit-in-a-vibe-coded-mvp-before-real-users-see-it",
+      "vibe-coding-security-risks-2026"
     ],
     "primaryCTA": "Request a production audit"
   },
   {
     "id": "ai-saas",
     "title": "AI SaaS Development",
-    "summary": "Build AI-powered features and products. From integrating large language models to shipping complete AI SaaS applications.",
+    "summary": "Practical AI features for SaaS — agents, copilots, RAG/search, and workflow-tied LLM integrations built for production, not demos.",
     "audience": ["founder", "product-owner", "startup"],
     "problems": ["need-ai-features", "ai-integration", "ai-product"],
-    "tags": ["ai", "llm", "openai", "machine-learning", "saas"],
+    "tags": ["ai", "llm", "openai", "agents", "rag", "saas"],
     "sectionId": "services",
     "pageUrl": "/services/ai-saas-development",
-    "relatedProjects": ["paperchai", "ai-code-review", "outspokn"],
+    "relatedProjects": ["paperchai", "outspokn"],
     "relatedBlogs": [
       "which-ai-features-are-worth-building-in-saas",
-      "openai-aws-bedrock-ai-saas-provider-shift"
+      "openai-aws-bedrock-ai-saas-provider-shift",
+      "how-to-evaluate-ai-agents-before-production",
+      "first-mcp-server-saas-founder-guide"
     ],
     "primaryCTA": "Discuss your AI product"
   },
   {
-    "id": "ongoing-partner",
-    "title": "Ongoing Technical Partner",
-    "summary": "Get a dedicated technical partner for your startup. Continuous development, architecture decisions, and technical leadership without hiring full-time.",
-    "audience": ["founder", "startup"],
-    "problems": ["need-developer", "need-technical-cofounder", "ongoing-support"],
-    "tags": ["partner", "cto", "fractional", "ongoing", "support"],
+    "id": "saas-mvp-audit",
+    "title": "SaaS MVP Audit",
+    "summary": "Focused technical audit for vibe-coded or rushed SaaS MVPs — auth, APIs, secrets, deps, deploy, and AI trust boundaries before launch.",
+    "audience": ["founder", "agency", "product-team"],
+    "problems": ["pre-launch-risk", "vibe-coded-mvp", "need-audit"],
+    "tags": ["audit", "mvp", "security", "vibe-coding"],
     "sectionId": "services",
-    "pageUrl": "/services/ai-saas-development",
-    "relatedProjects": ["paperchai", "localboynaniseafoods"],
+    "pageUrl": "/saas-mvp-audit",
+    "relatedProjects": ["paperchai"],
     "relatedBlogs": [
-      "when-a-founder-needs-a-technical-partner",
-      "choosing-technology-for-client-projects"
+      "what-to-audit-in-a-vibe-coded-mvp-before-real-users-see-it",
+      "5-signs-your-mvp-is-not-production-ready"
     ],
-    "primaryCTA": "Book intro call"
+    "primaryCTA": "Book an audit call"
+  },
+  {
+    "id": "agency-partner",
+    "title": "Agency Development Partner",
+    "summary": "White-label SaaS and custom product delivery for agencies. Senior-led, NDA-ready, no client poaching.",
+    "audience": ["agency", "freelancer", "studio"],
+    "problems": ["need-white-label", "overflow-capacity", "agency-engineering"],
+    "tags": ["agency", "white-label", "partner", "nda"],
+    "sectionId": "services",
+    "pageUrl": "/agency-development-partner",
+    "relatedProjects": ["paperchai", "vgt"],
+    "relatedBlogs": [
+      "choosing-technology-for-client-projects",
+      "when-a-founder-needs-a-technical-partner"
+    ],
+    "primaryCTA": "Talk partnership"
+  },
+  {
+    "id": "hire-mvp-developer",
+    "title": "Hire a SaaS MVP Developer / Product Team",
+    "summary": "Hire a focused senior engineer or scale to a compact product team. Specialists added only when scope requires them.",
+    "audience": ["founder", "consultant", "agency"],
+    "problems": ["need-developer", "need-product-team", "hire-mvp"],
+    "tags": ["hire", "mvp", "team", "nextjs"],
+    "sectionId": "services",
+    "pageUrl": "/hire-saas-mvp-developer",
+    "relatedProjects": ["paperchai", "vgt"],
+    "relatedBlogs": [
+      "how-to-hire-saas-mvp-developer",
+      "when-a-founder-needs-a-technical-partner"
+    ],
+    "primaryCTA": "Talk to an Engineer"
+  },
+  {
+    "id": "labs",
+    "title": "Labs — Interactive Web Experiences",
+    "summary": "Creative initiative by Somanath Studio: interactive 3D product showcases and free Next.js WebGL templates (Aura Studio, OFFDAY) for brands that want sites that stand out.",
+    "audience": ["founder", "brand", "agency", "designer"],
+    "problems": ["need-interactive-site", "3d-showcase", "wow-factor-website"],
+    "tags": ["labs", "webgl", "threejs", "templates", "3d", "interactive"],
+    "sectionId": "labs",
+    "pageUrl": "/labs",
+    "relatedProjects": ["aura-studio", "offday"],
+    "relatedBlogs": [],
+    "primaryCTA": "Explore Labs"
   }
 ]

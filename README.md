@@ -6,7 +6,8 @@ This project is built to position clear service offers for SaaS founders: MVP bu
 
 ## Live site
 
-- Add your production URL here: `https://somanathkhadanga.com/`
+- Production: `https://somanathkhadanga.com/`
+- Labs: `https://somanathkhadanga.com/labs`
 
 ## Why this exists
 
@@ -19,6 +20,8 @@ This project is built to position clear service offers for SaaS founders: MVP bu
 - Homepage with offer-led sections (hero, services, client fit, work, process, testimonials, CTA)
 - Case studies page and project detail content
 - MDX blog with practical SaaS engineering topics
+- Labs + free WebGL / React Three Fiber templates
+- Archon site assistant (`src/content/assistant/` + `/api/assistant/chat`)
 - Booking/contact flow for intro calls
 - Reusable UI system with modern motion and interaction patterns
 
@@ -42,6 +45,8 @@ Recommended additions:
 ## Content system
 
 - Blog posts live in `content/blog/` as MDX
+- Labs templates live in `content/templates/` as MDX
+- Archon knowledge lives in `src/content/assistant/` (about, services, projects, journeys, boundaries)
 - Dynamic route rendering under `src/app/blog/[slug]/page.tsx`
 - Blog listing under `src/app/blog/page.tsx`
 
