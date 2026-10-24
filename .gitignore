@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Personal growth tracking (local reference only)
 GROWTH_CHECKLIST.md
+
+# Local archives (old logo packs, zips, unused brand exports)
+/archived/

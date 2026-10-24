@@ -1,29 +1,135 @@
+"use client";
+
+import Image from "next/image";
+import { Space_Grotesk } from "next/font/google";
+import { useEffect, useState, useSyncExternalStore, type CSSProperties } from "react";
 import styles from "./Logo.module.css";
+import {
+  siteLogoBlack,
+  siteLogoColored,
+  siteLogoWhite,
+} from "@/lib/site";
+
+type LogoTone = "colored" | "white" | "black" | "auto";
+
+const brandFont = Space_Grotesk({ subsets: ["latin"], weight: "600", display: "swap" });
 
 type LogoProps = {
   className?: string;
+  /**
+   * `auto` (default) — picks by color scheme / site theme:
+   * dark → colored, light → black
+   * Or force `colored` | `white` | `black`
+   */
+  tone?: LogoTone;
+  /** Show brand tagline under the name (footer / about) */
+  showTagline?: boolean;
+  /** Compact desktop mark unfolds into the full name on hover / keyboard focus. */
+  expandable?: boolean;
 };
 
-/** Inline vectors stay sharp at navigation size and animate without JavaScript. */
-export const Logo = ({ className = "h-9 w-auto" }: LogoProps) => (
-  <span role="img" aria-label="Somanath Studio" className={`${styles.logo} ${className}`}>
-    <svg viewBox="0 0 56 60" fill="none" aria-hidden="true" className={styles.mark}>
-      <path d="M46 6H20L6 20L31 45H14L6 53H33L47 39L22 14H38L46 6Z" fill="#E6EDF3" />
-      <path d="M31 45H14L6 53H33L47 39L41 33L31 45Z" fill="#67E8F9" />
-      <path d="M6 20L31 45L35 40L10 16L6 20Z" fill="#A6B5C4" />
-      <path
-        d="M40 10H22L12 20L41 39L31 49H14"
-        pathLength="100"
-        stroke="white"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        className={styles.trace}
-      />
-      <path d="M49 8L43 14" stroke="#67E8F9" strokeWidth="2" className={styles.signal} />
-    </svg>
-    <span aria-hidden="true" className={styles.wordmark}>
-      <span className={styles.name}>somanath<span className={styles.period}>.</span></span>
-      <span className={styles.studio}>STUDIO</span>
+function resolveAutoTone(): "colored" | "black" {
+  if (typeof document !== "undefined") {
+    // Site theme class wins when present
+    if (document.documentElement.classList.contains("light")) return "black";
+    if (document.documentElement.classList.contains("dark")) return "colored";
+  }
+  if (typeof window !== "undefined" && window.matchMedia) {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "colored"
+      : "black";
+  }
+  // SSR / unknown — site is dark-first
+  return "colored";
+}
+
+const MARK = {
+  colored: siteLogoColored,
+  white: siteLogoWhite,
+  black: siteLogoBlack,
+} as const;
+
+function subscribeTheme(onChange: () => void) {
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  mq.addEventListener("change", onChange);
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  return () => {
+    mq.removeEventListener("change", onChange);
+    observer.disconnect();
+  };
+}
+
+const serverTone = () => "colored" as const;
+
+/**
+ * Somanath Studio mark + wordmark.
+ * Transparent variants auto-switch with light/dark theme unless `tone` is forced.
+ */
+export const Logo = ({
+  className = "h-9 w-auto",
+  tone = "auto",
+  showTagline = false,
+  expandable = false,
+}: LogoProps) => {
+  const [intro, setIntro] = useState(expandable);
+  const autoTone = useSyncExternalStore(subscribeTheme, resolveAutoTone, serverTone);
+  const active = tone === "auto" ? autoTone : tone;
+
+  useEffect(() => {
+    if (!expandable) return;
+    const timer = window.setTimeout(() => setIntro(false), 2800);
+    return () => window.clearTimeout(timer);
+  }, [expandable]);
+
+  return (
+    <span
+      role="img"
+      aria-label="Somanath Studio"
+      className={`${styles.logo} ${brandFont.className} ${expandable ? styles.expandable : ""} ${intro ? styles.intro : ""} ${className}`}
+      data-tone={active}
+    >
+      {/* Keep both in DOM for instant swap without layout shift */}
+      <span className={styles.markSlot}>
+        <Image
+          src={MARK.colored}
+          alt=""
+          width={40}
+          height={40}
+          className={`${styles.mark} ${active === "colored" ? styles.markVisible : styles.markHidden}`}
+          priority
+        />
+        <Image
+          src={MARK.white}
+          alt=""
+          width={40}
+          height={40}
+          className={`${styles.mark} ${active === "white" ? styles.markVisible : styles.markHidden}`}
+          priority
+        />
+        <Image
+          src={MARK.black}
+          alt=""
+          width={40}
+          height={40}
+          className={`${styles.mark} ${active === "black" ? styles.markVisible : styles.markHidden}`}
+          priority
+        />
+      </span>
+      <span aria-hidden="true" className={styles.wordmark}>
+        <span className={styles.name}>
+          {Array.from("somanath").map((letter, i) => (
+            <span key={i} style={{ "--letter": i } as CSSProperties}>{letter}</span>
+          ))}
+          <span className={styles.period}>.</span>
+        </span>
+        <span className={styles.studio}>STUDIO</span>
+        {showTagline ? (
+          <span className={styles.tagline}>
+            Engineering digital products and experiences
+          </span>
+        ) : null}
+      </span>
     </span>
-  </span>
-);
+  );
+};

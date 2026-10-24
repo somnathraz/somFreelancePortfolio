@@ -1,79 +1,154 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
+import { siteLogoColored } from "@/lib/site";
 
 /**
- * Forward-facing geometric "S" (Somanath Studio).
- * Extra viewBox padding so the thick stroke isn’t clipped top/bottom.
+ * The actual Somanath Studio ribbon mark assembles from three planes, then
+ * crossfades to the untouched source artwork before the hero zoom.
  */
 
 const EASE = [0.16, 1, 0.3, 1] as [number, number, number, number];
 
-interface UnfoldingSProps {
+interface UnfoldingLogoProps {
     progress: number;
     zoom?: number;
     className?: string;
 }
 
-export function UnfoldingS({
+const clamp = (value: number) => Math.min(1, Math.max(0, value));
+
+function range(start: number, end: number, value: number) {
+    return clamp((value - start) / (end - start));
+}
+
+function LogoLayer({
+    clipPath,
+    opacity,
+    transform,
+}: {
+    clipPath: string;
+    opacity: number;
+    transform: string;
+}) {
+    return (
+        <div
+            className="absolute inset-0"
+            style={{
+                clipPath,
+                opacity,
+                transform,
+                willChange: "transform, opacity",
+            }}
+        >
+            <Image
+                src={siteLogoColored}
+                alt=""
+                fill
+                sizes="320px"
+                className="object-contain"
+                priority
+            />
+        </div>
+    );
+}
+
+export function UnfoldingLogo({
     progress,
     zoom = 1,
     className = "",
-}: UnfoldingSProps) {
-    const p = Math.min(1, Math.max(0, progress));
-    const dash = 1400;
-    const offset = dash * (1 - p);
-
-    const rotY = (1 - p) * -22;
-    const rotX = (1 - p) * 10;
+}: UnfoldingLogoProps) {
+    const p = clamp(progress);
+    const piecesIn = range(0.02, 0.2, p);
+    const piecesOut = 1 - range(0.82, 1, p);
+    const pieceOpacity = piecesIn * piecesOut;
+    const finalOpacity = range(0.72, 0.98, p);
+    const dotScale = 0.2 + p * 0.8;
+    const tiltY = (1 - p) * -18;
+    const tiltX = (1 - p) * 9;
+    const labelOpacity =
+        range(0.5, 0.72, p) * (1 - range(0.88, 1, p));
 
     return (
         <div
             className={`relative flex items-center justify-center overflow-visible ${className}`}
             style={{
-                // Slightly shorter than full viewport so top/bottom never clip
-                width: "min(36vw, 240px)",
-                height: "min(48vh, 320px)",
-                perspective: "1000px",
+                width: "clamp(190px, 30vw, 320px)",
+                aspectRatio: "1",
+                perspective: "1200px",
                 transform: `scale(${zoom})`,
                 transformOrigin: "50% 50%",
                 willChange: "transform",
             }}
         >
             <div
-                className="h-full w-full overflow-visible"
+                className="pointer-events-none absolute inset-[9%] rounded-full bg-cyan-400/15 blur-[55px]"
                 style={{
-                    transform: `rotateY(${rotY}deg) rotateX(${rotX}deg)`,
+                    opacity: range(0.15, 0.75, p),
+                    transform: `scale(${0.72 + p * 0.28})`,
+                }}
+            />
+            <div
+                className="relative h-full w-full"
+                style={{
+                    transform: `rotateY(${tiltY}deg) rotateX(${tiltX}deg)`,
                     transformStyle: "preserve-3d",
+                    willChange: "transform",
                 }}
             >
-                <svg
-                    // Padded viewBox — strokeWidth 40 needs ~20px clearance
-                    viewBox="0 0 240 340"
-                    className="h-full w-full overflow-visible"
-                    fill="none"
-                    aria-label="S"
-                    style={{ overflow: "visible" }}
-                >
-                    {/* Centered S with room for round caps */}
-                    <path
-                        d="M 178 70
-                           C 178 42, 148 28, 120 28
-                           C 72 28, 42 54, 42 92
-                           C 42 126, 70 146, 120 162
-                           C 170 178, 198 198, 198 240
-                           C 198 286, 162 312, 120 312
-                           C 70 312, 42 284, 42 256"
-                        stroke="white"
-                        strokeWidth="40"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        style={{
-                            strokeDasharray: dash,
-                            strokeDashoffset: offset,
-                        }}
-                    />
-                </svg>
+                <LogoLayer
+                    clipPath="polygon(6% 5%, 61% 5%, 61% 24%, 76% 24%, 76% 55%, 45% 55%, 6% 33%)"
+                    opacity={pieceOpacity}
+                    transform={`translate3d(${(1 - p) * -58}px, ${(1 - p) * -34}px, 28px) rotate(${(1 - p) * -11}deg)`}
+                />
+                <LogoLayer
+                    clipPath="polygon(5% 39%, 50% 39%, 68% 48%, 68% 92%, 45% 92%, 45% 79%, 5% 64%)"
+                    opacity={pieceOpacity}
+                    transform={`translate3d(${(1 - p) * 46}px, ${(1 - p) * 42}px, -18px) rotate(${(1 - p) * 10}deg)`}
+                />
+                <LogoLayer
+                    clipPath="circle(11% at 79% 56%)"
+                    opacity={piecesIn * (1 - range(0.9, 1, p))}
+                    transform={`translate3d(${(1 - p) * 58}px, ${(1 - p) * -8}px, 42px) scale(${dotScale})`}
+                />
+
+                {/* Exact source image guarantees a seamless final lock-up. */}
+                <Image
+                    src={siteLogoColored}
+                    alt="Somanath Studio"
+                    fill
+                    sizes="320px"
+                    className="object-contain"
+                    style={{
+                        opacity: finalOpacity,
+                        filter:
+                            p > 0.9
+                                ? "drop-shadow(0 0 30px rgba(129,140,248,0.22))"
+                                : "none",
+                    }}
+                    priority
+                />
+
+                <div
+                    className="absolute inset-y-[12%] w-[28%] -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent blur-sm"
+                    style={{
+                        left: `${-35 + range(0.58, 0.92, p) * 150}%`,
+                        opacity:
+                            range(0.58, 0.7, p) *
+                            (1 - range(0.9, 1, p)),
+                    }}
+                />
+            </div>
+
+            <div
+                className="absolute top-[94%] whitespace-nowrap text-center font-mono text-[9px] uppercase tracking-[0.38em] text-white/55"
+                style={{
+                    opacity: labelOpacity,
+                    transform: `translateY(${(1 - p) * 10}px)`,
+                }}
+            >
+                Somanath Studio / Labs
             </div>
         </div>
     );

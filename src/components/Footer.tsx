@@ -11,7 +11,7 @@ export function Footer() {
                 <div className="flex flex-col items-center gap-8 text-center">
                     {/* Brand + tagline + socials */}
                     <div className="flex max-w-md flex-col items-center gap-3">
-                        <Logo className="h-10 w-auto" />
+                        <Logo className="h-11 w-auto" showTagline />
                         <p className="text-sm font-medium text-zinc-500">
                             Founder-led engineering studio with a flexible senior team for founders, agencies, and product teams.
                         </p>

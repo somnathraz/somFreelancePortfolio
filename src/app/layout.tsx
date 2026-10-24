@@ -63,8 +63,52 @@ export const metadata: Metadata = {
     images: ["/og?title=Somanath%20Studio"],
   },
   icons: {
-    icon: [{ url: "/icon", type: "image/png" }],
-    apple: [{ url: "/apple-icon", type: "image/png" }],
+    // No app/icon.png — that file convention ignored media and forced dark.
+    // Browsers pick by prefers-color-scheme; SVG also switches via CSS.
+    icon: [
+      {
+        url: "/favicon.svg",
+        type: "image/svg+xml",
+      },
+      {
+        url: "/favicon-dark-32.png",
+        type: "image/png",
+        sizes: "32x32",
+        media: "(prefers-color-scheme: dark)",
+      },
+      {
+        url: "/favicon-light-32.png",
+        type: "image/png",
+        sizes: "32x32",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "/favicon-dark-48.png",
+        type: "image/png",
+        sizes: "48x48",
+        media: "(prefers-color-scheme: dark)",
+      },
+      {
+        url: "/favicon-light-48.png",
+        type: "image/png",
+        sizes: "48x48",
+        media: "(prefers-color-scheme: light)",
+      },
+    ],
+    apple: [
+      {
+        url: "/apple-touch-dark.png",
+        type: "image/png",
+        sizes: "180x180",
+        media: "(prefers-color-scheme: dark)",
+      },
+      {
+        url: "/apple-touch-light.png",
+        type: "image/png",
+        sizes: "180x180",
+        media: "(prefers-color-scheme: light)",
+      },
+    ],
   },
 };
 

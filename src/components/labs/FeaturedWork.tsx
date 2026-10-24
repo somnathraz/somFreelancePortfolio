@@ -202,7 +202,7 @@ export function FeaturedWork({
                         transition={{ duration: 0.6 }}
                         className="mb-5 font-mono text-[10px] uppercase tracking-[0.35em] text-zinc-600"
                     >
-                        Featured experiments
+                        Labs — by Somanath Studio
                     </motion.p>
                     <motion.h2
                         initial={{ opacity: 0, y: 30 }}

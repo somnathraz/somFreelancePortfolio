@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import dynamic from "next/dynamic";
-import { UnfoldingS, PercentCounter } from "./UnfoldingMark";
+import { UnfoldingLogo, PercentCounter } from "./UnfoldingMark";
 
 const LabsScene = dynamic(
     () => import("./LabsScene").then((mod) => mod.LabsScene),
@@ -48,10 +48,10 @@ function AnimatedLine({
 }
 
 /**
- * Lusion-style entry for Somanath Studio:
+ * Brand-led entry for Somanath Studio Labs:
  * 1. Progress bar + rolling digits
- * 2. Geometric "S" unfolds quickly
- * 3. S zooms out of the screen → website appears underneath
+ * 2. The original ribbon mark assembles from layered planes
+ * 3. The finished logo zooms through → website appears underneath
  * Scene is NEVER scaled/clipped — stays correctly placed.
  */
 export function LabsHero() {
@@ -60,13 +60,15 @@ export function LabsHero() {
     const [unfold, setUnfold] = useState(0);
     const [zoom, setZoom] = useState(1);
     const containerRef = useRef<HTMLDivElement>(null);
+    const reduceMotion = useReducedMotion();
 
-    // 1) Progress 0→100 — unhurried
+    // 1) Progress 0→100
     useEffect(() => {
         if (phase !== "loading") return;
         let raf = 0;
+        let nextPhaseTimer = 0;
         const start = performance.now();
-        const duration = 2600;
+        const duration = reduceMotion ? 300 : 1700;
 
         const tick = (now: number) => {
             const t = Math.min(1, (now - start) / duration);
@@ -75,20 +77,26 @@ export function LabsHero() {
                 raf = requestAnimationFrame(tick);
             } else {
                 setProgress(100);
-                // Pause on 100% so the moment lands
-                setTimeout(() => setPhase("unfolding"), 450);
+                nextPhaseTimer = window.setTimeout(
+                    () => setPhase("unfolding"),
+                    reduceMotion ? 80 : 260
+                );
             }
         };
         raf = requestAnimationFrame(tick);
-        return () => cancelAnimationFrame(raf);
-    }, [phase]);
+        return () => {
+            cancelAnimationFrame(raf);
+            window.clearTimeout(nextPhaseTimer);
+        };
+    }, [phase, reduceMotion]);
 
-    // 2) S draws slowly — give people time to read it
+    // 2) Ribbon planes assemble and lock into the source logo
     useEffect(() => {
         if (phase !== "unfolding") return;
         let raf = 0;
+        let nextPhaseTimer = 0;
         const start = performance.now();
-        const duration = 2000;
+        const duration = reduceMotion ? 350 : 1250;
 
         const tick = (now: number) => {
             const t = Math.min(1, (now - start) / duration);
@@ -97,35 +105,46 @@ export function LabsHero() {
                 raf = requestAnimationFrame(tick);
             } else {
                 setUnfold(1);
-                // Hold the finished S before zooming out
-                setTimeout(() => setPhase("zooming"), 900);
+                nextPhaseTimer = window.setTimeout(
+                    () => setPhase("zooming"),
+                    reduceMotion ? 120 : 520
+                );
             }
         };
         raf = requestAnimationFrame(tick);
-        return () => cancelAnimationFrame(raf);
-    }, [phase]);
+        return () => {
+            cancelAnimationFrame(raf);
+            window.clearTimeout(nextPhaseTimer);
+        };
+    }, [phase, reduceMotion]);
 
-    // 3) S zooms out slowly → website emerges from behind it
+    // 3) Finished mark becomes the portal into the Labs scene
     useEffect(() => {
         if (phase !== "zooming") return;
         let raf = 0;
+        let nextPhaseTimer = 0;
         const start = performance.now();
-        const duration = 2200;
+        const duration = reduceMotion ? 320 : 1500;
 
         const tick = (now: number) => {
             const t = Math.min(1, (now - start) / duration);
-            // Gentle ease — slow start, then fills the frame
             const eased = 1 - Math.pow(1 - t, 1.7);
             setZoom(1 + eased * 16);
             if (t < 1) {
                 raf = requestAnimationFrame(tick);
             } else {
-                setTimeout(() => setPhase("ready"), 200);
+                nextPhaseTimer = window.setTimeout(
+                    () => setPhase("ready"),
+                    reduceMotion ? 0 : 120
+                );
             }
         };
         raf = requestAnimationFrame(tick);
-        return () => cancelAnimationFrame(raf);
-    }, [phase]);
+        return () => {
+            cancelAnimationFrame(raf);
+            window.clearTimeout(nextPhaseTimer);
+        };
+    }, [phase, reduceMotion]);
 
     const showOverlay = phase !== "ready";
     // Scene under the S during the hold + zoom so the site “appears from S”
@@ -136,6 +155,8 @@ export function LabsHero() {
     return (
         <section
             ref={containerRef}
+            data-entry-phase={phase}
+            data-entry-progress={Math.round(unfold * 100)}
             className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black"
         >
             {/* 3D scene — fades in slowly under the S */}
@@ -157,7 +178,7 @@ export function LabsHero() {
                 </motion.div>
             )}
 
-            {/* Preloader / unfold / zoom overlay */}
+            {/* Preloader / logo assembly / zoom overlay */}
             <AnimatePresence>
                 {showOverlay && (
                     <motion.div
@@ -177,7 +198,7 @@ export function LabsHero() {
                             <>
                                 <div className="absolute left-1/2 top-1/2 h-[2px] w-[min(180px,40vw)] -translate-x-1/2 -translate-y-1/2 overflow-hidden bg-zinc-800">
                                     <div
-                                        className="h-full bg-white"
+                                        className="h-full bg-gradient-to-r from-cyan-400 via-violet-400 to-rose-300"
                                         style={{ width: `${progress}%` }}
                                     />
                                 </div>
@@ -199,7 +220,7 @@ export function LabsHero() {
                                                 : 1,
                                     }}
                                 >
-                                    <UnfoldingS
+                                    <UnfoldingLogo
                                         progress={
                                             phase === "zooming" ? 1 : unfold
                                         }
@@ -247,7 +268,7 @@ export function LabsHero() {
                                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-indigo-400" />
                             </span>
                             <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-zinc-400">
-                                Experimental Web Experiences — Vol. 01
+                                Labs — a creative initiative by Somanath Studio
                             </span>
                         </motion.div>
 

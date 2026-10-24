@@ -5,8 +5,9 @@ import { Logo } from "@/components/Logo"
 export function Navbar() {
     return (
         <header className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between gap-3 border-b border-white/5 bg-black/50 px-4 backdrop-blur-md sm:px-6">
-            <Link href="/" className="group flex items-center">
+            <Link href="/" className="group flex items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-4 focus-visible:ring-offset-black">
                 <Logo
+                    expandable
                     className="h-9 w-auto"
                 />
             </Link>
@@ -39,7 +40,7 @@ export function Navbar() {
             </nav>
 
             <Button asChild size="sm">
-                <Link href="/contact">Talk to an Engineer</Link>
+                <Link href="/contact"><span className="sm:hidden">Let’s talk</span><span className="hidden sm:inline">Talk to an Engineer</span></Link>
             </Button>
         </header>
     )

@@ -1,79 +1,101 @@
 .logo {
+  --brand-violet: #a994ff;
+  --brand-ink: #f2efff;
+  position: relative;
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
-  gap: 0.55em;
-  color: #e6edf3;
-  font-size: 16px;
+  gap: 10px;
+  color: var(--brand-ink);
   vertical-align: middle;
+  text-align: left;
 }
 
-.mark {
+.logo[data-tone="black"] { --brand-ink: #171521; --brand-violet: #6551c8; }
+
+.markSlot {
+  position: relative;
   display: block;
   flex: none;
   height: 100%;
-  width: auto;
-  overflow: visible;
+  aspect-ratio: 1;
+  transition: transform 650ms cubic-bezier(.16, 1, .3, 1), filter 650ms ease;
 }
 
-.wordmark {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
+.mark { display: block; height: 100%; width: 100%; object-fit: contain; }
+.markVisible { position: relative; opacity: 1; }
+.markHidden { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+.wordmark { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .name {
-  font-family: var(--font-sans), sans-serif;
-  font-size: 19px;
-  font-weight: 650;
-  letter-spacing: -0.85px;
-  line-height: 1;
+  display: flex;
+  overflow: hidden;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -1.1px;
+  line-height: 1.1;
+  white-space: nowrap;
 }
-
-.period { color: #67e8f9; }
-
+.name > span {
+  display: inline-block;
+  transition: transform 600ms cubic-bezier(.16, 1, .3, 1), opacity 400ms ease;
+  transition-delay: calc(var(--letter, 8) * 22ms);
+}
+.period { color: var(--brand-violet); }
 .studio {
-  color: #91a1af;
-  font-family: var(--font-mono), monospace;
   font-size: 8px;
-  font-weight: 500;
-  letter-spacing: 3.7px;
+  font-weight: 600;
+  letter-spacing: 4px;
   line-height: 1;
+  color: var(--brand-violet);
+  transition: opacity 450ms ease 100ms, transform 550ms cubic-bezier(.16, 1, .3, 1) 100ms;
+}
+.tagline { color: #91a1af; font-size: 10px; line-height: 1.4; max-width: 17rem; margin-top: 5px; }
+
+/* Reserve the expanded footprint so the navigation never jumps. */
+.expandable { width: 180px; }
+.expandable::before {
+  content: "";
+  position: absolute;
+  inset: -5px auto -5px -4px;
+  width: 46px;
+  background: rgb(169 148 255 / 0);
+  border: 1px solid transparent;
+  border-radius: 11px;
+  transition: width 650ms cubic-bezier(.16, 1, .3, 1), background 450ms ease, border-color 450ms ease;
+  pointer-events: none;
 }
 
-.trace {
-  opacity: 0;
-  stroke-dasharray: 12 100;
-  stroke-dashoffset: 12;
-  animation: trace 7s ease-in-out infinite;
+@media (hover: hover) and (pointer: fine) {
+  .expandable .name > span { transform: translateY(115%) rotate(8deg); opacity: 0; }
+  .expandable .studio { opacity: 0; transform: translateX(-12px); }
+  .expandable .wordmark { pointer-events: none; }
+  .expandable:is(:hover, .intro) .name > span,
+  a:focus-visible .expandable .name > span { transform: none; opacity: 1; }
+  .expandable:is(:hover, .intro) .studio,
+  a:focus-visible .expandable .studio { transform: none; opacity: 1; }
+  .expandable:is(:hover, .intro)::before,
+  a:focus-visible .expandable::before {
+    width: 180px;
+    background: rgb(169 148 255 / .055);
+    border-color: rgb(169 148 255 / .16);
+  }
+  .expandable:is(:hover, .intro) .markSlot,
+  a:focus-visible .expandable .markSlot {
+    transform: rotate(-9deg) scale(1.08);
+    filter: drop-shadow(0 0 9px rgb(123 94 255 / .3));
+  }
 }
 
-.signal {
-  transition: transform 300ms ease;
-  animation: signal 7s ease-in-out infinite;
-}
-
-.logo:hover .signal,
-a:focus-visible .signal { transform: translate(2px, -2px); }
-
-@keyframes trace {
-  0%, 12% { opacity: 0; stroke-dashoffset: 12; }
-  18% { opacity: 0.9; }
-  48% { opacity: 0.9; }
-  56%, 100% { opacity: 0; stroke-dashoffset: -100; }
-}
-
-@keyframes signal {
-  0%, 12%, 60%, 100% { opacity: 0.55; }
-  24%, 42% { opacity: 1; }
+@media (max-width: 639px) {
+  .expandable { width: 156px; gap: 7px; }
+  .name { font-size: 20px; }
+  .expandable:is(:hover, .intro)::before,
+  a:focus-visible .expandable::before { width: 156px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .trace, .signal { animation: none; transition: none; }
-  .logo:hover .signal, a:focus-visible .signal { transform: none; }
-}
-
-@media (max-width: 360px) {
-  .logo { gap: 6px; }
-  .name { font-size: 17px; }
+  .logo *, .logo::before { transition: none !important; animation: none !important; }
+  .expandable .name > span, .expandable .studio { transform: none; opacity: 1; }
+  .expandable:is(:hover, .intro) .markSlot,
+  a:focus-visible .expandable .markSlot { transform: none; filter: none; }
 }
