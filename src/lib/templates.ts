@@ -11,6 +11,8 @@ export interface TemplateFrontmatter {
     category: string;
     tags: string[];
     date: string;
+    /** Last meaningful content update; omitted when unchanged since publication. */
+    updated?: string;
     status: 'live' | 'coming-soon' | 'beta';
     stack: string[];
     demoUrl?: string;

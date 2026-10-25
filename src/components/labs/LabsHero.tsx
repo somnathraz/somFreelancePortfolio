@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import dynamic from "next/dynamic";
-import { UnfoldingLogo, PercentCounter } from "./UnfoldingMark";
+import Link from "next/link";
+import { LabsEntrance } from "./LabsEntrance";
 
 const LabsScene = dynamic(
     () => import("./LabsScene").then((mod) => mod.LabsScene),
@@ -12,7 +13,7 @@ const LabsScene = dynamic(
 
 const EASE = [0.16, 1, 0.3, 1] as [number, number, number, number];
 
-type Phase = "loading" | "unfolding" | "zooming" | "ready";
+type Phase = "entering" | "revealing" | "ready";
 
 function AnimatedLine({
     text,
@@ -23,6 +24,7 @@ function AnimatedLine({
     delay?: number;
     className?: string;
 }) {
+    const reduceMotion = useReducedMotion();
     const words = text.split(" ");
     return (
         <span className={className}>
@@ -30,11 +32,11 @@ function AnimatedLine({
                 <span key={i} className="inline-block overflow-hidden">
                     <motion.span
                         className="inline-block"
-                        initial={{ y: "110%" }}
+                        initial={{ y: reduceMotion ? "0%" : "110%" }}
                         animate={{ y: "0%" }}
                         transition={{
-                            delay: delay + i * 0.07,
-                            duration: 0.85,
+                            delay: reduceMotion ? 0 : delay + i * 0.07,
+                            duration: reduceMotion ? 0 : 0.85,
                             ease: EASE,
                         }}
                     >
@@ -47,196 +49,46 @@ function AnimatedLine({
     );
 }
 
-/**
- * Brand-led entry for Somanath Studio Labs:
- * 1. Progress bar + rolling digits
- * 2. The original ribbon mark assembles from layered planes
- * 3. The finished logo zooms through → website appears underneath
- * Scene is NEVER scaled/clipped — stays correctly placed.
- */
+/** A brief intact-logo reveal with one coordinated transition into the hero. */
 export function LabsHero() {
-    const [phase, setPhase] = useState<Phase>("loading");
-    const [progress, setProgress] = useState(0);
-    const [unfold, setUnfold] = useState(0);
-    const [zoom, setZoom] = useState(1);
+    const [phase, setPhase] = useState<Phase>("entering");
     const containerRef = useRef<HTMLDivElement>(null);
     const reduceMotion = useReducedMotion();
 
-    // 1) Progress 0→100
     useEffect(() => {
-        if (phase !== "loading") return;
-        let raf = 0;
-        let nextPhaseTimer = 0;
-        const start = performance.now();
-        const duration = reduceMotion ? 300 : 1700;
-
-        const tick = (now: number) => {
-            const t = Math.min(1, (now - start) / duration);
-            setProgress((1 - Math.pow(1 - t, 1.8)) * 100);
-            if (t < 1) {
-                raf = requestAnimationFrame(tick);
-            } else {
-                setProgress(100);
-                nextPhaseTimer = window.setTimeout(
-                    () => setPhase("unfolding"),
-                    reduceMotion ? 80 : 260
-                );
-            }
-        };
-        raf = requestAnimationFrame(tick);
+        const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+        const skip = () => setPhase("ready");
+        const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") skip(); };
+        const onPreference = () => { if (preference.matches) skip(); };
+        const reveal = window.setTimeout(() => setPhase(current => current === "ready" ? current : "revealing"), preference.matches ? 0 : 1350);
+        const finish = window.setTimeout(skip, preference.matches ? 0 : 2200);
+        window.addEventListener("keydown", onKey);
+        preference.addEventListener("change", onPreference);
         return () => {
-            cancelAnimationFrame(raf);
-            window.clearTimeout(nextPhaseTimer);
+            window.clearTimeout(reveal);
+            window.clearTimeout(finish);
+            window.removeEventListener("keydown", onKey);
+            preference.removeEventListener("change", onPreference);
         };
-    }, [phase, reduceMotion]);
+    }, []);
 
-    // 2) Ribbon planes assemble and lock into the source logo
-    useEffect(() => {
-        if (phase !== "unfolding") return;
-        let raf = 0;
-        let nextPhaseTimer = 0;
-        const start = performance.now();
-        const duration = reduceMotion ? 350 : 1250;
-
-        const tick = (now: number) => {
-            const t = Math.min(1, (now - start) / duration);
-            setUnfold(1 - Math.pow(1 - t, 2.2));
-            if (t < 1) {
-                raf = requestAnimationFrame(tick);
-            } else {
-                setUnfold(1);
-                nextPhaseTimer = window.setTimeout(
-                    () => setPhase("zooming"),
-                    reduceMotion ? 120 : 520
-                );
-            }
-        };
-        raf = requestAnimationFrame(tick);
-        return () => {
-            cancelAnimationFrame(raf);
-            window.clearTimeout(nextPhaseTimer);
-        };
-    }, [phase, reduceMotion]);
-
-    // 3) Finished mark becomes the portal into the Labs scene
-    useEffect(() => {
-        if (phase !== "zooming") return;
-        let raf = 0;
-        let nextPhaseTimer = 0;
-        const start = performance.now();
-        const duration = reduceMotion ? 320 : 1500;
-
-        const tick = (now: number) => {
-            const t = Math.min(1, (now - start) / duration);
-            const eased = 1 - Math.pow(1 - t, 1.7);
-            setZoom(1 + eased * 16);
-            if (t < 1) {
-                raf = requestAnimationFrame(tick);
-            } else {
-                nextPhaseTimer = window.setTimeout(
-                    () => setPhase("ready"),
-                    reduceMotion ? 0 : 120
-                );
-            }
-        };
-        raf = requestAnimationFrame(tick);
-        return () => {
-            cancelAnimationFrame(raf);
-            window.clearTimeout(nextPhaseTimer);
-        };
-    }, [phase, reduceMotion]);
-
-    const showOverlay = phase !== "ready";
-    // Scene under the S during the hold + zoom so the site “appears from S”
-    const showScene =
-        phase === "unfolding" || phase === "zooming" || phase === "ready";
-    const showContent = phase === "ready" || phase === "zooming";
+    const showContent = phase !== "entering" || reduceMotion;
 
     return (
         <section
             ref={containerRef}
             data-entry-phase={phase}
-            data-entry-progress={Math.round(unfold * 100)}
             className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black"
         >
-            {/* 3D scene — fades in slowly under the S */}
-            {showScene && (
-                <motion.div
-                    className="absolute inset-0"
-                    initial={{ opacity: 0 }}
-                    animate={{
-                        opacity:
-                            phase === "unfolding"
-                                ? 0.35
-                                : phase === "zooming"
-                                  ? Math.min(1, 0.35 + (zoom - 1) / 10)
-                                  : 1,
-                    }}
-                    transition={{ duration: 1.4, ease: "easeOut" }}
-                >
-                    <LabsScene />
-                </motion.div>
+            {/* Load the scene immediately, behind the short brand reveal. */}
+            <div className="absolute inset-0">
+                <LabsScene />
+            </div>
+            {phase !== "ready" && !reduceMotion && (
+                <LabsEntrance onSkip={() => setPhase("ready")} />
             )}
 
-            {/* Preloader / logo assembly / zoom overlay */}
-            <AnimatePresence>
-                {showOverlay && (
-                    <motion.div
-                        key="entry"
-                        className="fixed inset-0 z-[200] flex items-center justify-center overflow-visible"
-                        style={{
-                            backgroundColor:
-                                phase === "zooming"
-                                    ? `rgba(0,0,0,${Math.max(0, 1 - (zoom - 1) / 10)})`
-                                    : "#000",
-                        }}
-                        initial={false}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.8, ease: EASE }}
-                    >
-                        {phase === "loading" && (
-                            <>
-                                <div className="absolute left-1/2 top-1/2 h-[2px] w-[min(180px,40vw)] -translate-x-1/2 -translate-y-1/2 overflow-hidden bg-zinc-800">
-                                    <div
-                                        className="h-full bg-gradient-to-r from-cyan-400 via-violet-400 to-rose-300"
-                                        style={{ width: `${progress}%` }}
-                                    />
-                                </div>
-                                <PercentCounter progress={progress} />
-                            </>
-                        )}
-
-                        {(phase === "unfolding" || phase === "zooming") && (
-                            <>
-                                <div
-                                    className="relative z-10"
-                                    style={{
-                                        opacity:
-                                            phase === "zooming"
-                                                ? Math.max(
-                                                      0,
-                                                      1 - (zoom - 1) / 12
-                                                  )
-                                                : 1,
-                                    }}
-                                >
-                                    <UnfoldingLogo
-                                        progress={
-                                            phase === "zooming" ? 1 : unfold
-                                        }
-                                        zoom={zoom}
-                                    />
-                                </div>
-                                {phase === "unfolding" && (
-                                    <PercentCounter progress={100} />
-                                )}
-                            </>
-                        )}
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Site content — emerges as S zooms away */}
+            {/* Content rises into view as the cover lifts. */}
             {showContent && (
                 <>
                     <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/70 via-black/20 to-black" />
@@ -244,27 +96,22 @@ export function LabsHero() {
 
                     <motion.div
                         className="relative z-20 mx-auto max-w-6xl px-6 pb-28 pt-20 text-center"
-                        initial={{ opacity: 0 }}
-                        animate={{
-                            opacity:
-                                phase === "ready"
-                                    ? 1
-                                    : Math.min(1, Math.max(0, (zoom - 4) / 8)),
-                        }}
-                        transition={{ duration: 0.8, ease: EASE }}
+                        initial={{ opacity: reduceMotion ? 1 : 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: reduceMotion ? 0 : 0.65, ease: EASE }}
                     >
                         <motion.div
-                            initial={{ opacity: 0, y: 12 }}
+                            initial={{ opacity: reduceMotion ? 1 : 0, y: reduceMotion ? 0 : 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{
-                                delay: phase === "ready" ? 0.1 : 0.6,
-                                duration: 0.9,
+                                delay: reduceMotion ? 0 : 0.05,
+                                duration: reduceMotion ? 0 : 0.9,
                                 ease: EASE,
                             }}
                             className="mb-10 inline-flex items-center gap-2.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-5 py-2 backdrop-blur-md"
                         >
                             <span className="relative flex h-1.5 w-1.5">
-                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75" />
+                                <span className="absolute inline-flex h-full w-full motion-safe:animate-ping rounded-full bg-indigo-400 opacity-75" />
                                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-indigo-400" />
                             </span>
                             <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-zinc-400">
@@ -293,11 +140,11 @@ export function LabsHero() {
                         </h1>
 
                         <motion.p
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: reduceMotion ? 1 : 0, y: reduceMotion ? 0 : 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{
-                                delay: 0.75,
-                                duration: 0.8,
+                                delay: reduceMotion ? 0 : 0.75,
+                                duration: reduceMotion ? 0 : 0.8,
                                 ease: EASE,
                             }}
                             className="mx-auto max-w-2xl text-lg leading-relaxed text-zinc-400 sm:text-xl"
@@ -308,11 +155,11 @@ export function LabsHero() {
                         </motion.p>
 
                         <motion.div
-                            initial={{ opacity: 0, y: 14 }}
+                            initial={{ opacity: reduceMotion ? 1 : 0, y: reduceMotion ? 0 : 14 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{
-                                delay: 0.95,
-                                duration: 0.7,
+                                delay: reduceMotion ? 0 : 0.95,
+                                duration: reduceMotion ? 0 : 0.7,
                                 ease: EASE,
                             }}
                             className="mt-14 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
@@ -339,26 +186,26 @@ export function LabsHero() {
                                 </svg>
                                 <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-indigo-100/50 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
                             </a>
-                            <a
+                            <Link
                                 href="/templates"
                                 className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] px-8 py-4 text-sm font-medium text-zinc-400 backdrop-blur-sm transition-all duration-300 hover:border-white/20 hover:text-white"
                             >
                                 Browse templates
-                            </a>
+                            </Link>
                         </motion.div>
                     </motion.div>
 
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: phase === "ready" ? 1 : 0 }}
-                        transition={{ delay: 0.4, duration: 1.2 }}
+                        transition={{ delay: reduceMotion ? 0 : 0.4, duration: reduceMotion ? 0 : 1.2 }}
                         className="pointer-events-none absolute bottom-0 left-0 right-0 z-[5] flex items-center justify-between px-8 pb-6"
                     >
                         <span className="text-lg text-zinc-600 select-none">
                             +
                         </span>
                         <motion.div
-                            animate={{ y: [0, 6, 0] }}
+                            animate={{ y: reduceMotion ? 0 : [0, 6, 0] }}
                             transition={{
                                 repeat: Infinity,
                                 duration: 2.5,

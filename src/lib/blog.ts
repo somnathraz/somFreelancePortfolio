@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
+import { contentLastModified } from './content-dates';
 
 const contentDirectory = path.join(process.cwd(), 'content/blog');
 
@@ -17,7 +18,7 @@ export interface PostFrontmatter {
     tags?: string[];
     intro?: string;
     shareImage?: string;
-    /** Optional explicit last-updated date (ISO). Otherwise inferred from file mtime. */
+    /** Date of the last meaningful content update. Defaults to the publication date. */
     updated?: string;
     /** Related commercial URL for internal linking / schema about. */
     relatedService?: string;
@@ -52,12 +53,7 @@ export function getPostBySlug(slug: string): Post {
     const fullPath = path.join(contentDirectory, `${realSlug}.mdx`);
     const fileContents = fs.readFileSync(fullPath, 'utf8');
     const { data, content } = matter(fileContents);
-    const stat = fs.statSync(fullPath);
-    const publishedMs = new Date(data.date as string).getTime();
-    const mtimeMs = stat.mtime.getTime();
-    const updatedMs = data.updated ? new Date(data.updated as string).getTime() : 0;
-    const lastModifiedMs = Math.max(publishedMs, mtimeMs, updatedMs);
-    const lastModified = new Date(lastModifiedMs).toISOString();
+    const lastModified = contentLastModified(data.date as string, data.updated as string | undefined);
 
     return {
         slug: realSlug,

@@ -16,7 +16,35 @@ A requested post may provide:
 - `KEYWORD`: the primary search phrase;
 - `SERVICE_PATH`: the most relevant SomSite service URL.
 
-When one or more inputs are missing, infer them only after completing the site and opportunity analysis below. For recurring automated runs, choose all three from evidence rather than beginning with a predetermined headline.
+When one or more inputs are missing, infer them only after completing the site and opportunity analysis below. For recurring automated runs, follow the weeks 3–12 buyer-post queue below first. Research sharpens the assigned topic; it does not replace it with a trend article. Outside this campaign, choose missing inputs from evidence.
+
+## Weeks 3–12: one buyer post a week
+
+Prepare one buyer post each Monday at 09:00 Asia/Kolkata, starting with week 3 on October 26, 2026. These are local drafts for review, not automatic external publication. Week numbers are campaign slots; do not skip unfinished slots or create catch-up batches after a missed run. Weeks 1–2 are outside this queue.
+
+| Week | Buyer post | Primary keyword | Related service | Required angle / evidence |
+| --- | --- | --- | --- | --- |
+| 3 | How Agencies Can Outsource SaaS Development | outsource SaaS development | `/services/saas-mvp-development` | Partner selection, scope, delivery ownership, handoff and client communication; link to `/agency-development-partner`. |
+| 4 | Freelancer vs Agency for SaaS Development | freelancer vs agency for SaaS development | `/services/saas-mvp-development` | Compare accountability, capacity, cost drivers and stage fit with a practical decision matrix. |
+| 5 | Should You Rebuild or Repair Your SaaS? | rebuild or repair SaaS | `/services/production-readiness-upgrade` | Compare repair, incremental replacement and rebuild using risks, downtime and migration costs; link to `/saas-mvp-audit`. |
+| 6 | What a SaaS Technical Audit Includes | SaaS technical audit | `/services/production-readiness-upgrade` | Explain inputs, review scope, deliverables and remediation priorities; link to `/saas-mvp-audit`. |
+| 7 | How to Rescue an Unfinished SaaS Project | rescue unfinished SaaS project | `/services/production-readiness-upgrade` | Access recovery, code assessment, salvage decisions, ownership and a staged recovery plan. |
+| 8 | SaaS MVP Cost in India vs US | SaaS MVP cost India vs US | `/services/saas-mvp-development` | Compare equivalent scope and total delivery cost; also refresh `content/blog/saas-mvp-cost-2026.mdx` in the same run. |
+| 9 | Next.js Performance Case Study with Real Numbers | Next.js performance case study | `/services/nextjs-performance-optimization` | Verified before/after measurements, project context, changes, measurement method and limitations. |
+| 10 | Authentication Platform Case Study | authentication platform case study | `/services/custom-software-development` | Verified project problem, auth architecture, implementation, challenges and supported outcomes. |
+| 11 | White-label Development for Agencies | white-label development for agencies | `/services/custom-software-development` | Client ownership, NDA/IP, branding, delivery workflow and support boundaries; link to `/agency-development-partner`. Distinguish this operating model from week 3's outsourcing selection guide. |
+| 12 | Fractional CTO vs a Technical Partner | fractional CTO vs technical partner | `/services/custom-software-development` | Compare strategic leadership and hands-on delivery, responsibilities, stage fit and engagement expectations. |
+
+### Queue execution and completion tracking
+
+- Before drafting, inspect this queue, existing MDX and previous run evidence. Select the earliest unfinished slot. A rerun must not create a second version of an already completed article.
+- Track progress in `content/blog/BUYER_POST_PROGRESS.md`, creating it on the first campaign run. Record the campaign week, status (`draft-ready` or `blocked`), actual Asia/Kolkata run date, article/image paths, sources or internal evidence, validation results and any remaining work. `draft-ready` means all required artifacts and checks are complete; it does not mean published.
+- Produce at most one new buyer article and one original cover per week. If that week's draft is already ready, report its paths without generating another post. After week 12 is ready, report campaign completion without creating another article until a new plan is supplied.
+- If substantially matching content exists, improve it in place and record that path against the slot instead of creating competing content. Do not mark a slot complete from a title match alone.
+- Week 8 requires both the geographic comparison and the existing cost-guide refresh before it is complete. Keep the existing cost-guide URL and original `date`, set `updated` to the actual refresh date, verify current pricing/currency assumptions, and cross-link the two articles with distinct general-budget versus location-comparison intent. Reuse the existing cost guide's cover; the new comparison gets the single new cover. Bring refreshed metadata and image references into compliance, copying the existing cover to the canonical filename if necessary.
+- Weeks 9–10 require actual project evidence. For performance, record before/after values with units, metric definitions, dates, environment, tool and comparable test conditions; distinguish lab measurements from field data. For authentication, verify implementation details and any outcomes against repository artifacts or user-supplied evidence. Do not invent clients, screenshots, results, metrics or first-person delivery claims. If evidence is missing, record the slot as blocked, list the precise missing inputs and stop that run without substituting a generic guide or advancing the queue.
+- Supporting AI/security/dev posts and unrelated old-post refreshes are outside this campaign automation. They must not displace the weekly buyer slot.
+- Apply all research, image, SEO and quality gates below to the selected article and any refreshed article. For refreshes, preserve the original publication date and update only `updated` to the current Asia/Kolkata date.
 
 ## Audience and voice
 
@@ -38,7 +66,7 @@ Prioritize:
 5. founder decisions about scope, cost, hiring, technical partnerships, and product strategy;
 6. genuine case studies only when the repository contains evidence for the work.
 
-Rotate categories. Do not publish three near-identical security, release-summary, AI-model, or framework-update posts in succession.
+Outside the assigned buyer campaign, rotate categories. Do not publish three near-identical security, release-summary, AI-model, or framework-update posts in succession.
 
 ## Site and SEO opportunity analysis
 
@@ -145,6 +173,7 @@ Rules:
 - `primaryKeyword` must contain one intentional search phrase, not a list.
 - Use 3–6 focused tags.
 - `relatedService` must resolve to an existing service route or `/contact`.
+- `updated` records a meaningful content change, not a rebuild, checkout, or metadata-only keyword backfill. Sitemap and article modification dates use `updated` (or `date` when absent), never filesystem timestamps.
 - `faq` is optional. When included, use 2–4 useful Q&As. Every question and answer must also appear visibly and substantively in the article body; frontmatter-only FAQ content is not allowed.
 - The filename, canonical slug, `shareImage`, and opening image path must use the same concise lowercase kebab-case slug.
 
@@ -194,7 +223,7 @@ If `faq` exists in frontmatter, include a visible `## Frequently Asked Questions
 Before finishing:
 
 - confirm the topic and primary keyword do not duplicate or cannibalize an existing post;
-- confirm the current Asia/Kolkata date is used for `date` and `updated`;
+- confirm the current Asia/Kolkata date is used for new posts' `date` and `updated`; for refreshes preserve the original `date` and use the current date for `updated`;
 - confirm the body has no H1;
 - confirm `metaTitle`, description, tags, `primaryKeyword`, `relatedService`, and optional FAQ meet the rules above;
 - confirm FAQ frontmatter and visible article answers match when FAQ is present;

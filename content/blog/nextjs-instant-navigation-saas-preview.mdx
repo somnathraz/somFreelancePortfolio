@@ -3,7 +3,7 @@ title: "Next.js 16.3 Instant Navigations: What SaaS Teams Should Test Now"
 metaTitle: "Next.js Instant Navigations: A SaaS Testing Guide"
 description: "Next.js 16.3 previews instant navigations. Learn when to stream, cache or block, and how SaaS teams should test the change before production."
 date: "2026-08-03"
-updated: "2026-08-03"
+updated: "2026-10-25"
 author: "Somanath Khadanga"
 category: "Next.js Performance"
 tags:
@@ -288,3 +288,7 @@ That is a stronger model for SaaS than hiding every transition behind a page-lev
 But the framework cannot decide what may be stale, which skeleton is honest or when a tenant transition is complete. Those remain product and architecture decisions.
 
 If navigation is only one part of a slower application, start with [why a Next.js app feels slow after launch](/blog/why-your-nextjs-app-feels-slow-after-launch). For the underlying cache model, review the [Next.js 16 App Router caching changes](/blog/nextjs-16-app-router-caching-changes-saas). And if client rendering remains expensive after route work is fixed, the [React Compiler production guide](/blog/react-compiler-nextjs-16-production) explains what automatic memoization can and cannot solve.
+
+## Next Step
+
+If your team needs help measuring route transitions and separating rendering costs from data latency, our [Next.js performance optimization service](/services/nextjs-performance-optimization) starts with the user flows that matter most.

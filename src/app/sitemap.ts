@@ -1,6 +1,7 @@
 import { getAllPosts } from '@/lib/blog';
 import { getAllTemplates } from '@/lib/templates';
 import { MetadataRoute } from 'next';
+import { contentLastModified } from '@/lib/content-dates';
 
 const BASE_URL = 'https://somanathkhadanga.com';
 
@@ -22,10 +23,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     const templateUrls = templates.map((t) => ({
         url: `${BASE_URL}/templates/${t.slug}`,
-        lastModified: new Date(t.frontmatter.date),
+        lastModified: contentLastModified(t.frontmatter.date, t.frontmatter.updated),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
     }));
+
+    // Listing content changes when its underlying articles/templates change.
+    const newest = (dates: string[]) => dates.sort().at(-1);
+    const listingDates: Record<string, string | undefined> = {
+        '/blog': newest(posts.map((post) => post.lastModified)),
+        '/templates': newest(templateUrls.map((template) => template.lastModified)),
+        '/labs': newest(templateUrls.map((template) => template.lastModified)),
+    };
 
     const routes = [
         '',
@@ -51,7 +60,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/services/ai-saas-development',
     ].map((route) => ({
         url: `${BASE_URL}${route}`,
-        lastModified: new Date(),
+        // Omit unknown dates instead of claiming every page changed at build time.
+        ...(listingDates[route] ? { lastModified: listingDates[route] } : {}),
         changeFrequency: 'weekly' as const,
         priority:
             route === '' || route.startsWith('/services')

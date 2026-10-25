@@ -39,9 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const { slug } = await params;
     const post = getPostBySlug(slug);
     const shareImage = getPostShareImage(post);
-    const seoTitle = post.frontmatter.metaTitle
-        ? post.frontmatter.metaTitle
-        : `${post.frontmatter.title} — Somanath Studio`;
+    const seoTitle = post.frontmatter.metaTitle || post.frontmatter.title;
     const keywords = [
         post.frontmatter.primaryKeyword,
         post.frontmatter.category,
