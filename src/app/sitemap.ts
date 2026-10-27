@@ -1,5 +1,6 @@
 import { getAllPosts } from '@/lib/blog';
 import { getAllTemplates } from '@/lib/templates';
+import { getAllTraps } from '@/lib/traps';
 import { MetadataRoute } from 'next';
 import { contentLastModified } from '@/lib/content-dates';
 
@@ -13,6 +14,7 @@ const BASE_URL = 'https://somanathkhadanga.com';
 export default function sitemap(): MetadataRoute.Sitemap {
     const posts = getAllPosts();
     const templates = getAllTemplates();
+    const traps = getAllTraps();
 
     // Individual posts/templates are published content — they don't change
     // weekly once live, only when revised. Listing pages change far more often.
@@ -30,12 +32,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.8,
     }));
 
+    const trapUrls = traps.map((trap) => ({
+        url: `${BASE_URL}/labs/traps/${trap.slug}`,
+        lastModified: trap.generatedAt.slice(0, 10),
+        changeFrequency: 'monthly' as const,
+        priority: 0.7,
+    }));
+
     // Listing content changes when its underlying articles/templates change.
     const newest = (dates: string[]) => dates.sort().at(-1);
     const listingDates: Record<string, string | undefined> = {
         '/blog': newest(posts.map((post) => post.lastModified)),
         '/templates': newest(templateUrls.map((template) => template.lastModified)),
         '/labs': newest(templateUrls.map((template) => template.lastModified)),
+        '/labs/traps': newest(trapUrls.map((trap) => trap.lastModified)),
     };
 
     const routes = [
@@ -44,6 +54,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/blog',
         '/contact',
         '/labs',
+        '/labs/traps',
         '/templates',
         '/case-studies',
         '/case-studies/studio-booking-platform',
@@ -81,5 +92,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
                   : 0.9,
     }));
 
-    return [...routes, ...blogs, ...templateUrls];
+    return [...routes, ...blogs, ...templateUrls, ...trapUrls];
 }

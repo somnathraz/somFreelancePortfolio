@@ -8,6 +8,7 @@
     "postbuild": "node scripts/indexnow-ping.mjs --auto",
     "indexnow": "node scripts/indexnow-ping.mjs",
     "validate:blog": "node scripts/validate-blog-post.mjs",
+    "traps:sync": "node scripts/sync-traps.mjs",
     "start": "next start",
     "lint": "eslint"
   },

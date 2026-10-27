@@ -4,6 +4,8 @@ import { LabsHero } from "@/components/labs/LabsHero";
 import { PremiumFrontendHub } from "@/components/labs/PremiumFrontendHub";
 import { FeaturedWork } from "@/components/labs/FeaturedWork";
 import { LabsCta } from "@/components/labs/LabsCta";
+import { TrapsTeaser } from "@/components/labs/TrapsTeaser";
+import { getAllTraps } from "@/lib/traps";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
@@ -57,6 +59,7 @@ export const metadata: Metadata = {
 
 export default function LabsPage() {
     const templates = getAllTemplates();
+    const traps = getAllTraps();
 
     const schema = [
         webPageJsonLd({
@@ -89,6 +92,7 @@ export default function LabsPage() {
                 <Navbar />
                 <LabsHero />
                 <PremiumFrontendHub />
+                <TrapsTeaser traps={traps} />
                 <FeaturedWork templates={templates} />
                 <LabsCta />
                 <Footer />
