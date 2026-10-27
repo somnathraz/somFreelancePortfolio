@@ -1,0 +1,16 @@
+# Buyer Post Campaign Progress
+
+This file tracks the Weeks 3–12 buyer-post queue defined in `content/blog/EDITORIAL_GUIDE.md`. Dates are Asia/Kolkata calendar dates. `draft-ready` means the required local artifacts and validation checks are complete; it does not mean published.
+
+| Week | Topic | Status | Actual date | Article | Image | Sources / internal evidence | Validation | Remaining work |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 3 | How Agencies Can Outsource SaaS Development | draft-ready | 2026-10-26 | `content/blog/outsource-saas-development-agency-guide.mdx` | `public/images/blog/outsource-saas-development-agency-guide.png` | NIST SSDF 1.1; NCSC supplier relationship lifecycle; GitHub repository roles; Business.gov.uk IP guidance; ICO controller/processor guidance; no client results or internal performance claims used | `validate:blog` passed (2,309 prose words, 3 internal blog links, 3 matched FAQs); MDX compile passed; all 6 distinct local routes/assets resolved; hero/share image matched; no body H1 or trailing whitespace; PNG inspected at 1672×941. Repository `npm run lint` completed with the pre-existing baseline of 8,576 issues (775 errors, 7,801 warnings), with no finding against the new MDX or PNG. Hook-disabled default build remained in Turbopack compilation for 2 minutes and was stopped; hook-disabled webpack build reached compilation but failed only because this restricted environment could not resolve `fonts.googleapis.com`. No publishing hook ran. | Editorial review. Re-run repository lint after its unrelated baseline is repaired and build when Google Fonts is reachable; no post-specific validation issue remains. |
+| 4 | Freelancer vs Agency for SaaS Development | pending | — | — | — | — | — | Wait for its scheduled campaign week after week 3 is draft-ready. |
+| 5 | Should You Rebuild or Repair Your SaaS? | pending | — | — | — | — | — | Wait for its scheduled campaign week. |
+| 6 | What a SaaS Technical Audit Includes | pending | — | — | — | — | — | Wait for its scheduled campaign week. |
+| 7 | How to Rescue an Unfinished SaaS Project | pending | — | — | — | — | — | Wait for its scheduled campaign week. |
+| 8 | SaaS MVP Cost in India vs US | pending | — | — | — | — | — | Create comparison and refresh `content/blog/saas-mvp-cost-2026.mdx` in the same run. |
+| 9 | Next.js Performance Case Study with Real Numbers | pending | — | — | — | — | — | Requires verified comparable before/after project measurements. |
+| 10 | Authentication Platform Case Study | pending | — | — | — | — | — | Requires verified internal project evidence. |
+| 11 | White-label Development for Agencies | pending | — | — | — | — | — | Distinguish the white-label operating model from week 3 partner selection. |
+| 12 | Fractional CTO vs a Technical Partner | pending | — | — | — | — | — | Wait for its scheduled campaign week. |

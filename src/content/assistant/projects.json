@@ -55,6 +55,16 @@
     "caseStudyUrl": "/case-studies/studio-booking-platform"
   },
   {
+    "id": "premium-frontend",
+    "title": "Premium Frontend (Labs)",
+    "description": "One Next.js app hosting interactive showcases — gallery plus Aura, Offday, FORME, Relay, Nova, HELIOS, Vela, Singularity, Mycelia, Flux.",
+    "tech": ["Next.js App Router", "TypeScript", "React Three Fiber", "Three.js", "GLSL", "Motion"],
+    "role": "Creator",
+    "serviceId": "labs",
+    "url": "https://demo.somanathkhadanga.com",
+    "caseStudyUrl": "/labs"
+  },
+  {
     "id": "aura-studio",
     "title": "Aura Studio (Labs)",
     "description": "Luxury headphone 3D showcase template — scroll-driven storytelling, live material finishes, Motion + React Three Fiber.",
@@ -73,5 +83,25 @@
     "serviceId": "labs",
     "url": "https://demo.somanathkhadanga.com/offday",
     "caseStudyUrl": "/templates/offday"
+  },
+  {
+    "id": "forme",
+    "title": "FORME Architecture (Labs)",
+    "description": "Immersive architectural study — space, light, and materials.",
+    "tech": ["Next.js App Router", "TypeScript", "Motion"],
+    "role": "Creator",
+    "serviceId": "labs",
+    "url": "https://demo.somanathkhadanga.com/forme",
+    "caseStudyUrl": "/templates/forme"
+  },
+  {
+    "id": "relay",
+    "title": "Relay (Labs)",
+    "description": "Agent orchestration UI with WebGL signals and visible execution traces.",
+    "tech": ["Next.js App Router", "React Three Fiber", "Motion"],
+    "role": "Creator",
+    "serviceId": "labs",
+    "url": "https://demo.somanathkhadanga.com/relay",
+    "caseStudyUrl": "/templates/relay"
   }
 ]

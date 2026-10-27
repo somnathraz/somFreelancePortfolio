@@ -10,7 +10,7 @@ Engagements are senior-led. You work with a focused engineer, a compact product 
 Yes. Agency Development Partner engagements are NDA-ready with no client poaching. See `/agency-development-partner`.
 
 ## What is Labs?
-Labs is Somanath Studio’s creative initiative for interactive / WebGL product sites. Free templates: Aura Studio and OFFDAY. Browse `/labs` and `/templates`, or open live demos on demo.somanathkhadanga.com.
+Labs is Somanath Studio’s creative initiative for interactive / WebGL product sites. The live gallery is **Premium Frontend** at https://demo.somanathkhadanga.com (Aura, Offday, FORME, Relay, Nova, HELIOS, Vela, Singularity, Mycelia, Flux). Browse `/labs` and `/templates`, or download the ZIP / clone https://github.com/somnathraz/premium-frontend.
 
 ## Do you only build SaaS?
 No. SaaS MVP is a core offer, but custom software (booking, logistics, commerce, internal tools), performance work, production audits, and AI features are all in scope.

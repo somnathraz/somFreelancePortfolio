@@ -6,7 +6,9 @@
 - Site: https://somanathkhadanga.com
 - Labs: https://somanathkhadanga.com/labs
 - Templates: https://somanathkhadanga.com/templates
-- Demos: https://demo.somanathkhadanga.com (Aura, Offday)
+- Premium Frontend gallery: https://demo.somanathkhadanga.com
+- GitHub (Premium Frontend): https://github.com/somnathraz/premium-frontend
+- Showcases: /aura, /offday, /forme, /relay, /nova, /helios, /vela, /singularity, /mycelia, /flux
 
 ## Who Leads It
 Somanath Khadanga leads a flexible software engineering studio helping founders and agencies build, improve, and operate SaaS products. Clients work directly with experienced engineers; specialists are added according to product requirements.
@@ -37,9 +39,10 @@ Somanath Khadanga leads a flexible software engineering studio helping founders 
 - Agency Development Partner (white-label) — `/agency-development-partner`
 
 ## Labs
-Interactive WebGL / React Three Fiber demos and free templates for brands that want cinematic product sites:
-- Aura Studio (luxury headphones) — `/templates/aura-studio` · live demo `/aura` on demo.somanathkhadanga.com
-- OFFDAY (energy drink brand) — `/templates/offday` · live demo `/offday` on demo.somanathkhadanga.com
+Interactive WebGL / React Three Fiber demos and free templates. Live app: **Premium Frontend** on https://demo.somanathkhadanga.com (one Next.js app, route per showcase). Write-ups on `/templates/*`.
+- Aura Studio — `/templates/aura-studio` · https://demo.somanathkhadanga.com/aura
+- OFFDAY — `/templates/offday` · https://demo.somanathkhadanga.com/offday
+- FORME, Relay, Nova, HELIOS, Vela, Singularity, Mycelia, Flux — same demo host + matching `/templates/<slug>` pages
 
 ## Technology Stack
 - **Frontend**: React, Next.js, TypeScript, Tailwind CSS, Framer Motion / Motion, React Three Fiber, Three.js

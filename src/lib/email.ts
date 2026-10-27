@@ -166,6 +166,86 @@ somanathkhadanga.com
     });
 }
 
+export interface CalculatorLeadEmailParams {
+    email: string;
+    costRange: string;
+    weeksRange: string;
+    breakdown: string[];
+}
+
+export async function sendCalculatorLeadNotification(params: CalculatorLeadEmailParams) {
+    const email = escapeHtml(params.email.trim());
+    const costRange = escapeHtml(params.costRange);
+    const weeksRange = escapeHtml(params.weeksRange);
+    const breakdownHtml = params.breakdown
+        .map((line) => `<li style="margin:0 0 4px 0;">${escapeHtml(line)}</li>`)
+        .join("");
+
+    const to = process.env.ENQUIRY_TO_EMAIL || process.env.GOOGLE_CALENDAR_ID || 'somnathkhadanga@gmail.com';
+
+    const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0; padding:0; background:#09090b; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#09090b; padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
+          <tr>
+            <td style="padding:0 0 24px 0;">
+              <p style="margin:0; font-size:13px; color:#52525b; letter-spacing:2px; text-transform:uppercase;">SOMANATH STUDIO</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 0 8px 0;">
+              <h1 style="margin:0; font-size:24px; font-weight:700; color:#ffffff;">MVP cost calculator lead</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 0 20px 0;">
+              <p style="margin:0; font-size:15px; color:#ffffff;">${email}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 0 12px 0;">
+              <p style="margin:0 0 4px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">Estimated range</p>
+              <p style="margin:0; font-size:15px; color:#ffffff;">${costRange} · ${weeksRange}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 0 12px 0;">
+              <p style="margin:0 0 6px 0; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#71717a;">Selections</p>
+              <ul style="margin:0; padding-left:18px; font-size:14px; color:#a1a1aa;">${breakdownHtml}</ul>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+    const text = `
+MVP cost calculator lead
+
+Email: ${params.email}
+Estimated range: ${params.costRange} · ${params.weeksRange}
+
+Selections:
+${params.breakdown.map((line) => `- ${line}`).join("\n")}
+`.trim();
+
+    return transporter.sendMail({
+        from: `"Somanath Studio" <${process.env.SES_FROM_EMAIL || 'dev@somanathkhadanga.com'}>`,
+        to,
+        replyTo: params.email.includes('@') ? params.email.trim() : undefined,
+        subject: `Calculator lead: ${params.email.trim()} (${costRange})`,
+        html,
+        text,
+    });
+}
+
 export interface EnquiryEmailParams {
     name: string;
     contact: string;

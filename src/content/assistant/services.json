@@ -138,13 +138,13 @@
   {
     "id": "labs",
     "title": "Labs — Interactive Web Experiences",
-    "summary": "Creative initiative by Somanath Studio: interactive 3D product showcases and free Next.js WebGL templates (Aura Studio, OFFDAY) for brands that want sites that stand out.",
-    "audience": ["founder", "brand", "agency", "designer"],
+    "summary": "Creative initiative by Somanath Studio: Premium Frontend gallery (demo.somanathkhadanga.com) with Aura, Offday, FORME, Relay, Nova, HELIOS, Vela, Singularity, Mycelia, Flux — free Next.js WebGL templates.",
+    "audience": ["founder", "brand", "agency", "designer", "developer"],
     "problems": ["need-interactive-site", "3d-showcase", "wow-factor-website"],
-    "tags": ["labs", "webgl", "threejs", "templates", "3d", "interactive"],
+    "tags": ["labs", "webgl", "threejs", "templates", "3d", "interactive", "premium-frontend"],
     "sectionId": "labs",
     "pageUrl": "/labs",
-    "relatedProjects": ["aura-studio", "offday"],
+    "relatedProjects": ["premium-frontend", "aura-studio", "offday", "forme", "relay"],
     "relatedBlogs": [],
     "primaryCTA": "Explore Labs"
   }

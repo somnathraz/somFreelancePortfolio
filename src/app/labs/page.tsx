@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getAllTemplates } from "@/lib/templates";
 import { LabsHero } from "@/components/labs/LabsHero";
+import { PremiumFrontendHub } from "@/components/labs/PremiumFrontendHub";
 import { FeaturedWork } from "@/components/labs/FeaturedWork";
 import { LabsCta } from "@/components/labs/LabsCta";
 import { Navbar } from "@/components/Navbar";
@@ -16,7 +17,7 @@ import {
 const TITLE =
     "Labs — Interactive Websites, 3D Product Showcases & Free Templates | Somanath Studio";
 const DESCRIPTION =
-    "See interactive websites and 3D product showcases for brands and startups — plus free Next.js WebGL templates. Built for business owners who want a site that stands out, with open-source demos from Somanath Studio.";
+    "Premium Frontend gallery and free Next.js WebGL templates — Aura, Offday, FORME, Relay, Nova, HELIOS, Vela, Singularity, Mycelia, Flux. Live on demo.somanathkhadanga.com from Somanath Studio Labs.";
 
 export const metadata: Metadata = {
     title: TITLE,
@@ -87,6 +88,7 @@ export default function LabsPage() {
             <main className="min-h-screen bg-black text-white selection:bg-indigo-500/20">
                 <Navbar />
                 <LabsHero />
+                <PremiumFrontendHub />
                 <FeaturedWork templates={templates} />
                 <LabsCta />
                 <Footer />

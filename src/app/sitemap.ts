@@ -52,6 +52,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/hire-saas-mvp-developer',
         '/agency-development-partner',
         '/saas-mvp-audit',
+        '/tools',
+        '/tools/saas-mvp-cost-calculator',
         '/services',
         '/services/saas-mvp-development',
         '/services/custom-software-development',

@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { LabsEntrance } from "./LabsEntrance";
 
 const LabsScene = dynamic(
@@ -186,12 +185,14 @@ export function LabsHero() {
                                 </svg>
                                 <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-indigo-100/50 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
                             </a>
-                            <Link
-                                href="/templates"
+                            <a
+                                href="https://demo.somanathkhadanga.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] px-8 py-4 text-sm font-medium text-zinc-400 backdrop-blur-sm transition-all duration-300 hover:border-white/20 hover:text-white"
                             >
-                                Browse templates
-                            </Link>
+                                Open live gallery
+                            </a>
                         </motion.div>
                     </motion.div>
 

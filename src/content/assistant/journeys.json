@@ -83,10 +83,10 @@
     "label": "Explore Labs / templates",
     "icon": "Sparkles",
     "serviceIds": ["labs"],
-    "projectIds": ["aura-studio", "offday"],
+    "projectIds": ["premium-frontend", "aura-studio", "offday", "forme", "relay"],
     "blogSlugs": [],
     "firstSectionId": "services",
-    "message": "Labs is Somanath Studio's creative side — interactive 3D templates like Aura Studio and OFFDAY. Open /labs or a template page from the recommendations.",
+    "message": "Labs hosts Premium Frontend — live gallery at demo.somanathkhadanga.com with Aura, Offday, FORME, Relay, and more GPU / 3D showcases. Open /labs or a template page from the recommendations.",
     "primaryCTA": {
       "label": "Talk about Labs",
       "action": "open-booking"
