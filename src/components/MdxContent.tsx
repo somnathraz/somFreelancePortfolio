@@ -69,6 +69,23 @@ export const mdxComponents = {
     code: ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => (
         <code className={`relative rounded bg-white/10 px-[0.3rem] py-[0.2rem] font-mono text-sm text-blue-200 ${className || ''}`} {...props} />
     ),
+    table: ({ className, ...props }: React.HTMLAttributes<HTMLTableElement>) => (
+        <div className="my-8 overflow-x-auto rounded-xl border border-white/10">
+            <table className={`w-full border-collapse text-left text-sm ${className || ''}`} {...props} />
+        </div>
+    ),
+    thead: ({ className, ...props }: React.HTMLAttributes<HTMLTableSectionElement>) => (
+        <thead className={`bg-white/5 ${className || ''}`} {...props} />
+    ),
+    th: ({ className, ...props }: React.ThHTMLAttributes<HTMLTableCellElement>) => (
+        <th className={`border-b border-white/10 px-4 py-3 font-semibold text-white ${className || ''}`} {...props} />
+    ),
+    td: ({ className, ...props }: React.TdHTMLAttributes<HTMLTableCellElement>) => (
+        <td className={`border-b border-white/5 px-4 py-3 align-top text-zinc-300 ${className || ''}`} {...props} />
+    ),
+    tr: ({ className, ...props }: React.HTMLAttributes<HTMLTableRowElement>) => (
+        <tr className={`last:[&>td]:border-b-0 ${className || ''}`} {...props} />
+    ),
     img: ({ className, alt, src, ...props }: React.ImgHTMLAttributes<HTMLImageElement>) => {
         const resolvedAlt =
             typeof alt === "string" && alt.trim().length > 0

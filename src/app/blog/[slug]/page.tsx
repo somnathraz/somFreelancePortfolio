@@ -10,6 +10,7 @@ import { AuthorBio } from '@/components/AuthorBio';
 import { Footer } from '@/components/Footer';
 import { getPostBySlug, getPostSlugs } from '@/lib/blog';
 import { MDXRemote } from 'next-mdx-remote/rsc';
+import remarkGfm from 'remark-gfm';
 import { BlogTracker } from '@/components/ai-helper/BlogTracker';
 import { siteUrl } from '@/lib/site';
 import { blogPostingJsonLd, breadcrumbJsonLd as crumbsJsonLd } from '@/lib/seo';
@@ -201,7 +202,11 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                     </header>
 
                     <MdxContent>
-                        <MDXRemote source={post.content} components={mdxComponents} />
+                        <MDXRemote
+                            source={post.content}
+                            components={mdxComponents}
+                            options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
+                        />
                     </MdxContent>
 
                     {/* End of Article CTA */}

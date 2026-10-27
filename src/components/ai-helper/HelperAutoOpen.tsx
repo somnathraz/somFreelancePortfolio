@@ -9,17 +9,26 @@ function isMobile() {
   return window.matchMedia("(max-width: 767px)").matches;
 }
 
+const AUTO_OPENED_KEY = "helper_auto_opened";
+const MIN_DWELL_MS = 8000;
+
 /**
  * Hook that manages auto-open triggers for the page helper.
  *
- * Triggers:
- * - Inactivity timer (18s desktop / 25s mobile)
- * - 60% scroll depth without CTA click
- * - Exit intent (desktop only, cursor leaves viewport top)
+ * Triggers (both require MIN_DWELL_MS on page first, so a fast scroll or
+ * stray cursor move on arrival never fires it):
+ * - Exit intent (desktop only, cursor leaves viewport top) — the one moment
+ *   someone is about to leave without converting.
+ * - 60% scroll depth without a CTA click — genuine engagement with no action.
+ *
+ * Deliberately removed: a blind inactivity timer (reading an article for a
+ * few seconds is not "stuck") and scroll-direction thrashing (not a reliable
+ * intent signal, and firing a popup on a frustrated user makes it worse).
  *
  * Guards:
  * - Never auto-opens after session dismissal
- * - Never auto-opens twice
+ * - Never auto-opens more than once per browser session, even across fresh
+ *   page loads (sessionStorage, not just an in-memory ref)
  * - Never auto-opens for returning visitors (shows button only)
  * - Never auto-opens while booking form or modal is active
  */
@@ -30,16 +39,10 @@ export function useHelperAutoOpen() {
   const autoOpened = useRef(false);
   const ctaClicked = useRef(false);
   const reached60 = useRef(false);
-  const idleTimer = useRef<number | null>(null);
-  const lastScrollY = useRef(0);
-  const lastDirection = useRef<"up" | "down" | null>(null);
-  const directionChanges = useRef(0);
+  const arrivedAt = useRef(0);
 
-  const clearIdle = useCallback(() => {
-    if (idleTimer.current) {
-      window.clearTimeout(idleTimer.current);
-      idleTimer.current = null;
-    }
+  const alreadyAutoOpenedThisSession = useCallback(() => {
+    return sessionStorage.getItem(AUTO_OPENED_KEY) === "1";
   }, []);
 
   const isFormActive = useCallback(() => {
@@ -60,31 +63,24 @@ export function useHelperAutoOpen() {
   const tryAutoOpen = useCallback(
     (reason: string) => {
       if (dismissed || autoOpened.current || isReturningVisitor) return;
+      if (Date.now() - arrivedAt.current < MIN_DWELL_MS) return;
       if (isFormActive()) return;
       if (sessionStorage.getItem("helper_dismissed") === "1") return;
+      if (alreadyAutoOpenedThisSession()) return;
 
       autoOpened.current = true;
+      sessionStorage.setItem(AUTO_OPENED_KEY, "1");
       open();
       helperAnalytics.opened("auto", reason);
     },
-    [dismissed, isReturningVisitor, isFormActive, open]
+    [dismissed, isReturningVisitor, isFormActive, alreadyAutoOpenedThisSession, open]
   );
-
-  const resetIdle = useCallback(() => {
-    clearIdle();
-    if (dismissed || autoOpened.current) return;
-    if (sessionStorage.getItem("helper_dismissed") === "1") return;
-
-    const delay = isMobile() ? 25000 : 18000;
-    idleTimer.current = window.setTimeout(() => {
-      tryAutoOpen("inactivity");
-    }, delay);
-  }, [clearIdle, dismissed, tryAutoOpen]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (dismissed) return;
     if (sessionStorage.getItem("helper_dismissed") === "1") return;
+    arrivedAt.current = Date.now();
 
     // Returning visitors: show button only, no auto-open
     if (isReturningVisitor) {
@@ -92,38 +88,10 @@ export function useHelperAutoOpen() {
       return;
     }
 
-    // Start inactivity timer
-    resetIdle();
-
-    const onActivity = () => {
-      if (!isReturningVisitor) resetIdle();
-    };
-
-    const onClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (
-        target?.closest(
-          'a[href="/book"], a[href="#enquire"], a[href="#contact"], [data-helper-cta]'
-        )
-      ) {
-        ctaClicked.current = true;
-      }
-      onActivity();
-    };
+    if (alreadyAutoOpenedThisSession()) return;
 
     const onScroll = () => {
       const y = window.scrollY;
-      const dir: "up" | "down" = y > lastScrollY.current ? "down" : "up";
-
-      // Detect scroll thrashing (4+ direction changes)
-      if (lastDirection.current && dir !== lastDirection.current) {
-        directionChanges.current += 1;
-        if (directionChanges.current >= 4) {
-          tryAutoOpen("scroll_thrash");
-        }
-      }
-      lastDirection.current = dir;
-      lastScrollY.current = y;
 
       // Check scroll depth
       const doc = document.documentElement;
@@ -141,8 +109,17 @@ export function useHelperAutoOpen() {
       if (reached60.current && !ctaClicked.current) {
         tryAutoOpen("deep_scroll_no_cta");
       }
+    };
 
-      onActivity();
+    const onClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target?.closest(
+          'a[href="/book"], a[href="#enquire"], a[href="#contact"], [data-helper-cta]'
+        )
+      ) {
+        ctaClicked.current = true;
+      }
     };
 
     const onExitIntent = (e: MouseEvent) => {
@@ -153,27 +130,21 @@ export function useHelperAutoOpen() {
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("mousemove", onActivity, { passive: true });
-    window.addEventListener("keydown", onActivity);
     window.addEventListener("click", onClick);
     document.addEventListener("mouseout", onExitIntent);
 
     return () => {
-      clearIdle();
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("mousemove", onActivity);
-      window.removeEventListener("keydown", onActivity);
       window.removeEventListener("click", onClick);
       document.removeEventListener("mouseout", onExitIntent);
     };
   }, [
-    clearIdle,
     dismissed,
     isReturningVisitor,
     isOpen,
     open,
-    resetIdle,
     showButton,
     tryAutoOpen,
+    alreadyAutoOpenedThisSession,
   ]);
 }
