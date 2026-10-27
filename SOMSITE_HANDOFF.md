@@ -34,10 +34,11 @@ Stop adding volume; add things clients can use + proof.
 6. Demote Labs/Templates in nav/sitemap priority; cap news posts at ~1/month.
 
 ## Work queue
-Priority 1 (technical SEO fixes, ~1h): real sitemap dates; lower Labs/Templates priority; robots disallow `/api/` and `/og`; noindex thank-you pages; trim 5 titles + 11 descriptions; add service links to the 5 posts; set primaryKeyword + relatedService on top 20 posts.
-Priority 2: MVP cost calculator (spec first: inputs, pricing logic, layout).
+Priority 1 (technical SEO fixes) — done 2026-10-27: real sitemap dates; sitemap changeFrequency now honest (weekly only on `/`, `/blog`, `/labs`, `/templates`; monthly elsewhere); Labs/Templates priority lowered to 0.6; robots disallow `/api/` and `/og`; `/book/thank-you` confirmed noindex; trim 5 titles + 11 descriptions; service links added to the 5 posts; primaryKeyword + relatedService now set on all 64 posts; FAQ frontmatter synced on the 4 posts that already had a visible FAQ section (schema now matches visible content).
+Priority 2 — done 2026-10-26: MVP cost calculator at `/tools/saas-mvp-cost-calculator`.
 Priority 3: home page pricing range + entry-offer CTA.
 Priority 4: buyer-intent posts, 1/week, each with FAQ schema + service link + case-study link: How Agencies Can Outsource SaaS Development; Freelancer vs Agency for SaaS; Rebuild or Repair Your SaaS; What a SaaS Technical Audit Includes; Rescue an Unfinished SaaS Project.
+Priority 5 (next, not started): remaining 60 posts have no FAQ content yet — rich-result coverage is still thin. Production-readiness scorecard tool (second lead magnet) also queued.
 
 ## Working preferences
 Direct, decisive, opinionated answers; honest feasibility over encouragement; casual and brief.

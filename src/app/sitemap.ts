@@ -14,17 +14,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const posts = getAllPosts();
     const templates = getAllTemplates();
 
+    // Individual posts/templates are published content — they don't change
+    // weekly once live, only when revised. Listing pages change far more often.
     const blogs = posts.map((post) => ({
         url: `${BASE_URL}/blog/${post.slug}`,
         lastModified: new Date(post.lastModified),
-        changeFrequency: 'weekly' as const,
+        changeFrequency: 'monthly' as const,
         priority: 0.8,
     }));
 
     const templateUrls = templates.map((t) => ({
         url: `${BASE_URL}/templates/${t.slug}`,
         lastModified: contentLastModified(t.frontmatter.date, t.frontmatter.updated),
-        changeFrequency: 'weekly' as const,
+        changeFrequency: 'monthly' as const,
         priority: 0.8,
     }));
 
@@ -64,12 +66,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
         url: `${BASE_URL}${route}`,
         // Omit unknown dates instead of claiming every page changed at build time.
         ...(listingDates[route] ? { lastModified: listingDates[route] } : {}),
-        changeFrequency: 'weekly' as const,
+        // Listings surface new content often; static commercial/about pages don't.
+        changeFrequency:
+            route === '' || route === '/blog' || route === '/labs' || route === '/templates'
+                ? ('weekly' as const)
+                : ('monthly' as const),
+        // Labs/Templates are demoted below commercial pages — this is a SaaS
+        // dev studio first, a labs showcase second.
         priority:
             route === '' || route.startsWith('/services')
                 ? 1.0
                 : route === '/labs' || route === '/templates'
-                  ? 0.95
+                  ? 0.6
                   : 0.9,
     }));
 

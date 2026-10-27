@@ -1,12 +1,29 @@
 ---
-title: "Next.js 16 App Router Caching Changed — Here's What to Update in Your SaaS"
-metaTitle: "Next.js 16 Caching Changes: What to Update in Your SaaS"
-description: "A practical guide to Next.js 16 caching changes: what moved to opt-in, how 'use cache' works in production, and what SaaS teams should actually update."
-date: "2026-04-18"
-readTime: "10 min read"
-category: "Next.js Performance"
-tags: ["Next.js 16", "Caching", "App Router", "Performance", "SaaS"]
-shareImage: "/images/blog/nextjs-16-app-router-caching-changes-saas.png"
+title: Next.js 16 App Router Caching Changed — Here's What to Update in Your SaaS
+metaTitle: 'Next.js 16 Caching Changes: What to Update in Your SaaS'
+description: 'A practical guide to Next.js 16 caching changes: what moved to opt-in, how ''use cache'' works in production, and what SaaS teams should actually update.'
+date: '2026-04-18'
+readTime: 10 min read
+category: Next.js Performance
+tags:
+  - Next.js 16
+  - Caching
+  - App Router
+  - Performance
+  - SaaS
+shareImage: /images/blog/nextjs-16-app-router-caching-changes-saas.png
+primaryKeyword: Next.js 16 App Router caching changes
+relatedService: /services/nextjs-performance-optimization
+updated: '2026-10-27'
+faq:
+  - question: Does Next.js 16 break my existing app?
+    answer: 'Not directly. Your code still runs. What changes is behavior — specifically, data that used to be cached implicitly is now fetched fresh every request. The app works, but your database and API calls go up. Plan the upgrade alongside a caching audit, not as a standalone version bump.'
+  - question: Do I need to rewrite every fetch() call in Next.js 16?
+    answer: 'Only the ones you actually want cached. In 16, fetch() is fresh by default. If you had public, stable data (product catalogs, marketing content, public config) that was implicitly cached before, you''ll need to add cache: ''force-cache'' and a revalidate window to restore that behavior. Per-user and per-request data can stay as-is.'
+  - question: What replaces unstable_cache in Next.js 16?
+    answer: '''use cache'' plus the cacheLife and cacheTag APIs. unstable_cache still works for now but the ergonomics are worse and it''s deprecated in the docs. If you''re already in a Next.js 16 codebase doing caching work, migrate to ''use cache'' in the same PR.'
+  - question: Is 'use cache' stable in production?
+    answer: 'Yes, as of Next.js 16. It''s no longer behind an experimental flag and it''s the primary caching primitive going forward. Be careful with cache keys — any function with ''use cache'' that returns per-user data must include the user or org ID via cacheTag, or you''ll cross-contaminate users.'
 ---
 
 ![Next.js 16 caching behavior in a production SaaS application](/images/blog/nextjs-16-app-router-caching-changes-saas.png)

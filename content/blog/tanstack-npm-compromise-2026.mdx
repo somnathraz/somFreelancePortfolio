@@ -1,13 +1,31 @@
 ---
-title: "TanStack Was Compromised Yesterday. Here's What SaaS Teams Need to Do Right Now."
-metaTitle: "TanStack npm Compromise May 2026: SaaS Response Guide"
-description: "Review the May 2026 TanStack npm compromise, check your dependencies and build exposure, and plan a practical incident response for your SaaS team."
-date: "2026-05-13"
-readTime: "9 min read"
-category: "Security"
-tags: ["npm", "TanStack", "Security", "Supply Chain", "GitHub Actions", "SaaS", "Production Readiness"]
-shareImage: "/images/blog/tanstack-npm-compromise-2026.png"
-updated: "2026-10-25"
+title: TanStack Was Compromised Yesterday. Here's What SaaS Teams Need to Do Right Now.
+metaTitle: 'TanStack npm Compromise May 2026: SaaS Response Guide'
+description: 'Review the May 2026 TanStack npm compromise, check your dependencies and build exposure, and plan a practical incident response for your SaaS team.'
+date: '2026-05-13'
+readTime: 9 min read
+category: Security
+tags:
+  - npm
+  - TanStack
+  - Security
+  - Supply Chain
+  - GitHub Actions
+  - SaaS
+  - Production Readiness
+shareImage: /images/blog/tanstack-npm-compromise-2026.png
+updated: '2026-10-27'
+primaryKeyword: TanStack npm compromise
+relatedService: /services/production-readiness-upgrade
+faq:
+  - question: Am I affected if I use @tanstack/react-query but not @tanstack/router?
+    answer: 'The affected families confirmed by TanStack''s advisory are the router-related packages. @tanstack/query-*, @tanstack/table, @tanstack/form, @tanstack/virtual, and @tanstack/store are confirmed clean for this specific incident. Check the full advisory (GHSA-g7cv-rxg3-hmpx) for the complete affected package list.'
+  - question: The attack happened in a 6-minute window. How likely is it that my CI actually hit it?
+    answer: 'It depends on how often your CI runs and whether it installs fresh. If your CI caches node_modules and didn''t run a fresh install on May 11, you were likely not affected. If you run fresh installs on every job and those jobs ran during or after 19:20 UTC on May 11, check your install logs for the affected packages.'
+  - question: The SLSA provenance on the bad packages is valid. Does this mean SLSA is broken?
+    answer: No — but it means the threat model for SLSA needs to be understood clearly. SLSA provenance attests that a package was built by a specific repository's workflow on a specific branch. It does not attest that the workflow ran authorized code or that a fork PR didn't influence the build.
+  - question: Can I use TanStack packages safely now?
+    answer: 'Yes — as of May 12, all affected versions have been deprecated, new clean versions have been published, and npm is pulling the malicious tarballs. If you update to the latest versions published after May 12, you are using clean packages.'
 ---
 
 ![TanStack npm supply chain compromise May 2026 — SaaS team response guide](/images/blog/tanstack-npm-compromise-2026.png)
