@@ -209,14 +209,34 @@ If `faq` exists in frontmatter, include a visible `## Frequently Asked Questions
 
 ## Cover image
 
-- Create exactly one original landscape cover image per post.
-- Inspect at least three representative existing covers before generation and use them as style references.
-- Match the established format: premium flat dark technology infographic, nearly black navy or charcoal background, strong sans-serif typography, crisp outlined panels, simple engineering icons, restrained cyan/blue/violet/amber accents, and generous safe margins.
-- Prefer 1672×941 16:9 PNG.
-- Use a short accurate headline and only a few concise labels when text materially improves the infographic.
-- Verify every rendered word. Do not include invented metrics, claims, logos, or watermarks.
-- Avoid cinematic 3D machinery, photorealistic stock scenes, generic glowing brains, clutter, and small unreadable annotations.
-- Save the asset at `public/images/blog/<slug>.png`.
+Covers are made with `scripts/generate-cover.mjs` (Gemini image API; the real logo is added afterwards with exact pixels). Create exactly one cover per post and save it at `public/images/blog/<slug>.png`.
+
+```bash
+node --env-file=.env scripts/generate-cover.mjs --slug <slug> --style <matte|diagram|buildlog> ...
+```
+
+Pick the style by post type:
+
+| Style | Use for | Look | Key options |
+|---|---|---|---|
+| `matte` (default) | general posts, opinion, cost, security explainers | calm, soft, flat editorial illustration, off-white background, muted greys and sage, no text | `--scene "objects to draw"` |
+| `diagram` | architecture, flows, how-it-works posts | light airy background, rounded nodes, one smooth arrow between nodes, short labels | `--title`, `--nodes "A\|B\|C\|D"`, `--flow` |
+| `buildlog` | build-in-public and project progress posts | dark navy with violet glow, big brush kicker, product screen mock, small icon tiles | `--kicker`, `--title`, `--scene`, `--nodes` |
+| `infographic` | rare; dense step lists only | dark panel infographic, toned down | `--title`, `--badge`, `--labels` |
+
+Rules:
+
+- Avoid glossy, glassy, neon, 3D-render and photoreal looks. If a cover looks glossy, regenerate with a calmer scene.
+- Text in the image is only what you pass in; verify every rendered word and spelling.
+- Never put invented metrics, versions, dates, progress claims ("DONE", "Day N") or brand letters on icons. For `buildlog`, state the day number and status yourself in the kicker or title, from real work.
+- Mock UI screens must use grey placeholder bars only (no readable fake numbers).
+- Do not use the logo from the model; the script overlays the real logo plus the brand name ("Somanath Studio") and domain as exact text. Use `--lockup none` or `--logo none` only when told to; `--brand` and `--domain` override the text.
+- `matte` covers can carry a headline: pass `--title` (and optional `--subtitle`) and the script renders it as exact text over the illustration, so the cover never feels blank.
+- Check the result for stray boxes behind the logo, cropped content, and misspelled labels before saving; regenerate rather than patching by hand.
+- Output is 3:2 (about 1264x848 or larger). The Dev.to cover crop (1000x420) can be made from it later.
+- Write short, descriptive alt text in the post's opening image Markdown.
+- The script refuses to overwrite an existing cover unless `--force` is passed.
+- Requires `GEMINI_API_KEY` in `.env`; never print it. One API call per cover.
 
 ## Quality gate
 
