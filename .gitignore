@@ -45,3 +45,6 @@ GROWTH_CHECKLIST.md
 
 # Local archives (old logo packs, zips, unused brand exports)
 /archived/
+
+# claude worktrees
+.claude/worktrees/
