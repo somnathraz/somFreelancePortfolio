@@ -1,6 +1,8 @@
 import { getAllPosts } from '@/lib/blog';
 import { getAllTemplates } from '@/lib/templates';
 import { getAllTraps } from '@/lib/traps';
+import { getAllDesigns } from '@/lib/trap-designs';
+import { LEVELS } from '@/lib/trap-game/levels';
 import { MetadataRoute } from 'next';
 import { contentLastModified } from '@/lib/content-dates';
 
@@ -32,9 +34,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.8,
     }));
 
-    const trapUrls = traps.map((trap) => ({
-        url: `${BASE_URL}/labs/traps/${trap.slug}`,
-        lastModified: trap.generatedAt.slice(0, 10),
+    const trapUrls = [
+        ...traps.map((trap) => ({ slug: trap.slug, lastModified: trap.generatedAt.slice(0, 10) })),
+        ...getAllDesigns().map((design) => ({ slug: design.slug, lastModified: design.updated })),
+        // game levels have no recorded date; omit it rather than claim they changed at build time
+        ...LEVELS.map((level) => ({ slug: `play/${level.id}`, lastModified: undefined })),
+    ].map(({ slug, lastModified }) => ({
+        url: `${BASE_URL}/labs/traps/${slug}`,
+        ...(lastModified ? { lastModified } : {}),
         changeFrequency: 'monthly' as const,
         priority: 0.7,
     }));
@@ -45,7 +52,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/blog': newest(posts.map((post) => post.lastModified)),
         '/templates': newest(templateUrls.map((template) => template.lastModified)),
         '/labs': newest(templateUrls.map((template) => template.lastModified)),
-        '/labs/traps': newest(trapUrls.map((trap) => trap.lastModified)),
+        '/labs/traps': newest(trapUrls.map((trap) => trap.lastModified).filter((date): date is string => !!date)),
     };
 
     const routes = [
@@ -55,6 +62,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/contact',
         '/labs',
         '/labs/traps',
+        '/labs/traps/play',
         '/templates',
         '/case-studies',
         '/case-studies/studio-booking-platform',

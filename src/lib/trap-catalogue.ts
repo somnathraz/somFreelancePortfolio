@@ -1,16 +1,21 @@
 import type { TrapBundle } from "@/types/traps";
+import { getAllDesigns } from "@/lib/trap-designs";
 
 export interface CatalogueEntry {
     slug: string;
     title: string;
     question: string;
     published: boolean;
+    /** "design" pages are read-only system-design episodes with no replay. */
+    kind?: "replay" | "design";
 }
 
 export interface CatalogueTopic {
     id: string;
     title: string;
     description: string;
+    /** Parent heading when this topic sits under a broader section, for example "System design". */
+    group?: string;
     entries: CatalogueEntry[];
 }
 
@@ -20,6 +25,14 @@ type PlannedTopic = Omit<CatalogueTopic, "entries"> & {
 
 // Editorial roadmap only. A trace bundle, not this list, makes a trap available.
 const TOPICS: PlannedTopic[] = [
+    { id: "url-shortener", title: "URL Shortener", group: "System design", description: "The design decision, then the real bugs hiding inside it.", entries: [
+        ["url-shortener-core-design", "Hash or counter", "How does a URL shortener generate its short code, and what does each choice cost?"],
+        ["url-shortener-id-collision", "The ID collision", "What if two requests ask the counter for an ID at the same instant?"],
+        ["url-shortener-stale-redirect", "The stale redirect", "A link is cached, then its destination is updated. Which URL does the next visitor get?"],
+        ["url-shortener-analytics-hot-path", "Analytics on the hot path", "Can recording a click slow down the redirect itself?"],
+        ["url-shortener-vanity-alias-race", "The vanity alias race", "Two users claim the same custom alias at once. Who gets it?"],
+        ["url-shortener-expired-cleanup", "Cleanup at scale", "Why can a plain DELETE of expired links lock the table?"],
+    ] },
     { id: "concurrency", title: "Concurrency", description: "When requests collide and shared state stops being safe.", entries: [
         ["booking-race-condition", "The double-booking race", "Can two requests book the same last seat?"],
         ["lost-update", "The lost update", "Why does a counter lose increments under load?"],
@@ -60,18 +73,20 @@ const TOPICS: PlannedTopic[] = [
 
 export function buildTrapCatalogue(traps: Pick<TrapBundle, "slug" | "title" | "question">[]): CatalogueTopic[] {
     const published = new Map(traps.map((trap) => [trap.slug, trap]));
+    const designs = new Map(getAllDesigns().map((design) => [design.slug, design]));
     const topics = TOPICS.map((topic) => ({
         ...topic,
         entries: topic.entries.map(([slug, title, question]) => ({
             slug,
             title: published.get(slug)?.title ?? title,
             question: published.get(slug)?.question ?? question,
-            published: published.has(slug),
+            published: published.has(slug) || designs.has(slug),
+            kind: designs.has(slug) ? "design" as const : "replay" as const,
         })),
     }));
     const known = new Set(topics.flatMap((topic) => topic.entries.map((entry) => entry.slug)));
     const extra = traps.filter((trap) => !known.has(trap.slug));
     // Newly synced traces must remain discoverable even before editorial categorization.
-    if (extra.length) topics.push({ id: "more-traps", title: "More traps", description: "New replays from the lab.", entries: extra.map((trap) => ({ ...trap, published: true })) });
+    if (extra.length) topics.push({ id: "more-traps", title: "More traps", description: "New replays from the lab.", entries: extra.map((trap) => ({ ...trap, published: true, kind: "replay" as const })) });
     return topics;
 }

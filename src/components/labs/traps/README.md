@@ -26,3 +26,20 @@ to a topic. The trace schema does not need to change.
 `TrapCatalogue` renders the searchable index and availability filter.
 `TrapLibraryNav` shares topic navigation between the index and replay pages, with
 an independently scrolling desktop sidebar and a collapsible mobile menu.
+
+## Break the Backend (play mode)
+
+`/labs/traps/play` is a game built on top of the traps. Unlike the replay, which plays back a
+recorded trace, the game *simulates*: the player picks which request moves next.
+
+- `src/lib/trap-game/engine.ts` — pure simulator (no React). A level is lanes of `Step`s over a small
+  key/value DB. `cas`, `incr`, `pushUnique` and `fetchIncr` are single atomic statements; `lock`/`unlock`
+  model row locks, and `scope: "server"` models an in-process mutex that only blocks the same server.
+  `verify()` tries every interleaving, so a fix is judged exhaustively rather than on the player's order.
+  `bestBreak()` computes "par": the break with the fewest switches between requests.
+- `src/lib/trap-game/levels.ts` — the levels. A new level = bug handler, invariants, and fixes
+  (include a decoy or two that look right but fail). `trap` links to the catalogue slug.
+- `src/components/labs/traps/game/` — `BreakTheBackend` (state machine: break, then patch) and `Panels`.
+
+Shared results are `?m=0101…` (who moved at each step). Sanity-check a new level by running `verify()` on
+the bug (must break), each real fix (must hold) and each decoy (must break).

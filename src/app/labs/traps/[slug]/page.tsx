@@ -11,10 +11,12 @@ import { TrapExperience } from "@/components/labs/traps/TrapExperience";
 import { LiteYouTube } from "@/components/labs/traps/LiteYouTube";
 import { TRAPS_REPO_URL, getAllTraps, getTrapBySlug } from "@/lib/traps";
 import { getTrapExtras } from "@/lib/trap-extras";
+import { DesignPage } from "@/components/labs/traps/DesignPage";
+import { getAllDesigns, getDesignBySlug } from "@/lib/trap-designs";
 import { breadcrumbJsonLd, softwareSourceCodeJsonLd, webPageJsonLd } from "@/lib/seo";
 
 export function generateStaticParams() {
-    return getAllTraps().map((trap) => ({ slug: trap.slug }));
+    return [...getAllTraps().map((trap) => trap.slug), ...getAllDesigns().map((design) => design.slug)].map((slug) => ({ slug }));
 }
 
 export const dynamicParams = false;
@@ -23,6 +25,20 @@ const pad = (n: number) => String(n).padStart(2, "0");
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
+    const design = getDesignBySlug(slug);
+    if (design) {
+        const description = `${design.question} ${design.rule}`.slice(0, 158);
+        const path = `/labs/traps/${design.slug}`;
+        const og = `/og?title=${encodeURIComponent(design.title)}`;
+        const title = `${design.title}: ${design.system} | Somanath Studio Labs`;
+        return {
+            title,
+            description,
+            alternates: { canonical: path },
+            openGraph: { title: design.title, description, url: path, siteName: "Somanath Studio", type: "article", images: [{ url: og, width: 1200, height: 630, alt: design.title }] },
+            twitter: { card: "summary_large_image", title: design.title, description, images: [og] },
+        };
+    }
     const trap = getTrapBySlug(slug);
     if (!trap) return {};
     const title = `${trap.title}: Interview Trap ${pad(trap.number)} (Interactive Replay) | Somanath Studio Labs`;
@@ -40,6 +56,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function TrapPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
+    const design = getDesignBySlug(slug);
+    if (design) return <DesignPage design={design} topics={buildTrapCatalogue(getAllTraps())} />;
     const trap = getTrapBySlug(slug);
     if (!trap) notFound();
 

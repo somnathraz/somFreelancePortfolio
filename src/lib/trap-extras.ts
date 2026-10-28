@@ -23,6 +23,13 @@ export interface TrapExtras {
 }
 
 const EXTRAS: Record<string, TrapExtras> = {
+    "url-shortener-core-design": {
+        series: "URL Shortener",
+        reels: [
+            { platform: "youtube", url: "https://www.youtube.com/shorts/IXoW0dAlyV0", youtubeId: "IXoW0dAlyV0" },
+            { platform: "instagram", url: "https://www.instagram.com/codewithsom/reel/DfCJSCah3me/" },
+        ],
+    },
     "booking-race-condition": {
         series: "Booking system",
         reels: [

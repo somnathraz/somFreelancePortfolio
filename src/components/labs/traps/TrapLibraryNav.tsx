@@ -24,8 +24,10 @@ export function TrapLibraryNav({ topics, currentSlug, onNavigate }: Props) {
             <Link href="/labs/traps" aria-current={!currentSlug ? "page" : undefined} className="flex items-center gap-2 text-sm font-semibold text-indigo-300 hover:text-indigo-200">
                 <Library size={16} aria-hidden="true" /> All traps
             </Link>
-            {topics.map((topic) => (
-                <details key={topic.id} open className="group/topic">
+            {topics.map((topic, index) => (
+                <div key={topic.id}>
+                {topic.group && topic.group !== topics[index - 1]?.group && <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">{topic.group}</p>}
+                <details open className="group/topic">
                     <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-medium text-white/85 [&::-webkit-details-marker]:hidden">
                         <ChevronDown size={13} aria-hidden="true" className="transition-transform group-open/topic:rotate-0 -rotate-90 motion-reduce:transition-none" />
                         {topic.title}
@@ -48,6 +50,7 @@ export function TrapLibraryNav({ topics, currentSlug, onNavigate }: Props) {
                         ))}
                     </ul>
                 </details>
+                </div>
             ))}
         </nav>
     );
