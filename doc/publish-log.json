@@ -1,0 +1,71 @@
+{
+  "posts": {
+    "freelancer-vs-agency-saas-development": {
+      "title": "Freelancer vs Agency for SaaS Development",
+      "created": "2026-10-28T04:10:25.947Z",
+      "platforms": {
+        "studio-site": {
+          "status": "success",
+          "updated": "2026-10-28T04:10:25.974Z",
+          "url": "https://somanathkhadanga.com/blog/freelancer-vs-agency-saas-development",
+          "note": "already live (HTTP 200)"
+        },
+        "devto": {
+          "status": "success",
+          "updated": "2026-10-28T04:10:26.000Z",
+          "url": "https://dev.to/somnath_khadanga_2e5c2364/freelancer-vs-agency-for-saas-development-a-founders-decision-framework-4c2g",
+          "note": "canonical set, cover uploaded"
+        },
+        "hashnode": {
+          "status": "success",
+          "updated": "2026-10-28T04:26:45.859Z",
+          "note": "posted via in-app browser; canonical verified; no cover (in-app browser cannot upload files)",
+          "url": "https://buildsaas.hashnode.dev/freelancer-vs-agency-for-saas-development-a-founder-s-decision-framework"
+        },
+        "medium": {
+          "status": "success",
+          "updated": "2026-10-28T04:12:16.941Z",
+          "url": "https://medium.com/@somnathkhadanga810/freelancer-vs-agency-for-saas-development-92ba89f780c3",
+          "note": "imported from site URL (canonical auto)"
+        },
+        "substack": {
+          "status": "success",
+          "updated": "2026-10-28T04:15:04.075Z",
+          "url": "https://somanathkhadanga.substack.com/p/freelancer-vs-agency-for-saas-development",
+          "note": "web only, no email sent; no canonical field on Substack so source link added at end"
+        },
+        "hackernoon": {
+          "status": "manual",
+          "updated": "2026-10-28T04:40:41.052Z",
+          "note": "draft complete: featured image uploaded by you, category, 4 tags, metadescription, TL;DR, marked Republished (re-set after reload); NOT submitted - you press Submit Story",
+          "url": "https://app.hackernoon.com/mobile/6ae17a6d2eb3d74761b0bd30"
+        },
+        "peerlist": {
+          "status": "success",
+          "updated": "2026-10-28T04:27:28.593Z",
+          "note": "Scroll post via in-app browser, #show, link to the site post",
+          "url": "https://peerlist.io/somanath"
+        },
+        "facebook": {
+          "status": "success",
+          "updated": "2026-10-28T04:20:31.686Z",
+          "note": "posted on Buildwithsom Page, public, link card with cover",
+          "url": "https://www.facebook.com/profile.php?id=61591734458459"
+        },
+        "linkedin": {
+          "status": "skipped",
+          "updated": "2026-10-28T04:15:46.402Z",
+          "note": "not a Labs/traps build post"
+        },
+        "instagram": {
+          "status": "manual",
+          "updated": "2026-10-28T04:10:25.947Z"
+        },
+        "youtube": {
+          "status": "manual",
+          "updated": "2026-10-28T04:10:25.947Z"
+        }
+      }
+    }
+  }
+}
