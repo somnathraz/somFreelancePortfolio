@@ -15,8 +15,9 @@ const BASE_MS = 1150;
  * Replays a recorded trace (see github.com/somnathraz/interview-traps, TRACE_SCHEMA.md).
  * Renders any trap generically: no per-episode code here.
  */
-export function TrapReplay({ trap }: { trap: TrapBundle }) {
-    const [variantName, setVariantName] = useState<TrapVariantName>("bug");
+export function TrapReplay({ trap, variant: controlled, onVariantChange }: { trap: TrapBundle; variant?: TrapVariantName; onVariantChange?: (name: TrapVariantName) => void }) {
+    const [ownVariant, setOwnVariant] = useState<TrapVariantName>("bug");
+    const variantName = controlled ?? ownVariant;
     const [index, setIndex] = useState(-1);
     const [playRequested, setPlaying] = useState(false);
     const [speed, setSpeed] = useState<(typeof SPEEDS)[number]>(1);
@@ -30,7 +31,8 @@ export function TrapReplay({ trap }: { trap: TrapBundle }) {
     const playing = playRequested && !done;
 
     const switchVariant = (name: TrapVariantName) => {
-        setVariantName(name);
+        setOwnVariant(name);
+        onVariantChange?.(name);
         setIndex(-1);
         setPlaying(false);
     };
