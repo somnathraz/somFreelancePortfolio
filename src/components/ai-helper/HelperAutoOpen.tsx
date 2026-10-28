@@ -48,6 +48,8 @@ export function useHelperAutoOpen() {
   const isFormActive = useCallback(() => {
     // Don't auto-open if user is interacting with a form or the booking page
     if (window.location.pathname.startsWith("/book")) return true;
+    // Trap replays: the popup sits over the animation controls.
+    if (window.location.pathname.startsWith("/labs/traps")) return true;
     const active = document.activeElement;
     if (
       active &&
