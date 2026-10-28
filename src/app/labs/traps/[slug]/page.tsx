@@ -8,6 +8,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { TrapLibraryNav } from "@/components/labs/traps/TrapLibraryNav";
 import { buildTrapCatalogue } from "@/lib/trap-catalogue";
 import { TrapExperience } from "@/components/labs/traps/TrapExperience";
+import { LiteYouTube } from "@/components/labs/traps/LiteYouTube";
 import { TRAPS_REPO_URL, getAllTraps, getTrapBySlug } from "@/lib/traps";
 import { getTrapExtras } from "@/lib/trap-extras";
 import { breadcrumbJsonLd, softwareSourceCodeJsonLd, webPageJsonLd } from "@/lib/seo";
@@ -143,14 +144,7 @@ export default async function TrapPage({ params }: { params: Promise<{ slug: str
                                 </div>
                             </div>
                             <div className="mx-auto aspect-[9/16] w-full max-w-[260px] overflow-hidden rounded-xl border border-white/10 bg-black">
-                                <iframe
-                                    src={`https://www.youtube-nocookie.com/embed/${youtubeReel.youtubeId}`}
-                                    title={`${trap.title}: reel`}
-                                    loading="lazy"
-                                    allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                                    referrerPolicy="strict-origin-when-cross-origin"
-                                    className="h-full w-full"
-                                />
+                                <LiteYouTube id={youtubeReel.youtubeId} title={`${trap.title}: reel`} />
                             </div>
                         </section>
                     )}
