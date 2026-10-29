@@ -15,7 +15,22 @@ No per-episode code lives here. A new trap = a new JSON file. The format is `src
 - `TrapCode` — source with active step + per-user "program counter" badges
 - `TrapState` — DB/cache tables after each event, changed cells highlighted
 
-## Topic library
+## Tracks (what visitors see)
+
+`src/lib/systems.ts` defines system-design tracks: a guided path of learn, trap and build steps for
+one system, rendered at `/labs/systems/<id>`. A step with an `href` is live; one without shows as
+"in progress" on the track page only. `/labs/traps` (`TrapsHome`) lists tracks plus live pages outside
+a track (`getStandaloneLinks` in `src/lib/library-nav.ts`). It never lists unpublished traps.
+`TrapLibraryNav` is the shared sidebar built from the same data.
+
+To publish a trap inside a track, give its step an `href`.
+
+The traps are the product: runnable bugs with proof tests, not a box-wiring simulator (that space is
+crowded). A track's last step, "Build it", is the pattern game: the player picks the code pattern for
+each step of the system and `verify()` from the Break the Backend engine runs every ordering to show
+which traps fire. See `doc/SYSTEM_DESIGN_SERIES.md` (Positioning).
+
+## Topic roadmap (internal)
 
 `src/lib/trap-catalogue.ts` defines the topic order and upcoming trap roadmap. Match
 an entry's slug to its trace filename to publish it automatically; titles and
@@ -23,9 +38,8 @@ questions then come from the trace. Entries without traces display “Coming soo
 and have no replay links. Unlisted traces appear under “More traps” until assigned
 to a topic. The trace schema does not need to change.
 
-`TrapCatalogue` renders the searchable index and availability filter.
-`TrapLibraryNav` shares topic navigation between the index and replay pages, with
-an independently scrolling desktop sidebar and a collapsible mobile menu.
+It is no longer rendered as a list. Replay pages still use it for their topic label and
+previous/next links, which skip unpublished entries.
 
 ## Break the Backend (play mode)
 
@@ -43,3 +57,13 @@ recorded trace, the game *simulates*: the player picks which request moves next.
 
 Shared results are `?m=0101…` (who moved at each step). Sanity-check a new level by running `verify()` on
 the bug (must break), each real fix (must hold) and each decoy (must break).
+
+## Lesson template
+
+Every lesson page uses `src/components/labs/lesson/Lesson.tsx`, in this order: where am I (strip),
+In 30 seconds (summary), why it matters, words you need (`src/lib/concepts.ts`), picture it,
+the options or the bug, the choice or the fix, check yourself, the code (read-only, highlighted with
+Shiki at build time) + GitHub card, remember + next. The reel sits folded near the end.
+
+Lesson pages have their own light/dark theme (`data-lesson-theme`, tokens `--l-*` in `globals.css`,
+saved in localStorage). Use the `--l-*` tokens for colours inside a lesson, never fixed white or black.

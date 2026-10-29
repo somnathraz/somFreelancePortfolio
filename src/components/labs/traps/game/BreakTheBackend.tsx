@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Check, Copy, Lightbulb, RotateCcw, Undo2, X } from "lucide-react";
@@ -11,6 +11,7 @@ import {
 import { LEVELS, getLevel } from "@/lib/trap-game/levels";
 import { SEVERITY_COLORS, alpha } from "../palette";
 import { DbPanel, EventLog, LaneCard, ScheduleStrip } from "./Panels";
+import { SeatScene, type SceneOutcome } from "./SeatScene";
 
 type Mode = "break" | "patch";
 interface PatchState { fixId: string; schedule: number[]; at: number }
@@ -19,8 +20,14 @@ const BAD = SEVERITY_COLORS.bad;
 const OK = SEVERITY_COLORS.ok;
 const EMOJI = ["🟨", "🟦"];
 
+/** Levels drawn as an animated scene. The rest use the plain lane view. */
+const SCENES: Partial<Record<string, typeof SeatScene>> = { "double-booked-seat": SeatScene };
+/** Gives a packet time to land before the next step, so the scene stays readable. */
+const SCENE_STEP_MS = 450;
+
 export function BreakTheBackend({ levelId, trapPublished }: { levelId: string; trapPublished: boolean }) {
     const level = getLevel(levelId)!;
+    const Scene = SCENES[level.id];
     const nextLevel = LEVELS[LEVELS.indexOf(level) + 1];
 
     const [picks, setPicks] = useState<number[]>([]);
@@ -65,8 +72,11 @@ export function BreakTheBackend({ levelId, trapPublished }: { levelId: string; t
     }, [demo, demoing, picks]);
 
     const play = (schedule: number[]) => { setMode("break"); setPatch(null); setPicks([]); setDemo(schedule); };
+    const lastMove = useRef(0);
     const move = (lane: number) => {
         if (mode !== "break" || demoing || finished || !canStep(level, run.sim, lane)) return;
+        if (Scene && Date.now() - lastMove.current < SCENE_STEP_MS) return;
+        lastMove.current = Date.now();
         setPicks((p) => [...p, lane]);
     };
     const reset = () => { setDemo(null); setPicks([]); setMode("break"); setPatch(null); };
@@ -116,6 +126,9 @@ export function BreakTheBackend({ levelId, trapPublished }: { levelId: string; t
     };
 
     const holdingAfterPatch = replayDone && verdict?.holds;
+    const sceneOutcome: SceneOutcome | undefined =
+        mode === "break" ? (finished ? (won ? { ok: false, text: broken[0] } : { ok: true, text: "Nothing broke this time. Try another order." }) : undefined)
+        : replayDone && rep ? (ownBreak ? { ok: false, text: ownBreak } : { ok: true, text: "The fix held against your order." }) : undefined;
 
     return (
         <div className="flex flex-col gap-6">
@@ -158,6 +171,12 @@ export function BreakTheBackend({ levelId, trapPublished }: { levelId: string; t
                 </ul>
             </section>
 
+            {Scene ? (
+                <div className="flex flex-col gap-4">
+                    <Scene level={level} sim={view.sim} event={view.event} eventIndex={view.events.length} interactive={view.interactive && !demoing} onStep={move} outcome={sceneOutcome} />
+                    <EventLog level={level} events={view.events} />
+                </div>
+            ) : (
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_300px]">
                 {level.lanes.map((lane, i) => (
                     <LaneCard
@@ -178,6 +197,7 @@ export function BreakTheBackend({ levelId, trapPublished }: { levelId: string; t
                     <EventLog level={level} events={view.events} />
                 </div>
             </div>
+            )}
 
             {mode === "break" && !won && (
                 <div className="flex flex-wrap items-center gap-3">

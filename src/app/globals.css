@@ -372,3 +372,80 @@ body {
   transition: outline-color 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 0 0 8px rgba(52, 211, 153, 0.08);
 }
+
+/* Lesson pages: a reading surface with its own light and dark theme (toggle in LessonShell). */
+@custom-variant lesson-light {
+  &:where([data-lesson-theme=light] *) {
+    @slot;
+  }
+}
+
+[data-lesson-theme="dark"] {
+  --l-bg: #000;
+  --l-fg: #f4f4f5;
+  --l-muted: rgba(255, 255, 255, 0.66);
+  --l-faint: rgba(255, 255, 255, 0.42);
+  --l-border: rgba(255, 255, 255, 0.1);
+  --l-border-strong: rgba(255, 255, 255, 0.2);
+  --l-card: rgba(255, 255, 255, 0.03);
+  --l-accent: #a5b4fc;
+  --l-accent-bg: rgba(129, 140, 248, 0.08);
+  --l-bug: #fb7185;
+  --l-bug-bg: rgba(251, 113, 133, 0.07);
+  --l-fix: #34d399;
+  --l-fix-bg: rgba(52, 211, 153, 0.07);
+  --l-warn: #fbbf24;
+  --l-warn-bg: rgba(251, 191, 36, 0.06);
+  --l-code-bg: #0b0b10;
+}
+
+[data-lesson-theme="light"] {
+  --l-bg: #fafaf9;
+  --l-fg: #18181b;
+  --l-muted: #52525b;
+  --l-faint: #71717a;
+  --l-border: #e4e4e7;
+  --l-border-strong: #d4d4d8;
+  --l-card: #ffffff;
+  --l-accent: #4338ca;
+  --l-accent-bg: #eef2ff;
+  --l-bug: #be123c;
+  --l-bug-bg: #fff1f2;
+  --l-fix: #047857;
+  --l-fix-bg: #ecfdf5;
+  --l-warn: #b45309;
+  --l-warn-bg: #fffbeb;
+  --l-code-bg: #ffffff;
+}
+
+[data-lesson-theme] {
+  background: var(--l-bg);
+  color: var(--l-fg);
+}
+
+/* The site navbar is dark glass; over a light lesson it turns grey, so make it solid there. */
+:root:has([data-lesson-theme="light"]) header.fixed {
+  background-color: rgb(0 0 0 / 0.94);
+}
+
+.lesson-code .shiki {
+  background: transparent !important;
+}
+[data-lesson-theme="dark"] .lesson-code .shiki span {
+  color: var(--shiki-dark);
+}
+[data-lesson-theme="light"] .lesson-code .shiki span {
+  color: var(--shiki-light);
+}
+.lesson-code code {
+  counter-reset: line;
+}
+.lesson-code .line::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 1.75rem;
+  margin-right: 1.25rem;
+  text-align: right;
+  color: var(--l-faint);
+}

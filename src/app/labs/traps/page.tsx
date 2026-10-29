@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { TrapCatalogue } from "@/components/labs/traps/TrapCatalogue";
-import { buildTrapCatalogue } from "@/lib/trap-catalogue";
+import { TrapsHome } from "@/components/labs/traps/TrapsHome";
+import { getStandaloneLinks } from "@/lib/library-nav";
+import { getAllTracks } from "@/lib/systems";
 import { JsonLd } from "@/components/JsonLd";
-import { TRAPS_REPO_URL, getAllTraps } from "@/lib/traps";
+import { TRAPS_REPO_URL } from "@/lib/traps";
 import { breadcrumbJsonLd, itemListJsonLd, webPageJsonLd } from "@/lib/seo";
 
-const TITLE = "Interview Traps: Backend Bugs You Can Replay Step by Step | Somanath Studio Labs";
+const TITLE = "Interview Traps: Learn System Design by Watching It Break | Somanath Studio Labs";
 const DESCRIPTION =
-    "Race conditions, cache stampedes, pagination and idempotency bugs, replayed from real recorded runs. See the code, the database state and the exact moment it breaks.";
+    "System design tracks that teach the design, break it with the bugs interviewers ask about, then have you build it. Start with the URL shortener.";
 
 export const metadata: Metadata = {
     title: TITLE,
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
 };
 
 export default function TrapsIndexPage() {
-    const traps = getAllTraps();
+    const standalone = getStandaloneLinks();
     const schema = [
         webPageJsonLd({ path: "/labs/traps", name: "Interview Traps", description: DESCRIPTION, type: "CollectionPage" }),
         breadcrumbJsonLd([
@@ -38,7 +39,10 @@ export default function TrapsIndexPage() {
             path: "/labs/traps",
             name: "Interview traps",
             description: DESCRIPTION,
-            items: traps.map((t) => ({ name: t.title, path: `/labs/traps/${t.slug}`, description: t.question })),
+            items: [
+                ...getAllTracks().map((track) => ({ name: track.title, path: `/labs/systems/${track.id}`, description: track.tagline })),
+                ...standalone.map((link) => ({ name: link.title, path: link.href, description: link.description })),
+            ],
         }),
     ];
 
@@ -47,7 +51,7 @@ export default function TrapsIndexPage() {
             <JsonLd data={schema} />
             <main className="min-h-screen bg-black text-white selection:bg-indigo-500/30">
                 <Navbar />
-                <TrapCatalogue topics={buildTrapCatalogue(traps)} repoUrl={TRAPS_REPO_URL} />
+                <TrapsHome standalone={standalone} repoUrl={TRAPS_REPO_URL} />
                 <Footer />
             </main>
         </>

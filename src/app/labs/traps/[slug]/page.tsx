@@ -12,6 +12,7 @@ import { LiteYouTube } from "@/components/labs/traps/LiteYouTube";
 import { TRAPS_REPO_URL, getAllTraps, getTrapBySlug } from "@/lib/traps";
 import { getTrapExtras } from "@/lib/trap-extras";
 import { DesignPage } from "@/components/labs/traps/DesignPage";
+import { getStandaloneLinks } from "@/lib/library-nav";
 import { getAllDesigns, getDesignBySlug } from "@/lib/trap-designs";
 import { breadcrumbJsonLd, softwareSourceCodeJsonLd, webPageJsonLd } from "@/lib/seo";
 
@@ -57,7 +58,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function TrapPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
     const design = getDesignBySlug(slug);
-    if (design) return <DesignPage design={design} topics={buildTrapCatalogue(getAllTraps())} />;
+    if (design) return <DesignPage design={design} />;
     const trap = getTrapBySlug(slug);
     if (!trap) notFound();
 
@@ -68,8 +69,8 @@ export default async function TrapPage({ params }: { params: Promise<{ slug: str
     const youtubeReel = extras.reels?.find((reel) => reel.platform === "youtube" && reel.youtubeId);
     const instagramReel = extras.reels?.find((reel) => reel.platform === "instagram");
     const reelUrl = trap.links.reel ?? youtubeReel?.url ?? instagramReel?.url;
-    // Previous and next follow the topic order, so an upcoming trap shows as "coming soon" instead of vanishing.
-    const topicEntries = topic?.entries ?? [];
+    // Previous and next follow the topic order but skip traps that are not published yet.
+    const topicEntries = (topic?.entries ?? []).filter((entry) => entry.published);
     const at = topicEntries.findIndex((entry) => entry.slug === slug);
     const prevEntry = at > 0 ? topicEntries[at - 1] : undefined;
     const nextEntry = at >= 0 ? topicEntries[at + 1] : undefined;
@@ -97,7 +98,7 @@ export default async function TrapPage({ params }: { params: Promise<{ slug: str
             <main className="min-h-screen bg-black text-white selection:bg-indigo-500/30">
                 <Navbar />
                 <div className="mx-auto grid max-w-[1536px] gap-8 px-4 pb-24 pt-24 sm:px-6 lg:grid-cols-[250px_minmax(0,1fr)] lg:gap-12 lg:px-8">
-                    <TrapLibraryNav topics={topics} currentSlug={slug} />
+                    <TrapLibraryNav currentHref={`/labs/traps/${slug}`} standalone={getStandaloneLinks()} />
                     <article id="trap-content" className="min-w-0 lg:py-6">
                     <nav aria-label="Breadcrumb" className="mb-8">
                         <Link href="/labs/traps" className="inline-flex items-center gap-1.5 text-sm text-white/45 transition-colors hover:text-white">

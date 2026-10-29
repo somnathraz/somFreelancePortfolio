@@ -3,6 +3,7 @@ import { getAllTemplates } from '@/lib/templates';
 import { getAllTraps } from '@/lib/traps';
 import { getAllDesigns } from '@/lib/trap-designs';
 import { LEVELS } from '@/lib/trap-game/levels';
+import { getAllTracks } from '@/lib/systems';
 import { MetadataRoute } from 'next';
 import { contentLastModified } from '@/lib/content-dates';
 
@@ -63,6 +64,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/labs',
         '/labs/traps',
         '/labs/traps/play',
+        ...getAllTracks().map((track) => `/labs/systems/${track.id}`),
         '/templates',
         '/case-studies',
         '/case-studies/studio-booking-platform',
