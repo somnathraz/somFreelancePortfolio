@@ -30,6 +30,20 @@ const EXTRAS: Record<string, TrapExtras> = {
             { platform: "instagram", url: "https://www.instagram.com/codewithsom/reel/DfCJSCah3me/" },
         ],
     },
+    "url-shortener-id-collision": {
+        series: "URL Shortener",
+        reels: [
+            { platform: "youtube", url: "https://www.youtube.com/shorts/YG0KFxI3E44", youtubeId: "YG0KFxI3E44" },
+            { platform: "instagram", url: "https://www.instagram.com/reel/DfFXnq2NyhU/" },
+        ],
+    },
+    "url-shortener-stale-redirect": {
+        series: "URL Shortener",
+        reels: [
+            { platform: "youtube", url: "https://www.youtube.com/shorts/BwByCYoXWWk", youtubeId: "BwByCYoXWWk" },
+            { platform: "instagram", url: "https://www.instagram.com/reel/DfHZD7AtLY2/" },
+        ],
+    },
     "booking-race-condition": {
         series: "Booking system",
         reels: [

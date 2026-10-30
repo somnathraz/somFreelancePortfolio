@@ -14,10 +14,16 @@ import { getTrapExtras } from "@/lib/trap-extras";
 import { DesignPage } from "@/components/labs/traps/DesignPage";
 import { getStandaloneLinks } from "@/lib/library-nav";
 import { getAllDesigns, getDesignBySlug } from "@/lib/trap-designs";
+import { TrapLessonPage } from "@/components/labs/traps/TrapLessonPage";
+import { getAllTrapLessons, getTrapLessonBySlug } from "@/lib/trap-lessons";
 import { breadcrumbJsonLd, softwareSourceCodeJsonLd, webPageJsonLd } from "@/lib/seo";
 
 export function generateStaticParams() {
-    return [...getAllTraps().map((trap) => trap.slug), ...getAllDesigns().map((design) => design.slug)].map((slug) => ({ slug }));
+    return [
+        ...getAllTraps().map((trap) => trap.slug),
+        ...getAllDesigns().map((design) => design.slug),
+        ...getAllTrapLessons().map((lesson) => lesson.slug),
+    ].map((slug) => ({ slug }));
 }
 
 export const dynamicParams = false;
@@ -26,7 +32,7 @@ const pad = (n: number) => String(n).padStart(2, "0");
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
-    const design = getDesignBySlug(slug);
+    const design = getDesignBySlug(slug) ?? getTrapLessonBySlug(slug);
     if (design) {
         const description = `${design.question} ${design.rule}`.slice(0, 158);
         const path = `/labs/traps/${design.slug}`;
@@ -59,6 +65,8 @@ export default async function TrapPage({ params }: { params: Promise<{ slug: str
     const { slug } = await params;
     const design = getDesignBySlug(slug);
     if (design) return <DesignPage design={design} />;
+    const lesson = getTrapLessonBySlug(slug);
+    if (lesson) return <TrapLessonPage lesson={lesson} />;
     const trap = getTrapBySlug(slug);
     if (!trap) notFound();
 

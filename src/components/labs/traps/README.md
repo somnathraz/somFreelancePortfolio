@@ -25,6 +25,10 @@ a track (`getStandaloneLinks` in `src/lib/library-nav.ts`). It never lists unpub
 
 To publish a trap inside a track, give its step an `href`.
 
+A trap without a recorded trace is a **trap lesson** (`src/lib/trap-lessons.ts`, rendered by
+`TrapLessonPage` at `/labs/traps/<slug>`): the lesson template plus a link to its Break the Backend
+level (`level`). The level's `trap` must equal the lesson slug, so the game links back to the lesson.
+
 The traps are the product: runnable bugs with proof tests, not a box-wiring simulator (that space is
 crowded). A track's last step, "Build it", is the pattern game: the player picks the code pattern for
 each step of the system and `verify()` from the Break the Backend engine runs every ordering to show

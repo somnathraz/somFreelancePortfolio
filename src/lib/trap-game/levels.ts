@@ -24,6 +24,15 @@ const mutexed = (lock: string, body: Step[]): Step[] => [
     s("release();", { k: "unlock", key: lock, scope: "server" }),
 ];
 
+/** A redirect with cache-aside: serve from Redis, fill it from Postgres on a miss. */
+const cacheAsideRedirect = (): Step[] => [
+    s('const hit = await redis.get("link:g8");', { k: "read", key: "redis.link:g8", into: "hit" }),
+    s('if (hit) return "SERVED_FROM_CACHE";', { k: "guard", var: "hit", test: "eq", to: null, else: "SERVED_FROM_CACHE" }),
+    s('const target = await db.query("SELECT target …");', { k: "read", key: "postgres.target", into: "target" }),
+    s('await redis.set("link:g8", target, "EX", 86400);', { k: "write", key: "redis.link:g8", value: { var: "target" } }),
+    s('return "REDIRECTED";', { k: "respond", text: "REDIRECTED" }),
+];
+
 export const LEVELS: Level[] = [
     {
         id: "double-booked-seat",
@@ -413,6 +422,98 @@ export const LEVELS: Level[] = [
                     s("COMMIT;", { k: "unlock", key: "counter" }),
                     s('return "SHORTENED";', { k: "respond", text: "SHORTENED" }),
                 ],
+            },
+        ],
+    },
+    {
+        id: "stale-redirect",
+        number: 6,
+        title: "The stale redirect",
+        trap: "url-shortener-stale-redirect",
+        story: "sho.rt/g8 points to old-site.com and its cached copy in Redis has just expired. A visitor opens the link at the same moment the owner changes it to new-site.com. Redirects read the cache and fill it from Postgres on a miss; edits update Postgres, then delete the cached copy.",
+        hint: "Let the visitor read Postgres before the edit, but write the cache after it.",
+        lanes: [
+            { id: "visitor", label: "Visitor", server: "api-1", color: A },
+            { id: "owner", label: "Owner", server: "api-2", color: B },
+        ],
+        initial: { "postgres.target": "old-site.com", "redis.link:g8": null },
+        invariants: [
+            {
+                label: "The cache never disagrees with the database",
+                check: (db) => {
+                    const cached = db["redis.link:g8"];
+                    return cached !== null && cached !== db["postgres.target"]
+                        ? `Redis still sends visitors to ${cached}, but the link now points to ${db["postgres.target"]}. It stays wrong until the cache entry expires.`
+                        : null;
+                },
+            },
+        ],
+        bug: (l) => (l.id === "visitor" ? cacheAsideRedirect() : [
+            s('await db.query("UPDATE links SET target = $2 …");', { k: "write", key: "postgres.target", value: "new-site.com" }),
+            s('await redis.del("link:g8");', { k: "write", key: "redis.link:g8", value: null }),
+            s('return "SAVED";', { k: "respond", text: "SAVED" }),
+        ]),
+        fixes: [
+            {
+                id: "delete-first",
+                title: "Delete the cache first, then update the database",
+                blurb: "Clear the old copy before writing the new value.",
+                why: "The visitor can still miss, read the old target, and write it back after the delete. Swapping the order just moves the gap.",
+                program: (l) => (l.id === "visitor" ? cacheAsideRedirect() : [
+                    s('await redis.del("link:g8");', { k: "write", key: "redis.link:g8", value: null }),
+                    s('await db.query("UPDATE links SET target = $2 …");', { k: "write", key: "postgres.target", value: "new-site.com" }),
+                    s('return "SAVED";', { k: "respond", text: "SAVED" }),
+                ]),
+            },
+            {
+                id: "double-delete",
+                title: "Delete the cache twice",
+                blurb: "Delete, update, wait a moment, delete again.",
+                why: "A slow visitor that read the old target before the update can still write it after the second delete. It shrinks the gap; it does not close it.",
+                program: (l) => (l.id === "visitor" ? cacheAsideRedirect() : [
+                    s('await redis.del("link:g8");', { k: "write", key: "redis.link:g8", value: null }),
+                    s('await db.query("UPDATE links SET target = $2 …");', { k: "write", key: "postgres.target", value: "new-site.com" }),
+                    s('await sleep(500); await redis.del("link:g8");', { k: "write", key: "redis.link:g8", value: null }),
+                    s('return "SAVED";', { k: "respond", text: "SAVED" }),
+                ]),
+            },
+            {
+                id: "lease",
+                title: "Fill the cache only with a lease",
+                blurb: "On a miss, leave a marker. The edit's delete removes it, and the stale fill is refused.",
+                why: "The fill only lands if the visitor's marker is still there. Any edit in between deletes the marker, so a value read before the edit can never be written after it.",
+                program: (l) => (l.id === "visitor" ? [
+                    s('const lease = await redis.set("link:g8", "fill:v1", "NX");', { k: "cas", key: "redis.link:g8", expect: null, set: "fill:v1", into: "lease" }),
+                    s('if (!lease) return "SERVED_FROM_CACHE";', { k: "guard", var: "lease", test: "eq", to: true, else: "SERVED_FROM_CACHE" }),
+                    s('const target = await db.query("SELECT target …");', { k: "read", key: "postgres.target", into: "target" }),
+                    s('await redis.eval(FILL_IF_OURS, "link:g8", "fill:v1", target);', { k: "cas", key: "redis.link:g8", expect: "fill:v1", set: { var: "target" }, into: "filled" }),
+                    s('return "REDIRECTED";', { k: "respond", text: "REDIRECTED" }),
+                ] : [
+                    s('await db.query("UPDATE links SET target = $2 …");', { k: "write", key: "postgres.target", value: "new-site.com" }),
+                    s('await redis.del("link:g8"); // also drops any lease', { k: "write", key: "redis.link:g8", value: null }),
+                    s('return "SAVED";', { k: "respond", text: "SAVED" }),
+                ]),
+            },
+            {
+                id: "lock",
+                title: "Lock the link row for misses and edits",
+                blurb: "SELECT … FOR UPDATE around the fill and around the edit.",
+                why: "Correct: a fill and an edit can no longer overlap. But every cache miss now holds a database lock while it talks to Redis, right on the redirect path.",
+                program: (l) => (l.id === "visitor" ? [
+                    s('const hit = await redis.get("link:g8");', { k: "read", key: "redis.link:g8", into: "hit" }),
+                    s('if (hit) return "SERVED_FROM_CACHE";', { k: "guard", var: "hit", test: "eq", to: null, else: "SERVED_FROM_CACHE" }),
+                    s("BEGIN; SELECT target … FOR UPDATE;", { k: "lock", key: "link" }),
+                    s('const target = await db.query("SELECT target …");', { k: "read", key: "postgres.target", into: "target" }),
+                    s('await redis.set("link:g8", target);', { k: "write", key: "redis.link:g8", value: { var: "target" } }),
+                    s("COMMIT;", { k: "unlock", key: "link" }),
+                    s('return "REDIRECTED";', { k: "respond", text: "REDIRECTED" }),
+                ] : [
+                    s("BEGIN; SELECT … FOR UPDATE;", { k: "lock", key: "link" }),
+                    s('await db.query("UPDATE links SET target = $2 …");', { k: "write", key: "postgres.target", value: "new-site.com" }),
+                    s('await redis.del("link:g8");', { k: "write", key: "redis.link:g8", value: null }),
+                    s("COMMIT;", { k: "unlock", key: "link" }),
+                    s('return "SAVED";', { k: "respond", text: "SAVED" }),
+                ]),
             },
         ],
     },

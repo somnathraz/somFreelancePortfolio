@@ -57,8 +57,8 @@ const TRACKS: SystemTrack[] = [
         steps: [
             { id: "requirements", kind: "learn", title: "What we are building", summary: "The features and the numbers every later decision depends on.", href: "/labs/systems/url-shortener#requirements", format: "read" },
             { id: "core-design", kind: "learn", title: "Hash or counter", summary: "How the short code gets made, and what each choice costs.", href: "/labs/traps/url-shortener-core-design", format: "read" },
-            { id: "id-collision", kind: "trap", title: "The ID collision", summary: "Two requests read the counter at the same instant and get the same code.", href: "/labs/traps/play/id-collision", format: "play" },
-            { id: "stale-redirect", kind: "trap", title: "The stale redirect", summary: "The cache keeps sending visitors to a destination the owner already changed." },
+            { id: "id-collision", kind: "trap", title: "The ID collision", summary: "Two requests read the counter at the same instant and get the same code.", href: "/labs/traps/url-shortener-id-collision", format: "read" },
+            { id: "stale-redirect", kind: "trap", title: "The stale redirect", summary: "The cache keeps sending visitors to a destination the owner already changed.", href: "/labs/traps/url-shortener-stale-redirect", format: "read" },
             { id: "analytics-hot-path", kind: "trap", title: "Analytics on the hot path", summary: "Recording a click makes the redirect itself slow." },
             { id: "vanity-alias-race", kind: "trap", title: "The vanity alias race", summary: "Two users claim /launch at once, and both are told it is theirs.", href: "/labs/traps/play/vanity-alias", format: "play" },
             { id: "expired-cleanup", kind: "trap", title: "Cleanup at scale", summary: "One DELETE of expired links locks the table everyone redirects from." },

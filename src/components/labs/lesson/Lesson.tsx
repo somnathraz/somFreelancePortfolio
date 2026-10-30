@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { codeToHtml } from "shiki";
-import { ArrowRight, ChevronDown, Github, Star } from "lucide-react";
+import { ArrowRight, ChevronDown, Github, Play, Star } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { LiteYouTube } from "@/components/labs/traps/LiteYouTube";
@@ -179,6 +179,47 @@ export function OptionCards({ options }: { options: { label: string; code: strin
                 </div>
             ))}
         </div>
+    );
+}
+
+const VERDICT = {
+    fails: { label: "Fails", tone: "bug" },
+    partly: { label: "Half a fix", tone: "warn" },
+    works: { label: "Works", tone: "fix" },
+} as const satisfies Record<string, { label: string; tone: Tone }>;
+
+/** The fixes people reach for, each with a verdict. Used by trap lessons instead of OptionCards. */
+export function AttemptCards({ attempts }: { attempts: { label: string; code: string; verdict: keyof typeof VERDICT; why: string }[] }) {
+    return (
+        <ul className="space-y-3">
+            {attempts.map((attempt) => {
+                const verdict = VERDICT[attempt.verdict];
+                const t = TONE[verdict.tone];
+                return (
+                    <li key={attempt.label} className="rounded-2xl border border-(--l-border) bg-(--l-card) p-5">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                            <p className="font-semibold">{attempt.label}</p>
+                            <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold" style={{ color: t.fg, background: t.bg }}>{verdict.label}</span>
+                        </div>
+                        <code className="mt-2 block overflow-x-auto font-mono text-[13px] text-(--l-faint)">{attempt.code}</code>
+                        <p className="mt-2 text-[15px] text-(--l-muted)">{attempt.why}</p>
+                    </li>
+                );
+            })}
+        </ul>
+    );
+}
+
+/** The way into the Break the Backend level for this trap. */
+export function PlayCard({ href, title }: { href: string; title: string }) {
+    return (
+        <Link href={href} className="group flex items-center justify-between gap-4 rounded-2xl border border-(--l-border-strong) border-l-4 border-l-(--l-accent) p-5 transition-colors hover:bg-(--l-card) sm:p-6">
+            <span>
+                <span className="flex items-center gap-2 text-lg font-semibold"><Play size={17} aria-hidden="true" className="text-(--l-accent)" /> Play: {title}</span>
+                <span className="mt-1 block text-[15px] text-(--l-muted)">You decide which request moves next. Find the order that breaks it, then try the fixes below. The game checks every possible order, not just yours.</span>
+            </span>
+            <ArrowRight className="shrink-0 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+        </Link>
     );
 }
 
