@@ -11,6 +11,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/agency-development-partner',
+        destination: '/white-label-web-development',
+        permanent: true,
+      },
+    ];
+  },
   // Performance optimizations
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion', 'motion'],

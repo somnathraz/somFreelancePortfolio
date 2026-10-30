@@ -7,19 +7,19 @@ import { ClientMobileNav } from "@/components/ClientMobileNav";
 import { DeliveryModelSection } from "@/components/DeliveryModelSection";
 import { DeferredParticles } from "@/components/DeferredParticles";
 import { siteLogoUrl } from "@/lib/site";
-import { breadcrumbJsonLd } from "@/lib/seo";
+import { breadcrumbJsonLd, faqPageJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Custom Software Development Company for Startups and Businesses",
+  title: "Custom Software Development Services | Somanath Studio",
   description:
-    "Custom software built by a senior-led flexible team — SaaS products, internal tools, booking systems, logistics platforms, and AI-enabled workflows.",
+    "Custom software development services for startups and businesses in the US, UK and India: SaaS products, internal tools, booking and logistics platforms, built by a senior-led team.",
   alternates: {
     canonical: "/services/custom-software-development",
   },
   openGraph: {
-    title: "Custom Software Development Company | Somanath Studio",
+    title: "Custom Software Development Services | Somanath Studio",
     description:
-      "Senior-led custom software for startups and businesses. Specialists added according to project requirements.",
+      "Senior-led custom software development for startups and businesses in the US, UK and India.",
     url: "/services/custom-software-development",
     type: "website",
     images: [
@@ -43,6 +43,49 @@ const productTypes = [
   "Modernisation of existing systems",
 ] as const;
 
+const faqs = [
+  {
+    question: "What custom software development services do you offer?",
+    answer:
+      "Custom web applications, SaaS products, internal tools and dashboards, booking and scheduling systems, logistics and payment platforms, and AI-enabled workflows, plus modernisation of existing systems.",
+  },
+  {
+    question: "Are you a custom software development company or a freelancer?",
+    answer:
+      "A senior-led studio. You work directly with the engineer who builds your software, and frontend, backend, AI, design or QA specialists join only when the scope calls for them.",
+  },
+  {
+    question: "Do you work with businesses in the UK and US?",
+    answer:
+      "Yes. Work is remote from India (IST), with overlap for UK working hours and US East Coast mornings. Scope, estimates and progress updates are written, so nothing depends on sharing a timezone.",
+  },
+  {
+    question: "How do you price custom software?",
+    answer:
+      "By scope. After a discovery call you get a written scope with milestones and a fixed estimate, before any development starts.",
+  },
+  {
+    question: "Who owns the software?",
+    answer:
+      "You do. Repositories, cloud accounts and documentation are handed over, and nothing is locked to our accounts.",
+  },
+];
+
+const approach = [
+  {
+    heading: "Custom software vs off-the-shelf tools",
+    body: "Off-the-shelf software is the right choice until your process stops fitting it. Custom software makes sense when spreadsheets, workarounds or per-seat licences start costing more than building the workflow properly, or when the software itself is your product.",
+  },
+  {
+    heading: "How a custom software project runs",
+    body: "Discovery and written scope, architecture and estimate, build in weekly demo cycles, then launch with monitoring, backups and handover documentation. You see working software every week rather than a big reveal at the end.",
+  },
+  {
+    heading: "Technology",
+    body: "Next.js and React for web interfaces, Node.js for APIs and background jobs, PostgreSQL for data, and practical AI integrations where they remove manual work. We choose boring, well-supported tools so the software is easy to maintain.",
+  },
+] as const;
+
 export default function CustomSoftwareDevelopmentPage() {
   const serviceJsonLd = {
     "@context": "https://schema.org",
@@ -56,7 +99,11 @@ export default function CustomSoftwareDevelopmentPage() {
       url: "https://somanathkhadanga.com",
       logo: siteLogoUrl,
     },
-    areaServed: "Worldwide",
+    areaServed: [
+      { "@type": "Country", name: "United States" },
+      { "@type": "Country", name: "United Kingdom" },
+      { "@type": "Country", name: "India" },
+    ],
     url: "https://somanathkhadanga.com/services/custom-software-development",
     description:
       "Custom software built by a senior-led flexible team for startups and businesses.",
@@ -78,6 +125,10 @@ export default function CustomSoftwareDevelopmentPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageJsonLd(faqs)) }}
+      />
       <Navbar />
 
       <section className="relative overflow-hidden border-b border-white/5 px-4 pb-20 pt-28 text-center md:pt-32">
@@ -87,12 +138,12 @@ export default function CustomSoftwareDevelopmentPage() {
             Custom Software Development
           </p>
           <h1 className="text-4xl font-bold tracking-tight text-white md:text-6xl">
-            Custom Software Built by a Senior-Led Flexible Team
+            Custom Software Development Services for Startups and Businesses
           </h1>
           <p className="mx-auto max-w-2xl text-lg text-zinc-400">
-            Senior-led SaaS engineering without unnecessary agency layers. Work directly with
-            experienced engineers, with additional specialists added according to your project
-            requirements.
+            Software built around how your business actually works, by a senior-led team with no
+            unnecessary agency layers. Serving companies in the US, UK and India, with specialists
+            added according to your project requirements.
           </p>
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
@@ -133,7 +184,53 @@ export default function CustomSoftwareDevelopmentPage() {
         </div>
       </section>
 
+      <section className="border-b border-white/5 px-4 py-20">
+        <div className="container mx-auto max-w-3xl space-y-12">
+          {approach.map((item) => (
+            <div key={item.heading}>
+              <h2 className="text-2xl font-bold tracking-tight text-white md:text-3xl">{item.heading}</h2>
+              <p className="mt-4 leading-relaxed text-zinc-400">{item.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <DeliveryModelSection />
+
+      <section className="border-b border-white/5 px-4 py-20">
+        <div className="container mx-auto max-w-3xl">
+          <h2 className="text-2xl font-bold tracking-tight text-white md:text-3xl">
+            Frequently asked questions
+          </h2>
+          <dl className="mt-8 space-y-6">
+            {faqs.map((faq) => (
+              <div key={faq.question}>
+                <dt className="font-semibold text-white">{faq.question}</dt>
+                <dd className="mt-2 leading-relaxed text-zinc-400">{faq.answer}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-10 text-sm text-zinc-500">
+            Related:{" "}
+            <Link href="/services/react-development" className="text-blue-400 hover:text-blue-300">
+              React development
+            </Link>
+            ,{" "}
+            <Link href="/services/mvp-development" className="text-blue-400 hover:text-blue-300">
+              MVP development
+            </Link>
+            ,{" "}
+            <Link href="/white-label-web-development" className="text-blue-400 hover:text-blue-300">
+              white label web development
+            </Link>{" "}
+            and{" "}
+            <Link href="/case-studies/vgt" className="text-blue-400 hover:text-blue-300">
+              the VGT logistics platform case study
+            </Link>
+            .
+          </p>
+        </div>
+      </section>
 
       <section className="relative flex w-full flex-col items-center justify-center overflow-hidden border-t border-white/10 bg-black px-4 py-28 text-center">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-zinc-900/50 to-black" />

@@ -17,10 +17,34 @@ type ServiceItem = {
 
 const services: ServiceItem[] = [
   {
+    title: "SaaS Development Services",
+    href: "/services/saas-development",
+    description: "End-to-end SaaS development from first MVP to a product that holds up in production.",
+    accent: "from-violet-500/20 to-blue-500/5",
+  },
+  {
     title: "SaaS MVP Development",
     href: "/services/saas-mvp-development",
     description: "Build your first usable SaaS product fast with production-minded foundations.",
     accent: "from-blue-500/20 to-indigo-500/5",
+  },
+  {
+    title: "MVP Development for Startups",
+    href: "/services/mvp-development",
+    description: "Scope, build and launch a minimum viable product in weeks.",
+    accent: "from-amber-500/20 to-orange-500/5",
+  },
+  {
+    title: "React JS Development",
+    href: "/services/react-development",
+    description: "Custom React and Next.js web apps, dashboards and SaaS front ends.",
+    accent: "from-sky-500/20 to-blue-500/5",
+  },
+  {
+    title: "White Label Web Development",
+    href: "/white-label-web-development",
+    description: "Web apps and SaaS builds for agencies, delivered under your brand.",
+    accent: "from-rose-500/20 to-pink-500/5",
   },
   {
     title: "Custom Software Development",

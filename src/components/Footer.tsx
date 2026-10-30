@@ -54,7 +54,7 @@ export function Footer() {
                     <div className="flex max-w-3xl flex-wrap justify-center gap-x-5 gap-y-2 text-sm font-medium tracking-wide text-zinc-500">
                         <Link href="/" className="hover:text-white transition-colors">Home</Link>
                         <Link href="/services" className="hover:text-white transition-colors">Services</Link>
-                        <Link href="/agency-development-partner" className="hover:text-white transition-colors">For Agencies</Link>
+                        <Link href="/white-label-web-development" className="hover:text-white transition-colors">For Agencies</Link>
                         <Link href="/hire-saas-mvp-developer" className="hover:text-white transition-colors">Hire MVP Dev</Link>
                         <Link href="/case-studies" className="hover:text-white transition-colors">Case Studies</Link>
                         <Link href="/tools/saas-mvp-cost-calculator" className="hover:text-white transition-colors">MVP Cost Calculator</Link>
@@ -63,6 +63,9 @@ export function Footer() {
                         <Link href="/templates" className="hover:text-white transition-colors">Templates</Link>
                         <Link href="/blog" className="hover:text-white transition-colors">Writing</Link>
                         <Link href="/services/saas-mvp-development" className="hover:text-white transition-colors">SaaS MVP Development</Link>
+                        <Link href="/services/saas-development" className="hover:text-white transition-colors">SaaS Development</Link>
+                        <Link href="/services/mvp-development" className="hover:text-white transition-colors">MVP Development</Link>
+                        <Link href="/services/react-development" className="hover:text-white transition-colors">React Development</Link>
                         <Link href="/services/custom-software-development" className="hover:text-white transition-colors">Custom Software</Link>
                         <Link href="/services/nextjs-performance-optimization" className="hover:text-white transition-colors">Next.js Performance</Link>
                         <Link href="/services/production-readiness-upgrade" className="hover:text-white transition-colors">Production Readiness</Link>

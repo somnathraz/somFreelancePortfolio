@@ -29,6 +29,26 @@ function getPostShareImage(post: ReturnType<typeof getPostBySlug>) {
     return `${siteUrl}/og?title=${encodeURIComponent(post.frontmatter.title)}`;
 }
 
+const SERVICE_LABELS: Record<string, string> = {
+    '/services/saas-mvp-development': 'SaaS MVP Development',
+    '/services/mvp-development': 'MVP Development for Startups',
+    '/services/react-development': 'React JS Development',
+    '/services/saas-development': 'SaaS Development Services',
+    '/services/custom-software-development': 'Custom Software Development',
+    '/services/nextjs-performance-optimization': 'Next.js Performance Optimization',
+    '/services/production-readiness-upgrade': 'Production Readiness Upgrade',
+    '/services/ai-saas-development': 'AI SaaS Development',
+    '/white-label-web-development': 'White Label Web Development',
+    '/hire-saas-mvp-developer': 'Hire a SaaS MVP Developer',
+    '/saas-mvp-audit': 'SaaS MVP Audit',
+};
+
+const DEFAULT_SERVICE_LINKS = [
+    '/services/saas-mvp-development',
+    '/services/nextjs-performance-optimization',
+    '/services/production-readiness-upgrade',
+].map((href) => ({ href, label: SERVICE_LABELS[href] }));
+
 export function generateStaticParams() {
     const posts = getPostSlugs();
     return posts.map((post) => ({
@@ -93,6 +113,11 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
     }
 
     const relatedPosts = getRelatedPosts(post.slug, 4);
+    const ownService = post.frontmatter.relatedService;
+    const serviceLinks = [
+        ...(ownService && SERVICE_LABELS[ownService] ? [{ href: ownService, label: SERVICE_LABELS[ownService] }] : []),
+        ...DEFAULT_SERVICE_LINKS.filter((service) => service.href !== ownService),
+    ].slice(0, 3);
     const formattedDate = format(new Date(post.frontmatter.date), 'MMMM d, yyyy');
     const shareImage = getPostShareImage(post);
     const wordCount = post.content
@@ -244,15 +269,15 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                                 based on your scope.
                             </p>
                             <div className="mb-6 flex flex-wrap gap-2">
-                                <Link href="/services/saas-mvp-development" className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/5 hover:text-white">
-                                    SaaS MVP Development
-                                </Link>
-                                <Link href="/services/nextjs-performance-optimization" className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/5 hover:text-white">
-                                    Next.js Performance Optimization
-                                </Link>
-                                <Link href="/services/production-readiness-upgrade" className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/5 hover:text-white">
-                                    Production Readiness Upgrade
-                                </Link>
+                                {serviceLinks.map((service) => (
+                                    <Link
+                                        key={service.href}
+                                        href={service.href}
+                                        className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/5 hover:text-white"
+                                    >
+                                        {service.label}
+                                    </Link>
+                                ))}
                             </div>
                             <BlogCTA />
                         </div>

@@ -41,10 +41,31 @@ export const metadata: Metadata = {
 
 const serviceItems = [
   {
+    name: "SaaS Development Services",
+    path: "/services/saas-development",
+    description:
+      "End-to-end SaaS development from first MVP to a product that holds up in production.",
+  },
+  {
     name: "SaaS MVP Development",
     path: "/services/saas-mvp-development",
     description:
       "Build your first usable SaaS product fast with production-minded foundations.",
+  },
+  {
+    name: "MVP Development for Startups",
+    path: "/services/mvp-development",
+    description: "Scope, build and launch a minimum viable product in weeks.",
+  },
+  {
+    name: "React JS Development",
+    path: "/services/react-development",
+    description: "Custom React and Next.js web apps, dashboards and SaaS front ends.",
+  },
+  {
+    name: "White Label Web Development",
+    path: "/white-label-web-development",
+    description: "Web apps and SaaS builds for agencies, delivered under your brand.",
   },
   {
     name: "Custom Software Development",

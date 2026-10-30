@@ -36,7 +36,7 @@ Somanath Khadanga leads a flexible software engineering studio helping founders 
 - AI SaaS Development — `/services/ai-saas-development`
 - SaaS MVP Audit — `/saas-mvp-audit`
 - Hire SaaS MVP Developer / team — `/hire-saas-mvp-developer`
-- Agency Development Partner (white-label) — `/agency-development-partner`
+- Agency Development Partner (white-label) — `/white-label-web-development`
 
 ## Labs
 Interactive WebGL / React Three Fiber demos and free templates. Live app: **Premium Frontend** on https://demo.somanathkhadanga.com (one Next.js app, route per showcase). Write-ups on `/templates/*`.

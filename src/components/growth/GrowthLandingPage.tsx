@@ -5,6 +5,9 @@ import { Footer } from "@/components/Footer";
 import { ClientMobileNav } from "@/components/ClientMobileNav";
 
 type Bullet = { title: string; body: string };
+type ContentSection = { heading: string; paragraphs: string[] };
+type Faq = { question: string; answer: string };
+type RelatedLink = { href: string; label: string };
 
 type LandingPageProps = {
   eyebrow: string;
@@ -17,6 +20,11 @@ type LandingPageProps = {
   pricingNote?: string;
   primaryCta: { href: string; label: string };
   secondaryCta?: { href: string; label: string };
+  /** Long-form copy rendered after the proof section. */
+  sections?: ContentSection[];
+  /** Rendered as a visible FAQ; pair with faqPageJsonLd for the same items. */
+  faqs?: Faq[];
+  related?: RelatedLink[];
 };
 
 export function GrowthLandingPage({
@@ -30,6 +38,9 @@ export function GrowthLandingPage({
   pricingNote,
   primaryCta,
   secondaryCta,
+  sections = [],
+  faqs = [],
+  related = [],
 }: LandingPageProps) {
   return (
     <main className="min-h-screen bg-black text-foreground selection:bg-white/20">
@@ -126,6 +137,55 @@ export function GrowthLandingPage({
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+      ) : null}
+
+      {sections.map((section) => (
+        <section key={section.heading} className="border-b border-white/5 px-4 py-16">
+          <div className="container mx-auto max-w-3xl">
+            <h2 className="text-2xl font-bold tracking-tight text-white md:text-3xl">{section.heading}</h2>
+            <div className="mt-6 space-y-4 text-zinc-400 leading-relaxed">
+              {section.paragraphs.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
+          </div>
+        </section>
+      ))}
+
+      {faqs.length > 0 ? (
+        <section className="border-b border-white/5 px-4 py-16">
+          <div className="container mx-auto max-w-3xl">
+            <h2 className="text-2xl font-bold tracking-tight text-white md:text-3xl">Frequently asked questions</h2>
+            <dl className="mt-8 space-y-6">
+              {faqs.map((faq) => (
+                <div key={faq.question}>
+                  <dt className="font-semibold text-white">{faq.question}</dt>
+                  <dd className="mt-2 text-zinc-400 leading-relaxed">{faq.answer}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
+      ) : null}
+
+      {related.length > 0 ? (
+        <section className="border-b border-white/5 px-4 py-12">
+          <div className="container mx-auto max-w-3xl">
+            <h2 className="text-lg font-semibold text-white">Related services and guides</h2>
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {related.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="inline-block rounded-full border border-white/15 px-3 py-1.5 text-sm text-zinc-300 hover:bg-white/5 hover:text-white"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
       ) : null}

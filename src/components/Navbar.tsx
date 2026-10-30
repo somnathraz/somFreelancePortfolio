@@ -20,7 +20,7 @@ export function Navbar() {
                     Services
                 </Link>
                 <Link
-                    href="/agency-development-partner"
+                    href="/white-label-web-development"
                     className="text-sm font-medium text-muted-foreground transition-colors hover:text-white"
                 >
                     For Agencies

@@ -7,7 +7,7 @@ Somanath Studio helps founders and agencies ship SaaS products, custom software,
 Engagements are senior-led. You work with a focused engineer, a compact product team, or an extended team. Specialists are added for frontend, backend, AI, design, QA, or cloud when the product needs them.
 
 ## Can you work white-label for agencies?
-Yes. Agency Development Partner engagements are NDA-ready with no client poaching. See `/agency-development-partner`.
+Yes. Agency Development Partner engagements are NDA-ready with no client poaching. See `/white-label-web-development`.
 
 ## What is Labs?
 Labs is Somanath Studio’s creative initiative for interactive / WebGL product sites. The live gallery is **Premium Frontend** at https://demo.somanathkhadanga.com (Aura, Offday, FORME, Relay, Nova, HELIOS, Vela, Singularity, Mycelia, Flux). Browse `/labs` and `/templates`, or download the ZIP / clone https://github.com/somnathraz/premium-frontend.

@@ -1,0 +1,130 @@
+page,keyword,country,monthly_volume,kd,priority,status
+/white-label-web-development,white label web development,US,1000,9,P1,new page
+/white-label-web-development,white label web development services,US,720,13,P1,new page
+/white-label-web-development,white label website development,US,590,12,P1,new page
+/white-label-web-development,white label website developer,US,390,13,P1,new page
+/white-label-web-development,white label web design agency,US,390,14,P1,new page
+/white-label-web-development,white label web development agency,US,260,11,P1,new page
+/white-label-web-development,white label web services,US,210,17,P1,new page
+/white-label-web-development,web development white label,US,170,11,P1,new page
+/white-label-web-development,white label web development company,US,140,13,P1,new page
+/white-label-web-development,white label web developer,US,110,18,P1,new page
+/white-label-web-development,white label web design,UK,720,7,P1,new page
+/white-label-web-development,white label web development,UK,590,9,P1,new page
+/white-label-web-development,white label website design,UK,260,7,P1,new page
+/white-label-web-development,white label website development,UK,210,13,P1,new page
+/white-label-web-development,white label web design services,UK,210,11,P1,new page
+/white-label-web-development,white label web development services,UK,110,9,P1,new page
+/white-label-web-development,white label development agency,UK,110,11,P1,new page
+/services/react-development,react js development services,US,1600,29,P1,new page
+/services/react-development,react development services,US,1300,28,P1,new page
+/services/react-development,reactjs development services,US,1000,25,P1,new page
+/services/react-development,react.js development services,US,480,20,P1,new page
+/services/react-development,custom react js development services,US,390,17,P1,new page
+/services/react-development,reactjs web development services,US,320,29,P1,new page
+/services/react-development,react development service,US,320,28,P1,new page
+/services/react-development,custom react development services,US,210,26,P1,new page
+/services/react-development,react js development services company,US,140,20,P1,new page
+/services/react-development,hire react js development company,US,90,20,P1,new page
+/services/react-development,react development services,UK,260,14,P1,new page
+/services/react-development,react js development services,UK,210,10,P1,new page
+/services/react-development,reactjs development services,UK,170,22,P1,new page
+/services/react-development,custom react js development services,UK,110,10,P1,new page
+/services/react-development,react js agency,UK,110,9,P1,new page
+/services/react-development,react js development agency,UK,110,18,P1,new page
+/services/react-development,react development company,IN,880,30,P1,new page
+/services/react-development,react js development services,IN,480,26,P1,new page
+/services/react-development,react web development company,IN,110,27,P1,new page
+/services/mvp-development,mvp development for startups,US,880,21,P1,new page
+/services/mvp-development,startup mvp development,US,480,29,P1,new page
+/services/mvp-development,mvp development process,US,320,31,P1,new page
+/services/mvp-development,mvp development cost,US,320,18,P1,new page (also blog saas-mvp-cost-2026)
+/services/mvp-development,mvp development for startup,US,260,31,P1,new page
+/services/mvp-development,mvp development team,US,210,11,P1,new page
+/services/mvp-development,mvp developers,US,210,21,P1,new page
+/services/mvp-development,mvp development startups,US,110,18,P1,new page
+/services/mvp-development,mvp software development agencies near me,US,50,11,P1,new page
+/services/mvp-development,mvp development for startups,UK,210,25,P1,new page
+/services/mvp-development,mvp development service,UK,170,19,P1,new page
+/services/mvp-development,custom mvp development,UK,140,10,P1,new page
+/services/mvp-development,mvp development services for startups,UK,140,13,P1,new page
+/services/mvp-development,minimum viable product development service,UK,140,17,P1,new page
+/services/mvp-development,mvp app development,UK,140,12,P1,new page
+/services/mvp-development,minimum viable product development agency,UK,110,16,P1,new page
+/services/mvp-development,mvp development companies,UK,90,20,P1,new page
+/services/mvp-development,mvp development services,IN,720,21,P1,new page
+/services/mvp-development,mvp software development,IN,480,35,P1,new page
+/services/saas-mvp-development,saas mvp development,US,260,18,P2,exists
+/services/saas-mvp-development,saas mvp development company,US,90,7,P2,exists
+/services/saas-mvp-development,saas mvp development services,US,70,7,P2,exists
+/services/custom-software-development,custom software development service,US,1600,28,P1,retarget
+/services/custom-software-development,custom software development firm,US,1300,23,P1,retarget
+/services/custom-software-development,custom software company,US,1000,26,P1,retarget
+/services/custom-software-development,custom development solutions,US,260,21,P1,retarget
+/services/custom-software-development,custom software development,UK,2900,36,P1,retarget
+/services/custom-software-development,custom software development company,UK,1900,28,P1,retarget
+/services/custom-software-development,custom software development services,UK,1300,24,P1,retarget
+/services/custom-software-development,custom software development uk,UK,880,20,P1,retarget
+/services/custom-software-development,custom software solutions,UK,720,31,P1,retarget
+/services/custom-software-development,custom software development solutions,UK,590,19,P1,retarget
+/services/custom-software-development,custom software developers,UK,590,22,P1,retarget
+/services/custom-software-development,custom software company,UK,480,16,P1,retarget
+/services/custom-software-development,custom software development service,UK,390,8,P1,retarget
+/services/custom-software-development,custom software application development,UK,390,16,P1,retarget
+/services/custom-software-development,custom software developer,UK,320,19,P1,retarget
+/services/custom-software-development,custom software product development,UK,210,8,P1,retarget
+/services/custom-software-development,custom business software development,UK,210,14,P1,retarget
+/services/custom-software-development,custom software engineering,IN,880,20,P1,retarget
+/services/custom-software-development,custom software development company usa,IN,260,29,P1,retarget
+/hire-dedicated-developers,hire dedicated developers,US,1900,20,P2,new page
+/hire-dedicated-developers,hire dedicated developer,US,590,20,P2,new page
+/hire-dedicated-developers,hire a dedicated developer,US,210,13,P2,new page
+/hire-dedicated-developers,dedicated developers for hire,US,170,5,P2,new page
+/hire-dedicated-developers,hire dedicated programmers,US,140,10,P2,new page
+/hire-dedicated-developers,hire remote dedicated web developers,US,50,8,P2,new page
+/hire-dedicated-developers,hire dedicated developers,UK,260,15,P2,new page
+/hire-dedicated-developers,hire remote developers,UK,260,23,P2,new page
+/hire-dedicated-developers,hire startup developers,UK,210,29,P2,new page
+/hire-dedicated-developers,hire dedicated web developers,UK,110,13,P2,new page
+/hire-dedicated-developers,hire developers for startup,UK,110,26,P2,new page
+/hire-dedicated-developers,hire dedicated developers,IN,880,36,P2,new page
+/hire-dedicated-developers,hire full stack developer,IN,720,32,P2,new page
+/hire-dedicated-developers,hire dedicated developers in india,IN,110,31,P2,new page
+/services/saas-development,saas development services,US,2400,29,P2,built
+/services/saas-development,saas development company,US,1900,25,P2,built
+/services/saas-development,saas application development services,US,1600,25,P2,built
+/services/saas-development,saas application development company,US,880,19,P2,built
+/services/saas-development,saas product development company,US,720,13,P2,built
+/services/saas-development,saas development services,UK,210,29,P2,built
+/services/saas-development,saas application development company,UK,110,15,P2,built
+/services/saas-development,saas development services,IN,260,30,P2,built
+/services/web-app-development,web app development,US,2400,33,P2,new page
+/services/web-app-development,website application development,US,1600,38,P2,new page
+/services/web-app-development,website and app development,US,590,32,P2,new page
+/services/web-app-development,development of web based application,US,480,30,P2,new page
+/services/web-app-development,web application developer,US,320,34,P2,new page
+/services/web-app-development,web app development companies,UK,320,34,P2,new page
+/services/web-app-development,web application agency,UK,260,23,P2,new page
+/services/web-app-development,web apps development company,UK,210,28,P2,new page
+/services/web-app-development,custom web app developers,UK,170,25,P2,new page
+/services/web-app-development,web applications development company,UK,170,22,P2,new page
+/services/web-app-development,custom web applications,UK,140,22,P2,new page
+/services/web-app-development,web apps development services,UK,140,26,P2,new page
+/services/web-app-development,web app development services,IN,1000,35,P2,new page
+/services/web-app-development,web app development company,IN,480,29,P2,new page
+/services/nextjs-development,next js development services,US,320,13,P2,new page
+/services/nextjs-development,nextjs development company,US,260,16,P2,new page
+/services/nextjs-development,nextjs agency,US,90,28,P2,new page
+/services/ai-saas-development,artificial intelligence integration services,US,390,37,P3,retarget
+/services/ai-saas-development,ai integration solutions,US,210,25,P3,retarget
+/services/ai-saas-development,custom ai development company in usa,US,210,14,P3,retarget
+/services/ai-saas-development,ai development agencies in usa,US,110,13,P3,retarget
+/services/ai-saas-development,ai agent development company in usa,US,90,24,P3,retarget
+/services/ai-saas-development,genai integration services,US,70,10,P3,retarget
+/services/ai-saas-development,ai agent development services,UK,110,18,P3,retarget
+/services/ai-saas-development,ai agent development company,UK,110,23,P3,retarget
+/services/web-development,web development agency,UK,5400,32,P3,new page
+/services/web-development,web development companies in uk,UK,320,28,P3,new page
+/services/web-development,web development and design company,UK,140,32,P3,new page
+/services/web-development,top web development companies,IN,590,21,P3,new page
+/services/web-development,best website development company in india,IN,390,34,P3,new page

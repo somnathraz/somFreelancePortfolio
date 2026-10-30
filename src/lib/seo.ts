@@ -233,12 +233,15 @@ export function serviceJsonLd({
     description,
     serviceType,
     keywords,
+    areaServed,
 }: {
     path: string;
     name: string;
     description: string;
     serviceType?: string;
     keywords?: string;
+    /** Country names; omitted means worldwide. */
+    areaServed?: string[];
 }) {
     return {
         "@context": "https://schema.org",
@@ -253,7 +256,9 @@ export function serviceJsonLd({
             name: SITE_NAME,
             url: SITE_URL,
         },
-        areaServed: "Worldwide",
+        areaServed: areaServed
+            ? areaServed.map((name) => ({ "@type": "Country", name }))
+            : "Worldwide",
         inLanguage: "en",
         ...(keywords ? { keywords } : {}),
     };

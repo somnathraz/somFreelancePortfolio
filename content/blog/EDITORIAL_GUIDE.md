@@ -24,7 +24,7 @@ Prepare one buyer post each Monday at 09:00 Asia/Kolkata, starting with week 3 o
 
 | Week | Buyer post | Primary keyword | Related service | Required angle / evidence |
 | --- | --- | --- | --- | --- |
-| 3 | How Agencies Can Outsource SaaS Development | outsource SaaS development | `/services/saas-mvp-development` | Partner selection, scope, delivery ownership, handoff and client communication; link to `/agency-development-partner`. |
+| 3 | How Agencies Can Outsource SaaS Development | outsource SaaS development | `/services/saas-mvp-development` | Partner selection, scope, delivery ownership, handoff and client communication; link to `/white-label-web-development`. |
 | 4 | Freelancer vs Agency for SaaS Development | freelancer vs agency for SaaS development | `/services/saas-mvp-development` | Compare accountability, capacity, cost drivers and stage fit with a practical decision matrix. |
 | 5 | Should You Rebuild or Repair Your SaaS? | rebuild or repair SaaS | `/services/production-readiness-upgrade` | Compare repair, incremental replacement and rebuild using risks, downtime and migration costs; link to `/saas-mvp-audit`. |
 | 6 | What a SaaS Technical Audit Includes | SaaS technical audit | `/services/production-readiness-upgrade` | Explain inputs, review scope, deliverables and remediation priorities; link to `/saas-mvp-audit`. |
@@ -32,7 +32,7 @@ Prepare one buyer post each Monday at 09:00 Asia/Kolkata, starting with week 3 o
 | 8 | SaaS MVP Cost in India vs US | SaaS MVP cost India vs US | `/services/saas-mvp-development` | Compare equivalent scope and total delivery cost; also refresh `content/blog/saas-mvp-cost-2026.mdx` in the same run. |
 | 9 | Next.js Performance Case Study with Real Numbers | Next.js performance case study | `/services/nextjs-performance-optimization` | Verified before/after measurements, project context, changes, measurement method and limitations. |
 | 10 | Authentication Platform Case Study | authentication platform case study | `/services/custom-software-development` | Verified project problem, auth architecture, implementation, challenges and supported outcomes. |
-| 11 | White-label Development for Agencies | white-label development for agencies | `/services/custom-software-development` | Client ownership, NDA/IP, branding, delivery workflow and support boundaries; link to `/agency-development-partner`. Distinguish this operating model from week 3's outsourcing selection guide. |
+| 11 | White-label Development for Agencies | white-label development for agencies | `/services/custom-software-development` | Client ownership, NDA/IP, branding, delivery workflow and support boundaries; link to `/white-label-web-development`. Distinguish this operating model from week 3's outsourcing selection guide. |
 | 12 | Fractional CTO vs a Technical Partner | fractional CTO vs technical partner | `/services/custom-software-development` | Compare strategic leadership and hands-on delivery, responsibilities, stage fit and engagement expectations. |
 
 ### Queue execution and completion tracking

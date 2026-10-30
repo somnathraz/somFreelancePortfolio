@@ -111,7 +111,7 @@
     "problems": ["need-white-label", "overflow-capacity", "agency-engineering"],
     "tags": ["agency", "white-label", "partner", "nda"],
     "sectionId": "services",
-    "pageUrl": "/agency-development-partner",
+    "pageUrl": "/white-label-web-development",
     "relatedProjects": ["paperchai", "vgt"],
     "relatedBlogs": [
       "choosing-technology-for-client-projects",
