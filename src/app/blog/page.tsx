@@ -5,14 +5,12 @@ import { ClientMobileNav } from '@/components/ClientMobileNav';
 import { Footer } from '@/components/Footer';
 
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
     title: "Blog — SaaS MVPs, Next.js, Performance & Hiring a Developer | Somanath Studio",
     description:
         "Practical articles for SaaS founders: MVP scope, Next.js choices, why products feel slow after launch, and what to prepare before hiring a product engineer.",
-    alternates: {
-        canonical: "/blog",
-    },
     openGraph: {
         title: "Blog — SaaS MVPs, Next.js, Performance & Hiring a Developer | Somanath Studio",
         description:
@@ -37,21 +35,40 @@ export const metadata: Metadata = {
     },
 };
 
+export async function generateMetadata(props: {
+    searchParams?: Promise<{ page?: string }>;
+}): Promise<Metadata> {
+    const page = Math.max(1, Math.floor(Number((await props.searchParams)?.page)) || 1);
+    return {
+        ...baseMetadata,
+        alternates: { canonical: page > 1 ? `/blog?page=${page}` : "/blog" },
+    };
+}
+
 export default async function BlogIndex(props: {
     searchParams?: Promise<{ page?: string }>;
 }) {
     const searchParams = await props.searchParams;
-    const currentPage = Number(searchParams?.page) || 1;
-    const POSTS_PER_PAGE = 3;
+    const currentPage = Math.max(1, Math.floor(Number(searchParams?.page)) || 1);
+    const POSTS_PER_PAGE = 12;
 
     const allPosts = getAllPosts();
     const totalPosts = allPosts.length;
     const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
 
+    if (currentPage > totalPages) notFound();
+
     const posts = allPosts.slice(
         (currentPage - 1) * POSTS_PER_PAGE,
         currentPage * POSTS_PER_PAGE
     );
+
+    const archiveMap = new Map<string, typeof allPosts>();
+    for (const post of allPosts) {
+        const category = (post.frontmatter.category ?? 'More').trim();
+        archiveMap.set(category, [...(archiveMap.get(category) ?? []), post]);
+    }
+    const archiveGroups = [...archiveMap.entries()].sort((a, b) => b[1].length - a[1].length);
 
     const blogIndexJsonLd = {
         "@context": "https://schema.org",
@@ -219,6 +236,26 @@ export default async function BlogIndex(props: {
                             </Link>
                         )}
                     </div>
+
+                    <nav aria-label="All articles" className="mt-20 pt-10 border-t border-zinc-800">
+                        <h2 className="text-lg font-bold text-zinc-100 mb-6">All articles by topic</h2>
+                        <div className="space-y-8">
+                            {archiveGroups.map(([category, items]) => (
+                                <div key={category}>
+                                    <h3 className="text-xs font-mono uppercase tracking-widest text-zinc-500 mb-3">{category}</h3>
+                                    <ul className="space-y-1.5">
+                                        {items.map((item) => (
+                                            <li key={item.slug}>
+                                                <Link href={`/blog/${item.slug}`} className="text-sm text-zinc-300 hover:text-blue-400 transition-colors">
+                                                    {item.frontmatter.title}
+                                                </Link>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ))}
+                        </div>
+                    </nav>
                 </div>
             </section>
 

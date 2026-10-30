@@ -71,3 +71,35 @@ export function getAllPosts(): Post[] {
         .sort((post1, post2) => (post1.frontmatter.date > post2.frontmatter.date ? -1 : 1));
     return posts;
 }
+
+const normalize = (value?: string) => (value ?? '').trim().toLowerCase();
+
+/** Small deterministic hash so ties rotate between posts instead of always favouring the newest. */
+function tieBreak(a: string, b: string) {
+    let h = 0;
+    for (const ch of `${a}|${b}`) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    return h;
+}
+
+/**
+ * Posts related to `slug` by shared category/tags. Ties are broken by a stable hash of the
+ * pair, so internal links spread across the archive rather than piling onto the newest posts.
+ */
+export function getRelatedPosts(slug: string, limit = 4): Post[] {
+    const all = getAllPosts();
+    const current = all.find((post) => post.slug === slug);
+    if (!current) return [];
+    const tags = new Set((current.frontmatter.tags ?? []).map(normalize));
+    const category = normalize(current.frontmatter.category);
+
+    return all
+        .filter((post) => post.slug !== slug)
+        .map((post) => {
+            const shared = (post.frontmatter.tags ?? []).filter((tag) => tags.has(normalize(tag))).length;
+            const sameCategory = category && normalize(post.frontmatter.category) === category ? 2 : 0;
+            return { post, score: shared + sameCategory, tie: tieBreak(slug, post.slug) };
+        })
+        .sort((a, b) => b.score - a.score || a.tie - b.tie)
+        .slice(0, limit)
+        .map(({ post }) => post);
+}

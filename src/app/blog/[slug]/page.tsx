@@ -8,7 +8,7 @@ import { ClientMobileNav } from '@/components/ClientMobileNav';
 import { BlogCTA } from '@/components/BlogCTA';
 import { AuthorBio } from '@/components/AuthorBio';
 import { Footer } from '@/components/Footer';
-import { getPostBySlug, getPostSlugs } from '@/lib/blog';
+import { getPostBySlug, getPostSlugs, getRelatedPosts } from '@/lib/blog';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import remarkGfm from 'remark-gfm';
 import { BlogTracker } from '@/components/ai-helper/BlogTracker';
@@ -92,6 +92,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
         redirect(`/blog/${post.slug}`);
     }
 
+    const relatedPosts = getRelatedPosts(post.slug, 4);
     const formattedDate = format(new Date(post.frontmatter.date), 'MMMM d, yyyy');
     const shareImage = getPostShareImage(post);
     const wordCount = post.content
@@ -208,6 +209,28 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                             options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
                         />
                     </MdxContent>
+
+                    {relatedPosts.length > 0 && (
+                        <nav aria-label="Related articles" className="mt-16 pt-10 border-t border-white/10">
+                            <h2 className="text-lg font-bold text-white mb-4">Keep reading</h2>
+                            <ul className="space-y-3">
+                                {relatedPosts.map((related) => (
+                                    <li key={related.slug}>
+                                        <Link
+                                            href={`/blog/${related.slug}`}
+                                            className="text-blue-400 hover:text-blue-300 transition-colors font-medium"
+                                        >
+                                            {related.frontmatter.title}
+                                        </Link>
+                                        <p className="text-sm text-zinc-500 mt-0.5">{related.frontmatter.description}</p>
+                                    </li>
+                                ))}
+                            </ul>
+                            <Link href="/blog" className="inline-block mt-5 text-sm text-zinc-400 hover:text-white transition-colors">
+                                Browse all articles →
+                            </Link>
+                        </nav>
+                    )}
 
                     {/* End of Article CTA */}
                     <div className="mt-20 pt-12 border-t border-white/10">
