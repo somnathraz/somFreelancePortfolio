@@ -2,6 +2,7 @@ import { getAllPosts } from '@/lib/blog';
 import { getAllTemplates } from '@/lib/templates';
 import { getAllTraps } from '@/lib/traps';
 import { getAllDesigns } from '@/lib/trap-designs';
+import { getAllTrapLessons } from '@/lib/trap-lessons';
 import { LEVELS } from '@/lib/trap-game/levels';
 import { getAllTracks } from '@/lib/systems';
 import { MetadataRoute } from 'next';
@@ -38,6 +39,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const trapUrls = [
         ...traps.map((trap) => ({ slug: trap.slug, lastModified: trap.generatedAt.slice(0, 10) })),
         ...getAllDesigns().map((design) => ({ slug: design.slug, lastModified: design.updated })),
+        ...getAllTrapLessons().map((lesson) => ({ slug: lesson.slug, lastModified: lesson.updated })),
         // game levels have no recorded date; omit it rather than claim they changed at build time
         ...LEVELS.map((level) => ({ slug: `play/${level.id}`, lastModified: undefined })),
     ].map(({ slug, lastModified }) => ({
@@ -82,6 +84,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/services/mvp-development',
         '/services/saas-mvp-development',
         '/services/react-development',
+        '/services/nextjs-development',
+        '/services/web-app-development',
+        '/hire-dedicated-developers',
         '/services/custom-software-development',
         '/services/nextjs-performance-optimization',
         '/services/production-readiness-upgrade',

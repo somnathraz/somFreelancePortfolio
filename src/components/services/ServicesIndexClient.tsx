@@ -41,6 +41,24 @@ const services: ServiceItem[] = [
     accent: "from-sky-500/20 to-blue-500/5",
   },
   {
+    title: "Next.js Development",
+    href: "/services/nextjs-development",
+    description: "New Next.js apps, App Router migrations and Next.js SaaS products.",
+    accent: "from-zinc-400/20 to-zinc-500/5",
+  },
+  {
+    title: "Web App Development",
+    href: "/services/web-app-development",
+    description: "Portals, dashboards, booking systems and custom web applications.",
+    accent: "from-teal-500/20 to-emerald-500/5",
+  },
+  {
+    title: "Hire Dedicated Developers",
+    href: "/hire-dedicated-developers",
+    description: "Senior full stack, React and Next.js developers reserved for your product.",
+    accent: "from-fuchsia-500/20 to-purple-500/5",
+  },
+  {
     title: "White Label Web Development",
     href: "/white-label-web-development",
     description: "Web apps and SaaS builds for agencies, delivered under your brand.",

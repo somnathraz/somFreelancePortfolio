@@ -139,7 +139,8 @@ export default function ReactDevelopmentPage() {
         ]}
         faqs={faqs}
         related={[
-          { href: "/services/nextjs-performance-optimization", label: "Next.js performance optimization" },
+          { href: "/services/nextjs-development", label: "Next.js development services" },
+          { href: "/hire-dedicated-developers", label: "Hire dedicated developers" },
           { href: "/services/mvp-development", label: "MVP development for startups" },
           { href: "/services/saas-development", label: "SaaS development services" },
           { href: "/white-label-web-development", label: "White label web development" },

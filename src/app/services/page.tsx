@@ -63,6 +63,21 @@ const serviceItems = [
     description: "Custom React and Next.js web apps, dashboards and SaaS front ends.",
   },
   {
+    name: "Next.js Development",
+    path: "/services/nextjs-development",
+    description: "New Next.js apps, App Router migrations and Next.js SaaS products.",
+  },
+  {
+    name: "Web App Development",
+    path: "/services/web-app-development",
+    description: "Portals, dashboards, booking systems and custom web applications.",
+  },
+  {
+    name: "Hire Dedicated Developers",
+    path: "/hire-dedicated-developers",
+    description: "Senior full stack, React and Next.js developers reserved for your product.",
+  },
+  {
     name: "White Label Web Development",
     path: "/white-label-web-development",
     description: "Web apps and SaaS builds for agencies, delivered under your brand.",

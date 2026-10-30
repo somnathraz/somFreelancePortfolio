@@ -66,6 +66,9 @@ export function Footer() {
                         <Link href="/services/saas-development" className="hover:text-white transition-colors">SaaS Development</Link>
                         <Link href="/services/mvp-development" className="hover:text-white transition-colors">MVP Development</Link>
                         <Link href="/services/react-development" className="hover:text-white transition-colors">React Development</Link>
+                        <Link href="/services/nextjs-development" className="hover:text-white transition-colors">Next.js Development</Link>
+                        <Link href="/services/web-app-development" className="hover:text-white transition-colors">Web App Development</Link>
+                        <Link href="/hire-dedicated-developers" className="hover:text-white transition-colors">Hire Dedicated Developers</Link>
                         <Link href="/services/custom-software-development" className="hover:text-white transition-colors">Custom Software</Link>
                         <Link href="/services/nextjs-performance-optimization" className="hover:text-white transition-colors">Next.js Performance</Link>
                         <Link href="/services/production-readiness-upgrade" className="hover:text-white transition-colors">Production Readiness</Link>

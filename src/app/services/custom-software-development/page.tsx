@@ -220,6 +220,10 @@ export default function CustomSoftwareDevelopmentPage() {
               MVP development
             </Link>
             ,{" "}
+            <Link href="/services/web-app-development" className="text-blue-400 hover:text-blue-300">
+              web app development
+            </Link>
+            ,{" "}
             <Link href="/white-label-web-development" className="text-blue-400 hover:text-blue-300">
               white label web development
             </Link>{" "}

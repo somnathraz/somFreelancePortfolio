@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
@@ -17,7 +18,7 @@ type LandingPageProps = {
   offerings: Bullet[];
   process: Bullet[];
   proofs?: Bullet[];
-  pricingNote?: string;
+  pricingNote?: ReactNode;
   primaryCta: { href: string; label: string };
   secondaryCta?: { href: string; label: string };
   /** Long-form copy rendered after the proof section. */

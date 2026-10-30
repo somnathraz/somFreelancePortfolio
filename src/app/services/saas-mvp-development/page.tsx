@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SaasMvpDevelopmentClient } from "@/components/services/SaasMvpDevelopmentClient";
+import { MVP_PRICE_SUMMARY } from "@/lib/pricing";
 
 export const metadata: Metadata = {
   title: "SaaS MVP Development Services for Startups | Somanath Studio",
@@ -52,7 +53,7 @@ const faqMainEntity = [
     name: "How much does an MVP cost?",
     acceptedAnswer: {
       "@type": "Answer",
-      text: "It depends on scope. Typical SaaS MVP engagements start from ₹75,000 for a focused first version. Auth, billing, admin tools and AI features change the budget. We pin scope before any build starts.",
+      text: `It depends on scope. Typical SaaS MVP engagements start from ${MVP_PRICE_SUMMARY} for a focused first version. Auth, billing, admin tools and AI features change the budget. We pin scope before any build starts.`,
     },
   },
   {

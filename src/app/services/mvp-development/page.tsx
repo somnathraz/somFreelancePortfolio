@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { GrowthLandingPage } from "@/components/growth/GrowthLandingPage";
 import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbJsonLd, faqPageJsonLd, serviceJsonLd, webPageJsonLd } from "@/lib/seo";
+import { RegionalPrice } from "@/components/RegionalPrice";
+import { MVP_PRICE_SUMMARY } from "@/lib/pricing";
 
 const path = "/services/mvp-development";
 const title = "MVP Development for Startups | Somanath Studio";
@@ -31,7 +33,7 @@ const faqs = [
   {
     question: "How much does MVP development cost?",
     answer:
-      "It depends on scope. Focused MVP engagements start from ₹75,000. Authentication, payments, admin tools, integrations and AI features each change the budget, so you get a written scope and fixed estimate before any build starts.",
+      `It depends on scope. Focused MVP engagements start from ${MVP_PRICE_SUMMARY}. Authentication, payments, admin tools, integrations and AI features each change the budget, so you get a written scope and fixed estimate before any build starts.`,
   },
   {
     question: "How long does it take to build an MVP?",
@@ -158,7 +160,7 @@ export default function MvpDevelopmentPage() {
           { href: "/blog/5-signs-your-mvp-is-not-production-ready", label: "5 signs your MVP is not production ready" },
           { href: "/tools/saas-mvp-cost-calculator", label: "MVP cost calculator" },
         ]}
-        pricingNote="Focused MVPs start from ₹75,000 · Fixed estimate after scoping · You own the code"
+        pricingNote={<>Focused MVPs start from <RegionalPrice /> · Fixed estimate after scoping · You own the code</>}
         primaryCta={{ href: "/contact", label: "Discuss Your MVP" }}
         secondaryCta={{ href: "/case-studies", label: "See case studies" }}
       />

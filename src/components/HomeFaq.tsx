@@ -5,11 +5,12 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MVP_PRICE_SUMMARY } from "@/lib/pricing";
 
 const faqItems = [
   {
     q: "How much does an MVP cost?",
-    a: "It depends on scope. Focused SaaS MVPs typically start from ₹75,000. Auth, billing, admin tools and AI features change the budget. We pin scope before any build starts — no surprise invoices.",
+    a: `It depends on scope. Focused SaaS MVPs typically start from ${MVP_PRICE_SUMMARY}. Auth, billing, admin tools and AI features change the budget. We pin scope before any build starts — no surprise invoices.`,
   },
   {
     q: "How long does it take?",

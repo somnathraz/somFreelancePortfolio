@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 import { trackViewedService } from "@/features/visitor-guide/visitor-memory";
+import { RegionalPrice } from "@/components/RegionalPrice";
+import { MVP_PRICE_SUMMARY } from "@/lib/pricing";
 import {
   ArrowRight,
   Check,
@@ -199,7 +201,7 @@ const profileAchievements = [
 const faqItems = [
   {
     q: "How much does an MVP cost?",
-    a: "It depends on scope. Typical SaaS MVP engagements start from ₹75,000 for a focused first version. Auth, billing, admin tools and AI features change the budget. We pin scope before any build starts.",
+    a: `It depends on scope. Typical SaaS MVP engagements start from ${MVP_PRICE_SUMMARY} for a focused first version. Auth, billing, admin tools and AI features change the budget. We pin scope before any build starts.`,
   },
   {
     q: "How long does development take?",
@@ -274,7 +276,7 @@ export function SaasMvpDevelopmentClient() {
 
             <p className="mt-5 text-xs text-zinc-600">
               Best suited for SaaS, custom web apps and AI platforms · Not for brochure websites ·
-              From ₹75,000
+              From <RegionalPrice />
             </p>
           </div>
 
@@ -473,7 +475,7 @@ export function SaasMvpDevelopmentClient() {
           </h2>
           <p className="mt-3 max-w-2xl text-zinc-400">
             Best suited for SaaS products, custom web applications and AI-enabled platforms. Not
-            intended for basic template or brochure websites. Typical projects start from ₹75,000.
+            intended for basic template or brochure websites. Typical projects start from <RegionalPrice />.
           </p>
 
           <div className="mt-10 grid gap-4 md:grid-cols-3">
@@ -743,7 +745,7 @@ export function SaasMvpDevelopmentClient() {
             </div>
             <p className="max-w-md text-xs text-zinc-500">
               Best suited for SaaS products, custom web applications and AI-enabled platforms. Not
-              for brochure websites. Typical projects start from ₹75,000.
+              for brochure websites. Typical projects start from <RegionalPrice />.
             </p>
           </div>
         </section>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { RegionalPrice } from "@/components/RegionalPrice";
 import { GrowthLandingPage } from "@/components/growth/GrowthLandingPage";
 import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbJsonLd, serviceJsonLd, webPageJsonLd } from "@/lib/seo";
@@ -95,7 +96,7 @@ export default function HireSaasMvpDeveloperPage() {
             body: "Live order systems and ops dashboards running in production.",
           },
         ]}
-        pricingNote="Typical focused SaaS MVP work starts from ₹75,000 · NDA available"
+        pricingNote={<>Typical focused SaaS MVP work starts from <RegionalPrice /> · NDA available</>}
         primaryCta={{ href: "/contact", label: "Talk to an Engineer" }}
         secondaryCta={{ href: "/services/saas-mvp-development", label: "See full MVP service" }}
       />

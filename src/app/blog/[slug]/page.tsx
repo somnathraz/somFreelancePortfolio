@@ -39,6 +39,9 @@ const SERVICE_LABELS: Record<string, string> = {
     '/services/production-readiness-upgrade': 'Production Readiness Upgrade',
     '/services/ai-saas-development': 'AI SaaS Development',
     '/white-label-web-development': 'White Label Web Development',
+    '/services/nextjs-development': 'Next.js Development',
+    '/services/web-app-development': 'Web App Development',
+    '/hire-dedicated-developers': 'Hire Dedicated Developers',
     '/hire-saas-mvp-developer': 'Hire a SaaS MVP Developer',
     '/saas-mvp-audit': 'SaaS MVP Audit',
 };
