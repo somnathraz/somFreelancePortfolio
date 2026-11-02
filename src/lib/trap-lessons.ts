@@ -19,8 +19,8 @@ export interface TrapLessonContent {
     title: string;
     question: string;
     system: string;
-    /** Break the Backend level id. */
-    level: string;
+    /** Break the Backend level id. Omit when the trap has no playable level yet. */
+    level?: string;
     /** The interview answer in one breath. Also used for the meta description. */
     rule: string;
     summary: { problem: string; cause: string; fix: string };
@@ -165,6 +165,86 @@ export async function updateTarget(
   );
   await redis.del(\`link:\${code}\`);
 }
+`;
+
+const CLICK_BUG = `import type { Pool } from "pg";
+import type Redis from "ioredis";
+
+// Redirect, and count the click right here.
+export async function redirect(db: Pool, redis: Redis, code: string) {
+  // Every click writes to the same row, one transaction at a time.
+  await db.query(
+    "UPDATE links SET clicks = clicks + 1 WHERE code = $1",
+    [code],
+  );
+  const dest = await redis.get(\`dest:\${code}\`);
+  return \`302 → \${dest}\`;
+}
+`;
+
+const CLICK_FIX = `import type { Pool } from "pg";
+import type Redis from "ioredis";
+
+// The redirect only redirects. INCR is atomic and in memory: no row lock.
+export async function redirect(redis: Redis, code: string) {
+  await redis.incr(\`clicks:\${code}\`);
+  const dest = await redis.get(\`dest:\${code}\`);
+  return \`302 → \${dest}\`;
+}
+
+// Background worker, every ~5 seconds: one write for the whole batch.
+export async function flushClicks(db: Pool, redis: Redis, code: string) {
+  const n = Number(await redis.getdel(\`clicks:\${code}\`));
+  if (n > 0) {
+    await db.query(
+      "UPDATE links SET clicks = clicks + $2 WHERE code = $1",
+      [code, n],
+    );
+  }
+}
+`;
+
+const VANITY_BUG = `import type { Pool } from "pg";
+
+export async function claimAlias(db: Pool, alias: string, dest: string, owner: string) {
+  // Check…
+  const taken = await db.query("SELECT 1 FROM links WHERE code = $1", [alias]);
+  if (taken.rowCount! > 0) return "TAKEN";
+
+  // …then act. Everyone who checked before the first save gets here.
+  await db.query(
+    \`INSERT INTO links (code, dest, owner) VALUES ($1, $2, $3)
+     ON CONFLICT (code) DO UPDATE
+       SET dest = EXCLUDED.dest, owner = EXCLUDED.owner\`,
+    [alias, dest, owner],
+  );
+  return "CLAIMED"; // the upsert never complains
+}
+`;
+
+const VANITY_FIX = `import type { Pool } from "pg";
+
+export async function claimAlias(db: Pool, alias: string, dest: string, owner: string) {
+  // One statement. The unique index decides who got there first.
+  const won = await db.query(
+    \`INSERT INTO links (code, dest, owner) VALUES ($1, $2, $3)
+     ON CONFLICT (code) DO NOTHING
+     RETURNING code\`,
+    [alias, dest, owner],
+  );
+  if (won.rowCount === 1) return "CLAIMED";
+
+  // Zero rows: taken, or my own retry. Decide by owner, never by overwriting.
+  const { rows } = await db.query("SELECT owner FROM links WHERE code = $1", [alias]);
+  return rows[0]?.owner === owner ? "CLAIMED" : "TAKEN";
+}
+`;
+
+const VANITY_SCHEMA = `CREATE TABLE links (
+  code  text PRIMARY KEY, -- the index that decides the race
+  dest  text NOT NULL,
+  owner text NOT NULL
+);
 `;
 
 const LESSONS: TrapLessonContent[] = [
@@ -318,6 +398,156 @@ const LESSONS: TrapLessonContent[] = [
         remember: "Deleting the cache after a write is not enough: a slow reader can put the old value back. Make the fill prove nothing changed since it read.",
         sourcePath: "systems/url-shortener",
         updated: "2026-10-30",
+    },
+    {
+        slug: "url-shortener-analytics-hot-path",
+        title: "Analytics on the hot path",
+        question: "The owner wants a click count, so the redirect adds one to a column. Why does a viral link make every redirect slow?",
+        system: "URL Shortener",
+        rule: "The hot path does only what the user is waiting for. Count in memory, flush to the database in batches, and say the trade-off out loud: counts lag by a few seconds.",
+        summary: {
+            problem: "After the redirect starts counting clicks in Postgres, it gets slower with every click on a popular link, and can take unrelated links down with it.",
+            cause: "Every click runs an UPDATE on the same row, and Postgres lets one transaction change a row at a time. Click number 50 waits for the 49 ahead of it.",
+            fix: "Count in Redis with INCR on each click, and let a background worker add the total to Postgres every few seconds.",
+        },
+        why: [
+            "We cached the destination so a redirect never touches the database. The click counter puts a database write back on every single click, on the one row everyone shares.",
+            "In our run, 50 simultaneous clicks took about 68 ms at the median and 79 ms for the slowest, against a 50 ms budget for a redirect. That is 50 clicks on a laptop with an idle database. A real viral link is thousands a second on a database that is busy with other work, and each waiting click also holds a connection from the pool. When the pool runs dry, every other link waits too.",
+        ],
+        words: ["hot-path", "row-lock", "bottleneck", "batching", "atomic"],
+        picture: {
+            intro: "Three people click the same link in the same instant.",
+            flows: [
+                {
+                    title: "Counting inside the redirect",
+                    steps: ["Click 1 locks the row", "Click 2 waits", "Click 3 waits", "Click 1 commits", "Click 2 runs", "Click 3 runs"],
+                    outcome: "The count is right, but every redirect now waits for its turn on one row. The more clicks, the longer the queue.",
+                    tone: "bug",
+                },
+                {
+                    title: "Counting off the hot path",
+                    steps: ["Click 1 INCR in Redis", "Click 2 INCR in Redis", "Click 3 INCR in Redis", "Worker adds 3 to Postgres"],
+                    outcome: "Each redirect finishes in under a millisecond. Postgres gets one write for the whole batch.",
+                    tone: "fix",
+                },
+            ],
+        },
+        attempts: [
+            { label: "UPDATE in the redirect", code: "UPDATE links SET clicks = clicks + 1", verdict: "fails", why: "Correct count, but every click queues on one row and holds a connection while it waits." },
+            { label: "Fire and forget the UPDATE", code: "db.query(…) // no await", verdict: "partly", why: "The redirect stops waiting, but the writes still pile up on the same row and still use the pool. You moved the queue, not removed it." },
+            { label: "Insert a row per click", code: "INSERT INTO clicks (code, at) …", verdict: "partly", why: "Inserts do not fight over one row, so it scales much further. It is still a database write on every click." },
+            { label: "Spread over N counter rows", code: "clicks_shard = random(0, 9)", verdict: "works", why: "Spreads the lock across several rows and sums them on read. Good when the count has to stay in Postgres." },
+            { label: "Redis INCR and a periodic flush", code: "INCR clicks:<code>; flush every ~5s", verdict: "works", why: "No row lock, no disk, no queue on the redirect. Ten thousand clicks become one write." },
+            { label: "Click events to a queue", code: "queue.send({ code, at, country })", verdict: "works", why: "The right answer when you need per-click data (country, referrer), durability, or replays." },
+        ],
+        fix: {
+            paragraphs: [
+                "Make the redirect do only the redirect. On each click, run INCR on a Redis key: it is atomic, in memory, and takes no row lock. A background worker reads and clears the key every few seconds with GETDEL and adds the total to Postgres in one UPDATE.",
+                "This is the same idea as the cache we already have: keep the slow, shared thing off the path the user is waiting on.",
+            ],
+            cost: "Counts lag by the flush interval, so analytics can be a few seconds late. If the worker crashes between GETDEL and the UPDATE, that batch is lost. Fine for click counts, not for money.",
+            alsoSay: {
+                title: "Interviewers also listen for: durability and 301",
+                body: "If losing a batch is not acceptable, push click events to a durable queue (Kafka, SQS) and aggregate from there. And counting only works with 302 redirects: a browser caches a 301, so repeat clicks never reach you.",
+            },
+        },
+        checks: [
+            {
+                q: "The count is correct. Why is this still a bug?",
+                a: "The cost is the problem, not the number. The read path now writes, and every click waits on one row lock and holds a connection while it does.",
+            },
+            {
+                q: "Why can one hot link slow down other links?",
+                a: "Waiting clicks each hold a database connection. When the pool runs out, requests for every other link wait for a free one.",
+            },
+            {
+                q: "What do you give up with the Redis counter?",
+                a: "Freshness: counts lag by the flush interval, and a crash between reading and flushing loses that batch. For click counts that is acceptable, and you say so before the interviewer asks.",
+            },
+        ],
+        code: [
+            { label: "The bug · count in the redirect", filename: "redirect.bug.ts", code: CLICK_BUG, note: NOTE },
+            { label: "The fix · count off the hot path", filename: "redirect.fix.ts", code: CLICK_FIX, note: NOTE },
+        ],
+        remember: "Whatever you add to the redirect is paid on every click. Count off the path, flush in batches, and say that counts lag.",
+        sourcePath: "systems/url-shortener/03-click-counter",
+        updated: "2026-11-02",
+    },
+    {
+        slug: "url-shortener-vanity-alias-race",
+        title: "The vanity alias race",
+        question: "Two people claim the same custom alias at the same second, and both are told it is theirs. Who gets it?",
+        system: "URL Shortener",
+        level: "vanity-alias",
+        rule: "Let the unique index decide, in one statement. Zero rows back means taken, or your own retry. Never let an upsert turn a conflict into an overwrite.",
+        summary: {
+            problem: "Every request that claims /launch at the same time is told it got it, but only one of them owns it. The others now share a link that sends their clicks to a stranger.",
+            cause: "The handler checks that the alias is free and then saves it with an upsert. The check and the save are separate moments, and the upsert quietly overwrites instead of failing.",
+            fix: "Insert with ON CONFLICT DO NOTHING RETURNING and let the unique index pick one winner.",
+        },
+        why: [
+            "A custom alias is a promise: /launch is yours. Checking that it is free and then saving it feels safe, and with one request at a time it is: the second person gets TAKEN. That is why it passes QA.",
+            "In our run, 50 users claimed /launch at once against a real Postgres with a primary key on the alias the whole time. All 50 were told CLAIMED. The alias belonged to one of them, and the other 49 were sharing a link that now sent every click to the winner's site. The index was there. The upsert walked straight through it.",
+        ],
+        words: ["race-condition", "unique-index", "upsert", "idempotent", "atomic"],
+        picture: {
+            intro: "Alice and Bob both want /launch. Nobody has it yet.",
+            flows: [
+                {
+                    title: "One at a time (what QA does)",
+                    steps: ["Alice checks: free", "Alice saves", "Bob checks: taken"],
+                    outcome: "Alice gets CLAIMED, Bob gets TAKEN. Correct.",
+                    tone: "fix",
+                },
+                {
+                    title: "At the same moment (what launch day does)",
+                    steps: ["Alice checks: free", "Bob checks: free", "Alice saves", "Bob's upsert overwrites Alice"],
+                    outcome: "Both are told CLAIMED. The row now says Bob owns it, and Alice's link sends her visitors to Bob's site.",
+                    tone: "bug",
+                },
+            ],
+        },
+        attempts: [
+            { label: "Read back after saving", code: "save; SELECT owner; compare", verdict: "fails", why: "The last write wins and each request reads back its own write, so both see themselves as the owner and both report success." },
+            { label: "A mutex in the API", code: "await mutex.acquire()", verdict: "fails", why: "A mutex lives inside one process. Two servers have two mutexes, and their requests never wait for each other." },
+            { label: "SELECT … FOR UPDATE", code: "SELECT 1 FROM links … FOR UPDATE", verdict: "fails", why: "You cannot lock a row that does not exist yet. There is nothing to lock until someone has saved." },
+            { label: "Advisory lock on the alias", code: "pg_advisory_xact_lock(hashtext(alias))", verdict: "works", why: "The second request waits, then sees the first one's save. Correct, but it is extra machinery for something the index already does." },
+            { label: "INSERT … ON CONFLICT DO NOTHING", code: "… DO NOTHING RETURNING code", verdict: "works", why: "Claiming and checking are one statement. Exactly one insert gets a row back; every other one gets zero." },
+            { label: "A plain INSERT, catch the duplicate", code: "catch (e) { e.code === '23505' }", verdict: "works", why: "Same guarantee when your ORM has no ON CONFLICT: an exception instead of zero rows." },
+        ],
+        fix: {
+            paragraphs: [
+                "Drop the pre-check. Run one INSERT … ON CONFLICT DO NOTHING RETURNING code. Postgres serializes the inserts on the index: exactly one gets a row back, and everyone else gets zero rows and nothing changes.",
+                "The upsert was added so a retried request would not error, and that is a real need. Handle it by owner: if zero rows came back, read who owns the alias. Your own retry is a success; anyone else's claim is TAKEN. That is idempotency done right: decide by who owns the row, never by overwriting it.",
+            ],
+            cost: "The losing requests need one extra read to tell a retry from a real conflict. If aliases are paid or need a confirmation step, hold the alias in a reservation table with an expiry instead.",
+            alsoSay: {
+                title: "Interviewers also listen for: when an upsert is right",
+                body: "ON CONFLICT DO UPDATE is fine when overwriting is the feature, such as \"update my own link\". Then add WHERE links.owner = EXCLUDED.owner, so it can only overwrite your own row.",
+            },
+        },
+        checks: [
+            {
+                q: "The alias column is a primary key. Why didn't that stop the duplicate?",
+                a: "The upsert turns the conflict into an update. The one thing that would have caught the race was converted into a silent overwrite.",
+            },
+            {
+                q: "Why doesn't SELECT … FOR UPDATE work here?",
+                a: "It locks existing rows. Before anyone claims the alias there is no row, so there is nothing to lock.",
+            },
+            {
+                q: "A user clicks Claim twice because of a slow network. How should that behave?",
+                a: "The second request gets zero rows back, reads that the owner is the same user, and returns CLAIMED. A retry from the owner succeeds; a claim from anyone else is TAKEN.",
+            },
+        ],
+        code: [
+            { label: "The bug · check, then upsert", filename: "claim-alias.bug.ts", code: VANITY_BUG, note: NOTE },
+            { label: "The fix · the index decides", filename: "claim-alias.fix.ts", code: VANITY_FIX, note: NOTE },
+            { label: "Schema", filename: "schema.sql", code: VANITY_SCHEMA, lang: "sql" },
+        ],
+        remember: "A check followed by a save is two moments. Make it one statement and let the unique index decide.",
+        sourcePath: "systems/url-shortener/04-vanity-alias-race",
+        updated: "2026-11-02",
     },
 ];
 

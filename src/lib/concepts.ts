@@ -25,6 +25,11 @@ const CONCEPTS = {
     invalidation: { term: "Invalidation", definition: "Removing or replacing a cached copy after the real data changed, so nobody reads the old one." },
     ttl: { term: "TTL (time to live)", definition: "How long a cached copy lives before it expires on its own. It caps how long a wrong copy can survive." },
     lease: { term: "Lease", definition: "A marker a request leaves in the cache on a miss. Its later fill only counts if the marker is still there." },
+    "hot-path": { term: "Hot path", definition: "The code that runs on every request and that the user is waiting on. Here, the redirect itself. Anything extra you put there is paid on every click." },
+    "row-lock": { term: "Row lock", definition: "While one transaction updates a row, the database makes every other update to that row wait its turn." },
+    batching: { term: "Batching", definition: "Collecting many small changes and writing them once. 10,000 clicks become one UPDATE." },
+    upsert: { term: "Upsert", definition: "INSERT … ON CONFLICT DO UPDATE: insert the row, or overwrite it if one already exists. Handy for retries, dangerous when the conflict was the thing you needed to know about." },
+    idempotent: { term: "Idempotent", definition: "Safe to repeat. A retried request ends in the same state as the first attempt, instead of an error or a second effect." },
 } satisfies Record<string, Concept>;
 
 export type ConceptId = keyof typeof CONCEPTS;

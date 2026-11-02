@@ -13,7 +13,7 @@ import {
 export function TrapLessonPage({ lesson }: { lesson: TrapLessonContent }) {
     const path = `/labs/traps/${lesson.slug}`;
     const track = findTrackStep(path)?.track;
-    const level = getLevel(lesson.level);
+    const level = lesson.level ? getLevel(lesson.level) : undefined;
     const extras = getTrapExtras(lesson.slug);
     const youtubeReel = extras.reels?.find((reel) => reel.platform === "youtube" && reel.youtubeId);
     const instagramReel = extras.reels?.find((reel) => reel.platform === "instagram");

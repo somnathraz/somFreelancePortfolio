@@ -1,5 +1,6 @@
 import type { TrapBundle } from "@/types/traps";
 import { getAllDesigns } from "@/lib/trap-designs";
+import { getAllTrapLessons } from "@/lib/trap-lessons";
 
 export interface CatalogueEntry {
     slug: string;
@@ -74,14 +75,15 @@ const TOPICS: PlannedTopic[] = [
 export function buildTrapCatalogue(traps: Pick<TrapBundle, "slug" | "title" | "question">[]): CatalogueTopic[] {
     const published = new Map(traps.map((trap) => [trap.slug, trap]));
     const designs = new Map(getAllDesigns().map((design) => [design.slug, design]));
+    const lessons = new Set(getAllTrapLessons().map((lesson) => lesson.slug));
     const topics = TOPICS.map((topic) => ({
         ...topic,
         entries: topic.entries.map(([slug, title, question]) => ({
             slug,
             title: published.get(slug)?.title ?? title,
             question: published.get(slug)?.question ?? question,
-            published: published.has(slug) || designs.has(slug),
-            kind: designs.has(slug) ? "design" as const : "replay" as const,
+            published: published.has(slug) || designs.has(slug) || lessons.has(slug),
+            kind: designs.has(slug) || lessons.has(slug) ? "design" as const : "replay" as const,
         })),
     }));
     const known = new Set(topics.flatMap((topic) => topic.entries.map((entry) => entry.slug)));
