@@ -44,6 +44,18 @@ const EXTRAS: Record<string, TrapExtras> = {
             { platform: "instagram", url: "https://www.instagram.com/reel/DfHZD7AtLY2/" },
         ],
     },
+    "url-shortener-analytics-hot-path": {
+        series: "URL Shortener",
+        reels: [
+            { platform: "youtube", url: "https://www.youtube.com/shorts/lRmHR_uYPVc", youtubeId: "lRmHR_uYPVc" },
+        ],
+    },
+    "url-shortener-vanity-alias-race": {
+        series: "URL Shortener",
+        reels: [
+            { platform: "youtube", url: "https://www.youtube.com/shorts/d38JjMlOKog", youtubeId: "d38JjMlOKog" },
+        ],
+    },
     "booking-race-condition": {
         series: "Booking system",
         reels: [
