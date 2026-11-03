@@ -3,7 +3,7 @@ title: "GitHub Actions Execution Policies: A SaaS CI Hardening Plan"
 metaTitle: "GitHub Actions Execution Policies for SaaS Teams"
 description: "GitHub Actions can now restrict who and what starts a workflow. Use this rollout plan to harden SaaS CI without breaking builds or deployments."
 date: "2026-09-18"
-updated: "2026-09-18"
+updated: "2026-11-03"
 author: "Somanath Khadanga"
 category: "Security"
 tags:
@@ -18,6 +18,8 @@ relatedService: "/services/production-readiness-upgrade"
 ---
 
 ![Actor and event rules passing through a policy gate before a GitHub Actions workflow runs](/images/blog/github-actions-execution-policies-saas.png)
+
+> **Update, November 3, 2026:** GitHub moved the default `pull_request_target` block for public repositories from November 2 to **December 2, 2026**, with two-hour brownouts on November 9 and November 16 (16:00–18:00 UTC). The schedule section under the `pull_request_target` audit below has the details and what to do before the first brownout.
 
 A secure workflow file can still be started by the wrong person or the wrong event.
 
@@ -62,7 +64,29 @@ GitHub’s [event reference](https://docs.github.com/en/actions/reference/workfl
 
 This is not a theoretical edge case for the ecosystem. The earlier [TanStack compromise analysis](/blog/tanstack-npm-compromise-2026) describes why a privileged trigger and a shared cache can turn a pull request into a release-pipeline problem.
 
-GitHub is also introducing a default event policy for public repositories that do not already have an applicable policy. It disables `pull_request_target`, begins in evaluate mode and is scheduled to enforce the block on November 2, 2026 for affected repositories that remain on the default policy.
+GitHub is also introducing a default event policy for public repositories that do not already have an applicable policy. It disables `pull_request_target` and begins in evaluate mode, so runs it would block still execute with warnings.
+
+### The New Schedule: Brownouts, Then a December 2 Block
+
+The original enforcement date was November 2, 2026. On November 2, GitHub [moved permanent enforcement to December 2, 2026](https://github.blog/changelog/2026-11-02-pull_request_target-blocked-by-default-december-2) and added two temporary brownouts first:
+
+| Date (2026) | What happens |
+| --- | --- |
+| Now – November 8 | Evaluate mode: `pull_request_target` runs execute, with warnings and insights |
+| November 9, 16:00–18:00 UTC | Brownout: matching runs are blocked and fail with an error annotation |
+| November 16, 16:00–18:00 UTC | Second brownout, same behavior |
+| December 2 onward | The block is permanent for repositories still on the default rule |
+
+Between brownouts the rule returns to evaluate mode. According to the changelog, the default applies to public repositories on GitHub Free, Team and Enterprise Cloud. Private and internal repositories and GitHub Enterprise Server are not affected.
+
+A brownout is the cheapest test you will get. A label bot that stops commenting for two hours is a harmless signal. A release or preview-deploy workflow that silently skips is not, so find those before November 9.
+
+What to do this week:
+
+1. **Find the dependency.** Run the `grep` in the next section, then, where your plan shows policy insights, check which runs the default rule would have blocked.
+2. **Remove the trigger where you can.** Most build-and-test jobs belong on `pull_request`, with no secrets. Privileged follow-up steps can use the `pull_request` plus `workflow_run` split described in the [TanStack analysis](/blog/tanstack-npm-compromise-2026).
+3. **Allow it narrowly where you must.** If a workflow genuinely needs `pull_request_target`, allow the event in an Actions event policy that targets only that workflow file, as described in GitHub's [workflow execution guide](https://docs.github.com/en/actions/how-tos/administer/control-workflow-execution). Do not allow it repository-wide.
+4. **Watch the November 9 window.** Check the run list during and right after 16:00–18:00 UTC for failures with the policy annotation.
 
 Do not wait for the enforcement date to discover what breaks. Use the window to identify every workflow that depends on the event and decide whether the dependency is legitimate.
 
@@ -252,4 +276,14 @@ If the answer is “possibly,” workflow execution protection should move into 
 
 The September release gives SaaS teams a useful control that did not previously exist at this layer. Use it to make trigger authority explicit—but keep the workflow, token, cache, artifact and runner controls behind it.
 
-If the inventory reveals that nobody can confidently explain the path from pull request to production, a focused [production readiness review](/services/production-readiness-upgrade) is the right next step. The goal is not more YAML. It is a release path whose authority and failure modes your team can defend.
+## Related Reading
+
+- [GitHub Actions workflow lockfiles: a safe rollout guide](/blog/github-actions-workflow-lockfiles-saas)
+- [TanStack was compromised: what SaaS teams need to do](/blog/tanstack-npm-compromise-2026)
+- [npm release controls with OIDC and dist-tags](/blog/npm-release-control-oidc-dist-tags)
+
+---
+
+## Next Step
+
+Before the November 9 brownout, run the `pull_request_target` search and decide, workflow by workflow, whether to remove the trigger or allow it narrowly. If the inventory reveals that nobody can confidently explain the path from pull request to production, a focused [production readiness review](/services/production-readiness-upgrade) is the right next step. The goal is not more YAML. It is a release path whose authority and failure modes your team can defend.
