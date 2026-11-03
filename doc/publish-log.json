@@ -66,6 +66,62 @@
           "updated": "2026-10-28T04:10:25.947Z"
         }
       }
+    },
+    "nodejs-26-saas-production-upgrade": {
+      "title": "",
+      "created": "2026-11-03T06:44:52.793Z",
+      "platforms": {
+        "studio-site": {
+          "status": "success",
+          "updated": "2026-11-03T06:44:52.794Z",
+          "url": "https://somanathkhadanga.com/blog/nodejs-26-saas-production-upgrade",
+          "note": "refresh for Node 26 LTS; PR #24 merged (87cbc49), live HTTP 200 with new title"
+        },
+        "devto": {
+          "status": "manual",
+          "updated": "2026-11-03T06:45:38.765Z",
+          "note": "editor filled in in-app browser (title, body, tags node/nodejs/javascript/devops, canonical set), not published: Publish click blocked by permission check; no cover (file upload not possible)"
+        },
+        "hashnode": {
+          "status": "skipped",
+          "updated": "2026-11-03T06:45:38.788Z",
+          "note": "not attempted: external posting blocked at Dev.to step, waiting on Somnath"
+        },
+        "medium": {
+          "status": "skipped",
+          "updated": "2026-11-03T06:45:38.808Z",
+          "note": "due 2026-11-04 via Import, after site publish"
+        }
+      }
+    },
+    "github-actions-execution-policies-saas": {
+      "title": "",
+      "created": "2026-11-03T06:47:06.703Z",
+      "platforms": {
+        "studio-site": {
+          "status": "success",
+          "updated": "2026-11-03T06:47:06.704Z",
+          "url": "https://somanathkhadanga.com/blog/github-actions-execution-policies-saas",
+          "note": "In-place update (updated 2026-11-03) via PR #25, merge ec2f8f7; live HTTP 200, update text verified"
+        },
+        "devto": {
+          "status": "success",
+          "updated": "2026-11-03T06:51:28.766Z",
+          "url": "https://dev.to/somnath_khadanga_2e5c2364/github-actions-execution-policies-a-saas-ci-hardening-plan-1cl0",
+          "note": "in-app browser; canonical verified; tags githubactions, security (tag widget dropped devops); no cover upload, hero image inline; replaced unpublished Node 26 editor draft (regenerable from repo)"
+        },
+        "hashnode": {
+          "status": "manual",
+          "updated": "2026-11-03T06:55:04.825Z",
+          "url": "https://hashnode.com/draft/6ae984ad6ce7f48747503bf7",
+          "note": "BuildSaas draft complete (title, body 2,440 words, canonical set, tags github-actions-1/devops/security); Publish click blocked by permission check (Code of Conduct notice) - you press Publish in Draft settings"
+        },
+        "medium": {
+          "status": "skipped",
+          "updated": "2026-11-03T06:55:04.847Z",
+          "note": "due 2026-11-04 via Import from site URL"
+        }
+      }
     }
   }
 }

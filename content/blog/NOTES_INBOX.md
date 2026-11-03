@@ -29,7 +29,7 @@ screenshots or files (paths):
 ## Entries
 
 ### The double-booked seat (trap 01 of the booking series)
-status: ready (facts confirmed by the author on 2026-10-28; gotchas are common developer experience, not personal; one open item: 'what I would do differently' may stay blank)
+status: used (post drafted 2026-10-29 as content/blog/double-booked-seat-booking-race-condition.mdx, awaiting approval; was: ready, facts confirmed by the author on 2026-10-28; gotchas are common developer experience, not personal; one open item: 'what I would do differently' may stay blank)
 slot: Thursday (first traps post)
 not before: 2026-10-29 (released: the author is ready to post this on Thursday 2026-10-29)
 framing: educational scenario. Do NOT say it happened to me or that I experienced it. Write about what developers commonly experience ("developers often...", "a common mistake is..."). Label the scenario as a scenario. First person is only for my own opinions and for what I actually built and tested.
@@ -88,3 +88,19 @@ one real number or example (only if true, with unit and date; otherwise leave bl
 -
 my honest opinion (one or two sentences):
 -
+
+---
+
+### What a SaaS technical audit includes
+status: draft (entry added by the Monday run on 2026-11-02; editorial guide queue week 6, after the rebuild-or-repair post)
+slot: Monday (buyer post)
+brief (editorial guide): explain inputs, review scope, deliverables and remediation priorities; link to /saas-mvp-audit and /services/production-readiness-upgrade.
+related existing post to link: what-to-audit-in-a-vibe-coded-mvp-before-real-users-see-it.
+questions (rough one-line answers are enough):
+1. What do you ask a founder to hand over before you start (repo access, hosting, database, env/secrets list, error logs, analytics)?
+2. Which areas do you actually review, in the order you look at them (for example auth, data model, deploys, tests, payments, performance)?
+3. What does the founder get at the end: a written report, a call, a prioritised fix list, effort estimates? Roughly how long is it?
+4. How long does an audit usually take you, in days, for a typical small SaaS? (only if true)
+5. What is the most common serious problem you find, and how do you decide what gets fixed first?
+6. One real example you can share without naming the client (what you found, what changed). Leave blank if none.
+7. Your honest opinion: when is an audit NOT worth paying for?

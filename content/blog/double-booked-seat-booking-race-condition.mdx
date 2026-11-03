@@ -1,0 +1,176 @@
+---
+title: "The Double-Booked Seat: Fixing a Booking Race Condition in Postgres"
+metaTitle: "The Double-Booked Seat: Booking Race Condition Fix"
+description: "Why check-then-act booking code sells one seat to many users under load, and the one-statement Postgres fix with a 50-user test that proves it."
+primaryKeyword: "booking race condition"
+date: "2026-10-29"
+updated: "2026-10-29"
+author: "Somanath Khadanga"
+readTime: "8 min read"
+category: "SaaS Architecture"
+tags:
+  - booking system design
+  - race condition
+  - PostgreSQL
+  - interview traps
+  - concurrency
+shareImage: "/images/blog/double-booked-seat-booking-race-condition.png"
+relatedService: "/services/saas-mvp-development"
+faq:
+  - question: "Does wrapping the booking code in a transaction fix the race?"
+    answer: "Not on its own. PostgreSQL's default isolation level is Read Committed, and a plain SELECT inside a transaction takes no lock, so two transactions can still both read available. The check has to be part of the write, or the row has to be locked with SELECT ... FOR UPDATE."
+  - question: "Is a UNIQUE constraint on bookings enough by itself?"
+    answer: "It stops a second booking row from being saved, which makes it the right safety net. It does not stop the code from charging a second user before the insert fails, so the claim should still happen first, in one conditional UPDATE."
+---
+
+![Diagram of two booking requests reaching the same seat row, with the conditional update letting only one through](/images/blog/double-booked-seat-booking-race-condition.png)
+
+**Scenario:** two users hit **Book** on the last seat at the same moment. The code checks that the seat is available, charges the card, then marks the seat as booked. Who gets the seat?
+
+Both of them. Run the same code with 50 users and all 50 are told their booking is confirmed.
+
+This is the first trap in a series on designing a booking system that holds up under real traffic. It is a scenario, not an incident report: a bug that many developers write, ship and only discover when two customers arrive at the same venue holding the same ticket. I built it as a runnable trap in the [interview-traps repo](https://github.com/somnathraz/interview-traps/tree/main/01-booking-race-condition), with the broken code, the fix and a test that proves the fix against a real Postgres database. You can also [step through the replay on the Labs page](https://somanathkhadanga.com/labs/traps/booking-race-condition).
+
+## Why booking code that passes every test still double-books
+
+The buggy version looks reasonable. It reads, checks, does the slow work, then writes:
+
+```ts
+const { rows } = await db.query("SELECT status FROM seats WHERE id = $1", [seatId]);
+if (rows[0].status !== "available") return "SOLD_OUT";
+
+await chargePayment(userId); // ~80 ms in the trap
+
+await db.query("UPDATE seats SET status = 'booked', booked_by = $2 WHERE id = $1", [seatId, userId]);
+await db.query("INSERT INTO bookings (seat_id, user_id) VALUES ($1, $2)", [seatId, userId]);
+return "CONFIRMED";
+```
+
+Click through it by hand and it works. A unit test that books the seat once and then tries again gets `SOLD_OUT` on the second call. Code review is unlikely to flag it, because every line does what it says.
+
+The problem is time. The `SELECT` and the `UPDATE` are two separate moments. Any request that reads between them sees `available`, passes the check and goes on to book. The payment call in the middle, simulated at about 80 ms in the trap, holds that gap open long enough for a crowd to walk through it.
+
+A common mistake is to treat this as a "high traffic" problem that a small product can ignore. It only takes two requests. Ticket drops, limited slots, a clinic opening next week's calendar at 9 a.m.: these are exactly the moments when two people press the button together.
+
+## What actually breaks: two writes that disagree
+
+The double sale is the obvious failure. The quieter one is in the data.
+
+The buggy `UPDATE` has no condition on status, so every request overwrites `booked_by` with its own user. The last writer wins. At the end of the run the `seats` table names one owner while the `bookings` table holds a row for every user who was told `CONFIRMED`. Support now has two sources of truth that disagree, and no record of who really clicked first.
+
+Developers often try to fix this by shrinking the gap: move the payment call later, make it faster, cache something. With the slow step removed the bug still exists. It just happens less often, which is worse, because a rare race passes staging and ships.
+
+## Why "just add a transaction" is not the fix
+
+The most common first answer is to wrap the function in `BEGIN` and `COMMIT`. It feels like it should work. It does not, on its own.
+
+PostgreSQL's default isolation level is Read Committed, and [the PostgreSQL documentation on transaction isolation](https://www.postgresql.org/docs/current/transaction-iso.html) describes what a plain `SELECT` sees there: data committed before the query began. It takes no lock that stops another transaction from reading the same row. Two transactions can both read `available`, both decide to book, and both commit. The transaction makes each request's writes atomic, but it does nothing about two requests making the same decision from the same stale read.
+
+The same page explains why the real fix does work. When an `UPDATE` finds a row that another transaction has already updated, it waits for that transaction to finish, then re-checks its `WHERE` clause against the newly committed version of the row. That re-check is the whole trick.
+
+## The fix: make the check part of the write
+
+Instead of reading and then writing, claim the seat in one statement that only succeeds if the seat is still free:
+
+```ts
+const claimed = await db.query(
+  `UPDATE seats SET status = 'booked', booked_by = $2
+   WHERE id = $1 AND status = 'available'
+   RETURNING id`,
+  [seatId, userId],
+);
+if (claimed.rowCount === 0) return "SOLD_OUT";
+
+await chargePayment(userId); // safe now: the seat is already ours
+```
+
+The first request to reach the row takes a row lock and flips it to `booked`. The second request waits on that lock. When the first one commits, Postgres re-evaluates `status = 'available'` against the committed row, it no longer matches, and the second request updates zero rows. Zero rows means `SOLD_OUT`. There is no application lock, no Redis and no retry loop.
+
+Then add a safety net at the database level:
+
+```sql
+ALTER TABLE bookings ADD CONSTRAINT one_booking_per_seat UNIQUE (seat_id);
+```
+
+The trap's schema leaves this constraint out on purpose so the bug stays visible. In a real system, a [unique constraint](https://www.postgresql.org/docs/current/ddl-constraints.html#DDL-CONSTRAINTS-UNIQUE-CONSTRAINTS) is what catches the code path nobody thought about: an admin tool, a backfill script, a second service written a year later.
+
+### Other fixes interviewers accept
+
+The conditional `UPDATE` is the default answer, but it is not the only valid one:
+
+| Approach | When it fits |
+| --- | --- |
+| `UPDATE ... WHERE status = 'available'` | One row decides the outcome. Simple, one round trip. |
+| [`SELECT ... FOR UPDATE`](https://www.postgresql.org/docs/current/explicit-locking.html#LOCKING-ROWS) in a short transaction | You must read several rows and decide in code. Never hold the lock across a payment call. |
+| `UNIQUE` constraint and catch the violation | Inserting a claim row is the natural write. Add the constraint anyway. |
+| Optimistic locking with a `version` column | Contention is rare and you want no blocking. |
+| Distributed lock | The resource does not live in one database. Usually overkill here. |
+
+The rule underneath all of them: **never check-then-act across two statements.**
+
+## How the test proves it
+
+A fix for a race condition is only believable with a test that runs the race. The trap's `proof.test.ts` uses `node:test` and a real Postgres database, not a mock, and sends 50 concurrent users at one seat.
+
+For the buggy version it asserts that more than one booking row exists and that every one of those rows was told `CONFIRMED`. For the fixed version it asserts exactly one booking, exactly one `CONFIRMED`, 49 `SOLD_OUT` responses, and that the seat's `booked_by` matches the single booking row. The README's run output puts it plainly:
+
+```
+❌ Seat A1 sold 50 times. 50 users were told CONFIRMED.
+✅ Seat A1 sold exactly once. 49 user(s) got SOLD_OUT.
+```
+
+The replay on the Labs page uses a recorded two-user run of the same code. The bug path ends with seat A1 sold twice; the fix path ends with one booking and one `SOLD_OUT`.
+
+### The gotcha that hides the bug in tests
+
+Race tests have a trap of their own. If the connection pool is cold, the first requests spend their time opening connections and arrive one after another instead of together. The repo's own notes record that with a cold pool the bug showed up only about 2 times out of 50. A test like that can pass, or fail only sometimes, while the bug is still there.
+
+The trap warms the pool before the race starts so all 50 requests really do overlap. If you write your own concurrency tests, check that they fail against the broken code first. A race test that has never been red proves nothing.
+
+## A checklist for booking code you already have
+
+If you own a booking, reservation or inventory flow, these questions take an afternoon to answer:
+
+1. **Find every check-then-act.** Search for a read of status, stock or availability followed later by a write that depends on it. Each one is a candidate.
+2. **Move the condition into the write.** Turn "read, then update" into one conditional `UPDATE ... WHERE ... RETURNING`, and branch on the row count.
+3. **Add the constraint.** Put a `UNIQUE` constraint on whatever must never exist twice, such as one booking per seat or per slot.
+4. **Keep slow work outside locks.** Claim first, then call payment or email. Never hold a transaction open across a network call.
+5. **Write the race test before trusting the fix.** Many concurrent requests against a real database, a warmed pool, and a test that fails on the old code.
+6. **Decide what happens when payment fails after the claim.** The trap keeps this out of scope, but a real system must release the seat or mark it for follow-up.
+
+That last point is where the next traps in the series start.
+
+## What comes next in the series
+
+The fixed code still has an open question. If the payment succeeds but the response times out, the client retries. Does the user get charged twice? Trap 2 covers retries and idempotency keys, and later traps cover payment and booking getting out of step, duplicate webhooks and holds that never expire.
+
+My view: most developers run into the same handful of bugs, so listing the known ones up front, with code you can run, saves new developers from learning each of them in production. The broader habit is the same one I argue for in [boring architecture for SaaS](/blog/boring-architecture-for-saas): let the database enforce what must always be true instead of hoping application code gets the timing right.
+
+## When internal work is enough, and when to get help
+
+If your booking flow lives in one Postgres database and you can find the check-then-act spots, the fixes above are small and your team can ship them. The conditional update and the constraint are a few lines each.
+
+It gets harder when the state is spread out: payments in one provider, availability cached in another service, background jobs that also write bookings. Then the race is between systems, not between rows, and the fix involves idempotency, reconciliation and a clear state machine. That is also where a review of the whole flow, like the one described in [what to audit in a vibe-coded MVP](/blog/what-to-audit-in-a-vibe-coded-mvp-before-real-users-see-it), pays for itself.
+
+## Frequently Asked Questions
+
+### Does wrapping the booking code in a transaction fix the race?
+
+Not on its own. PostgreSQL's default isolation level is Read Committed, and a plain SELECT inside a transaction takes no lock, so two transactions can still both read available. The check has to be part of the write, or the row has to be locked with SELECT ... FOR UPDATE.
+
+### Is a UNIQUE constraint on bookings enough by itself?
+
+It stops a second booking row from being saved, which makes it the right safety net. It does not stop the code from charging a second user before the insert fails, so the claim should still happen first, in one conditional UPDATE.
+
+## Related Reading
+
+- [Why I Prefer Boring Architecture for SaaS](/blog/boring-architecture-for-saas)
+- [Cron, Queue, or Workflow? A SaaS Background Jobs Guide](/blog/saas-background-jobs-queue-cron-workflow)
+- [What Makes a SaaS MVP Production-Ready](/blog/production-ready-saas-mvp)
+- [What to Audit in a Vibe-Coded MVP Before Real Users See It](/blog/what-to-audit-in-a-vibe-coded-mvp-before-real-users-see-it)
+
+## Next Step
+
+Run the trap yourself: clone the [interview-traps repo](https://github.com/somnathraz/interview-traps), run `npm run 01:bug` and `npm run 01:fix`, then try `npm run 01:bug -- --users 200`. Browse the other traps on the [Labs traps page](/labs/traps).
+
+If you are building a product with bookings, slots or limited stock and want the concurrency handled before launch rather than after the first double sale, that is part of how I approach [SaaS MVP development](/services/saas-mvp-development). Bring a description of your booking flow and where payments happen, and we can work out where the races are.

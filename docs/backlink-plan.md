@@ -16,6 +16,15 @@ Gap domains = sites linking to at least one competitor but not to somanathkhadan
 - Search Console shows no manual action. Google says it ignores this kind of link, so a disavow file is not needed now. Revisit only if a manual action appears or rankings drop sharply.
 - Real links today: paperchaiapp.com and a few others. Effectively we start from zero.
 
+## Done 2026-10-30 (existing accounts, no new posts)
+
+- Medium: 7 of 8 cross-posted stories had no canonical link and competed with the originals. All 7 now set "originally published elsewhere" with the canonical URL on somanathkhadanga.com (verified on the public pages).
+- Hashnode (buildsaas.hashnode.dev): "What to Audit in a Vibe-Coded MVP" canonical set to the original; the other 3 posts were already correct.
+- dev.to: 8 cross-posts already canonical to the site; no change.
+- Profile website links set to the canonical https://somanathkhadanga.com on GitHub and dev.to (were www), and added to the Hashnode profile (was empty).
+
+Rule for future cross-posts: always set the canonical URL to the original article before publishing.
+
 ## Tier 1: directories and profiles (do first, week 1-3)
 
 Competitors get dozens to hundreds of links each from these (e.g. designrush.com: 57-644 links per competitor; goodfirms.co: 17-675). Free or freemium listings; they also send buyers.

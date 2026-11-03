@@ -1,0 +1,38 @@
+# News Check Log (daily-stack-news-check)
+
+Daily check for high-impact stack news. Not a published post. A brief is drafted only when it is high impact, verified by a primary source, not already covered, and fewer than 2 briefs exist for the week. Weekly brief count: count rows with verdict `post` in the same Monday–Sunday week.
+
+| Date (Asia/Kolkata) | Items checked | Verdict | Slug | Sources |
+| --- | --- | --- | --- | --- |
+| 2026-11-02 | Node2Shell (CVE-2026-111497, Node.js Brotli, CISA KEV); Next.js Nov 3 security release notice; Prisma 6 end of security support; npm worms; GitHub Actions, Vercel, Cloudflare, Stripe, Chrome; OpenAI, Anthropic, Gemini, Bedrock; TypeScript, pnpm, Postgres | watch | none | [CISA KEV alert Oct 27](https://www.cisa.gov/news-events/alerts/2026/10/27/cisa-adds-two-known-exploited-vulnerabilities-catalog), [Node.js Oct 2026 security releases](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases), [SecurityWeek Oct 28](https://www.securityweek.com/cisa-warns-of-node2shell-exploitation-as-honeypots-log-attack-attempts/), [Next.js upcoming Nov release](https://nextjs.org/blog/upcoming-nextjs-security-release-november-2026), [Prisma release status](https://www.prisma.io/docs/orm/release-status) |
+| 2026-11-03 | GitHub Actions `pull_request_target` default block moved to Dec 2 with Nov 9/16 brownouts (changelog Nov 2); Next.js Nov 3 security release (not yet published at check time); npm supply chain; Chrome; OpenAI, Anthropic, Gemini, Bedrock, Stripe, Vercel, Cloudflare; Node2Shell follow-up | post (update in place) | github-actions-execution-policies-saas | [GitHub changelog Nov 2](https://github.blog/changelog/2026-11-02-pull_request_target-blocked-by-default-december-2), [Control workflow execution docs](https://docs.github.com/actions/how-tos/administer/control-workflow-execution), [Next.js blog](https://nextjs.org/blog), [Next.js advisories](https://github.com/vercel/next.js/security/advisories) |
+
+## 2026-11-02 notes
+
+Week of 2026-11-02: 0 briefs drafted.
+
+- **Node2Shell, CVE-2026-111497: watch.** This is an actively exploited Brotli out-of-bounds write in Node.js. CISA added it to KEV on Oct 27, and the federal deadline is Nov 10. Fixed in 22.23.4, 24.22.1 and 26.12.1 (Oct 21 release). It is high impact, but it falls outside the 24–48h window (KEV Oct 27, reporting Oct 28). The fixed versions are already covered by the uncommitted Node.js 26 refresh (`nodejs-26-saas-production-upgrade`, updated 2026-11-01). That refresh does not mention the active exploitation or the KEV listing. **Suggestion for the live session:** before approving that refresh, add 2–3 sentences saying exploitation is confirmed and that Node 22 and 24 users must also patch, citing the CISA alert. Not done here, because that draft belongs to the tech-guide run and is waiting for approval. *Postable if:* a new development lands, such as working public RCE exploits against stock Node builds, a new bypass, or incomplete patches.
+- **Next.js security release scheduled Nov 3: watch.** The official notice lists 7 vulnerabilities, all medium severity. That does not meet the high/critical bar. *Postable if:* an advisory published on Nov 3 is rated high or critical, or one turns out to be exploitable without authentication in default setups. Otherwise it suits the Wednesday tech guide (the Oct 14 16.4.1/15.5.28 release was already flagged in TECH_GUIDE_PROGRESS.md).
+- **Prisma 6 security support ends 2026-11-19: watch.** Per Prisma's release status page, this is a scheduled deadline, not news. It is a good Wednesday tech-guide candidate ("Prisma 6 to 7 before security support ends") after checking the date on the official page.
+- **npm supply chain:** no new compromise reported Oct 31–Nov 2. The only recent posts recap earlier incidents (Miasma in June, ChainDrop in August). **none.**
+- **GitHub Actions, Vercel, Cloudflare, Stripe, Chrome, AI APIs, TypeScript, pnpm, Postgres:** no primary-source advisory, breaking change or shutdown announced in the window. The Anthropic Sonnet 4.5 retirement (Nov 30) and OpenAI Nov 30 items came only from a low-authority preview article and are unverified. **none.**
+
+## 2026-11-03 notes
+
+Week of 2026-11-02: 1 post (an in-place update, not a new brief). It counts toward the 2-per-week cap.
+
+- **GitHub Actions `pull_request_target` blocked by default on Dec 2: post, as an update in place.** GitHub's changelog of Nov 2 moves permanent enforcement in public repos (Free, Team, Enterprise Cloud; not private or internal repos, not GHES) from Nov 2 to Dec 2, 2026. It adds brownouts on Nov 9 and Nov 16, 16:00–18:00 UTC, when runs are blocked and fail with an error annotation. This is a forced migration with a deadline and a primary source. The existing post `github-actions-execution-policies-saas` (2026-09-18) gave the old Nov 2 date, so it was updated in place rather than written as a new brief: URL and date kept, `updated: 2026-11-03`. Changes: an update callout under the hero image; a new "The New Schedule: Brownouts, Then a December 2 Block" subsection with a date table, scope and a 4-step "this week" list (find, remove, allow narrowly via workflow-file targeting, watch Nov 9); and the missing `## Related Reading` and `## Next Step` sections that validate:blog now requires. Existing cover reused, no new cover generated. Unconfirmed: whether policy insights are available on every plan. The post hedges this ("where your plan shows policy insights").
+- **Next.js Nov 3 scheduled security release: watch.** It was not yet on nextjs.org/blog or GitHub advisories at check time (newest advisory Oct 14). The pre-notice says 7 medium-severity issues. *Postable if:* the published advisories include a high or critical issue, or one exploitable without authentication by default. Re-check in the live session.
+- **npm supply chain, Chrome, AI APIs, Stripe, Vercel, Cloudflare, Postgres, Prisma, TypeScript: none.** No primary-source item in the window. Chrome zero-day results were undated (likely older). OpenAI Nov 30 shutdowns appear only on an aggregator, still unverified.
+- **Node2Shell:** no new development. The 2026-11-02 suggestion still stands: add the KEV and exploitation note to the Node 26 refresh before approving it.
+
+**Validation.** `validate:blog` passed (2,345 prose words, 5 internal links, metaTitle 48, description 143). `eslint` reports 0 issues for the file (MDX not linted). `npx next build` passed with the postbuild IndexNow hook skipped; the prerendered page contains the update.
+
+**Draft dev.to / Hashnode intro (not posted).**
+GitHub will block `pull_request_target` by default in public repositories on December 2, 2026, with two-hour brownouts on November 9 and 16. This updated guide shows how to find the workflows that depend on the trigger, move most of them to `pull_request`, and allow the rest narrowly with workflow execution policies before the first brownout.
+
+**Draft X thread outline (not posted).**
+1. GitHub moved the default `pull_request_target` block in public repos to Dec 2, 2026. First come two brownouts: Nov 9 and Nov 16, 16:00–18:00 UTC, when matching runs fail.
+2. Scope: public repos on Free, Team and Enterprise Cloud. Private and internal repos and GHES are not affected. Between brownouts the rule stays in evaluate mode (runs execute, with warnings).
+3. This week: grep `.github/workflows` for `pull_request_target`, move build/test jobs to `pull_request` with no secrets, and use a `workflow_run` split for privileged follow-ups.
+4. If a workflow truly needs the trigger, allow it in an Actions event policy targeting just that workflow file, then watch the Nov 9 window. Full guide: <canonical URL>
