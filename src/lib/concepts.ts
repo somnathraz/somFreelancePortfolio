@@ -30,6 +30,14 @@ const CONCEPTS = {
     batching: { term: "Batching", definition: "Collecting many small changes and writing them once. 10,000 clicks become one UPDATE." },
     upsert: { term: "Upsert", definition: "INSERT … ON CONFLICT DO UPDATE: insert the row, or overwrite it if one already exists. Handy for retries, dangerous when the conflict was the thing you needed to know about." },
     idempotent: { term: "Idempotent", definition: "Safe to repeat. A retried request ends in the same state as the first attempt, instead of an error or a second effect." },
+    "rate-limit": { term: "Rate limit", definition: "A cap on how many requests one user can make in a period. Past it, the API answers 429 Too Many Requests." },
+    "fixed-window": { term: "Fixed window", definition: "Count requests in each clock minute and reset at the edge. Simple, but a burst that straddles the edge can pass twice the limit." },
+    "sliding-window": { term: "Sliding window", definition: "Count the requests in the last 60 seconds, measured back from now, so there is no edge to exploit. Exact versions store every timestamp; cheaper ones blend two windows." },
+    "token-bucket": { term: "Token bucket", definition: "A bucket holds up to N tokens and refills at a steady rate. Each request takes one, and an empty bucket means reject. It allows short bursts and holds the average." },
+    "fail-open": { term: "Fail open", definition: "When the limiter itself breaks, let traffic through instead of blocking it, so a limiter outage does not become an API outage." },
+    transaction: { term: "Transaction", definition: "A group of changes the database treats as one: all of them are saved, or none of them." },
+    "statement-timeout": { term: "Statement timeout", definition: "A limit on how long one query may run. Past it, the database cancels the query and undoes what it did." },
+    partition: { term: "Partition", definition: "A big table split into pieces, for example one per month. Dropping an old piece is instant, with no row-by-row delete." },
 } satisfies Record<string, Concept>;
 
 export type ConceptId = keyof typeof CONCEPTS;

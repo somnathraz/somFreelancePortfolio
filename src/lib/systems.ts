@@ -61,7 +61,7 @@ const TRACKS: SystemTrack[] = [
             { id: "stale-redirect", kind: "trap", title: "The stale redirect", summary: "The cache keeps sending visitors to a destination the owner already changed.", href: "/labs/traps/url-shortener-stale-redirect", format: "read" },
             { id: "analytics-hot-path", kind: "trap", title: "Analytics on the hot path", summary: "Recording a click makes the redirect itself slow.", href: "/labs/traps/url-shortener-analytics-hot-path", format: "read" },
             { id: "vanity-alias-race", kind: "trap", title: "The vanity alias race", summary: "Two users claim /launch at once, and both are told it is theirs.", href: "/labs/traps/url-shortener-vanity-alias-race", format: "read" },
-            { id: "expired-cleanup", kind: "trap", title: "Cleanup at scale", summary: "One DELETE of expired links locks the table everyone redirects from." },
+            { id: "expired-cleanup", kind: "trap", title: "Cleanup at scale", summary: "One nightly DELETE of expired links runs past the timeout and rolls back, so nothing is ever deleted.", href: "/labs/traps/url-shortener-expired-cleanup", format: "read" },
             { id: "build", kind: "build", title: "Build it", summary: "Pick the code pattern for every step, then let every request ordering run and see which traps your design falls into." },
         ],
         repoPath: "systems/url-shortener",

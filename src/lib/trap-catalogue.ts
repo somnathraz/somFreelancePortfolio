@@ -32,7 +32,15 @@ const TOPICS: PlannedTopic[] = [
         ["url-shortener-stale-redirect", "The stale redirect", "A link is cached, then its destination is updated. Which URL does the next visitor get?"],
         ["url-shortener-analytics-hot-path", "Analytics on the hot path", "Can recording a click slow down the redirect itself?"],
         ["url-shortener-vanity-alias-race", "The vanity alias race", "Two users claim the same custom alias at once. Who gets it?"],
-        ["url-shortener-expired-cleanup", "Cleanup at scale", "Why can a plain DELETE of expired links lock the table?"],
+        ["url-shortener-expired-cleanup", "Cleanup at scale", "One nightly DELETE of expired links deletes nothing. Why?"],
+    ] },
+    { id: "rate-limiter", title: "Rate Limiter", group: "System design", description: "How Stripe limits requests, then the bugs hiding inside the version most people draw.", entries: [
+        ["rate-limiter-core-design", "Token bucket or counter", "How does an API decide, request by request, whether to let one through?"],
+        ["rate-limiter-counter-race", "The counter race", "Your limit is 10 and a script sends 50 at once. How many get through?"],
+        ["rate-limiter-window-burst", "The window boundary burst", "Can a user get twice the limit by timing requests around the window edge?"],
+        ["rate-limiter-per-server", "One limiter per server", "Behind a load balancer, what does an in-memory limiter actually allow?"],
+        ["rate-limiter-immortal-key", "The key that never expires", "What if the process dies between INCR and EXPIRE?"],
+        ["rate-limiter-redis-down", "Redis goes down, the API goes down", "Should a limiter block or allow when its own store is unreachable?"],
     ] },
     { id: "concurrency", title: "Concurrency", description: "When requests collide and shared state stops being safe.", entries: [
         ["booking-race-condition", "The double-booking race", "Can two requests book the same last seat?"],

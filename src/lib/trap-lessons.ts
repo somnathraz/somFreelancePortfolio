@@ -247,6 +247,82 @@ const VANITY_SCHEMA = `CREATE TABLE links (
 );
 `;
 
+const CLEAN_BUG = `import type { Pool } from "pg";
+
+// Nightly job: one statement for every expired link.
+export async function cleanup(db: Pool) {
+  // One transaction. If it runs past the statement timeout,
+  // Postgres cancels it and undoes every row it deleted.
+  const res = await db.query("DELETE FROM links WHERE expires_at < now()");
+  return \`DELETED \${res.rowCount}\`;
+}
+`;
+
+const CLEAN_FIX = `import type { Pool } from "pg";
+
+const BATCH = 2000;
+
+// Walk the primary key in ranges. Each range is its own short transaction.
+export async function cleanup(db: Pool) {
+  const { rows } = await db.query("SELECT min(id) AS lo, max(id) AS hi FROM links");
+  const { lo, hi } = rows[0];
+  for (let from = Number(lo); from <= Number(hi); from += BATCH) {
+    await db.query(
+      "DELETE FROM links WHERE id >= $1 AND id < $2 AND expires_at < now()",
+      [from, from + BATCH],
+    );
+    // In production, sleep a little here so replicas and vacuum keep up.
+  }
+}
+`;
+
+const CLEAN_PARTITION = `-- At billions of rows: one partition per month.
+CREATE TABLE links (
+  id         bigint NOT NULL,
+  code       text   NOT NULL,
+  target     text   NOT NULL,
+  expires_at timestamptz NOT NULL
+) PARTITION BY RANGE (expires_at);
+
+CREATE TABLE links_2026_09 PARTITION OF links
+  FOR VALUES FROM ('2026-09-01') TO ('2026-10-01');
+
+-- Cleanup is instant: no row-by-row delete, no bloat.
+DROP TABLE links_2026_09;
+`;
+
+const RL_BUG = `import type Redis from "ioredis";
+
+export async function allow(redis: Redis, user: string, limit = 10) {
+  const key = \`rate:\${user}\`;
+  // Read…
+  const count = Number((await redis.get(key)) ?? 0);
+  if (count >= limit) return "429 Too Many Requests";
+  // …then write. Everyone who read before the first write saw 0.
+  await redis.set(key, count + 1, "EX", 60);
+  return "200 OK";
+}
+`;
+
+const RL_FIX = `import type Redis from "ioredis";
+
+// INCR and the expiry in one atomic step, as a Lua script.
+const INCR_WITH_EXPIRY = [
+  'local n = redis.call("INCR", KEYS[1])',
+  'if n == 1 then redis.call("EXPIRE", KEYS[1], ARGV[1]) end',
+  "return n",
+].join("\\n");
+
+export async function allow(redis: Redis, user: string, limit = 10) {
+  // Every request gets its own number: 1..10 pass, the rest are rejected.
+  const count = Number(
+    await redis.eval(INCR_WITH_EXPIRY, 1, \`rate:\${user}\`, 60),
+  );
+  if (count > limit) return "429 Too Many Requests";
+  return "200 OK";
+}
+`;
+
 const LESSONS: TrapLessonContent[] = [
     {
         slug: "url-shortener-id-collision",
@@ -548,6 +624,156 @@ const LESSONS: TrapLessonContent[] = [
         remember: "A check followed by a save is two moments. Make it one statement and let the unique index decide.",
         sourcePath: "systems/url-shortener/04-vanity-alias-race",
         updated: "2026-11-02",
+    },
+    {
+        slug: "url-shortener-expired-cleanup",
+        title: "Cleanup at scale",
+        question: "A nightly job deletes expired links. One morning you check and not a single row was deleted, and the same last night. Why?",
+        system: "URL Shortener",
+        rule: "Never delete millions of rows in one statement. Delete in short batches over the primary key, and at real scale partition by time so cleanup is DROP PARTITION.",
+        summary: {
+            problem: "The nightly cleanup deletes nothing, night after night, and the table keeps growing.",
+            cause: "One DELETE is one transaction. It runs past the statement timeout, so Postgres cancels it and undoes every row it had deleted. Tomorrow's run is longer still.",
+            fix: "Delete in short batches over the primary key, each its own tiny transaction, so progress sticks.",
+        },
+        why: [
+            "Links expire, so old rows have to go. The obvious job is one line of SQL, and it works on staging with 2,000 rows.",
+            "In our run, scaled down to a laptop, 300,000 expired links sat next to 30,000 live ones. The timeout was set between the time one 2,000-row batch takes and the time the one-shot DELETE takes. The one-shot hit it and rolled back: all 300,000 expired links were still there. Production is the same story with a 30-second timeout and billions of rows.",
+            "It did not block redirects: reads in Postgres never wait on a DELETE, and 50 visitors were redirected fine during the run. The damage is quieter. The job never finishes, and while it runs it locks every row it touches, writes a mountain of log that makes replicas fall behind, and holds back vacuum.",
+        ],
+        words: ["transaction", "statement-timeout", "batching", "partition"],
+        picture: {
+            intro: "300,000 links have expired. The cleanup starts at midnight.",
+            flows: [
+                {
+                    title: "One DELETE for everything",
+                    steps: ["DELETE starts", "Deletes rows for a while", "Hits the statement timeout", "Postgres rolls everything back"],
+                    outcome: "0 rows deleted. Tomorrow there are more rows, so it fails again.",
+                    tone: "bug",
+                },
+                {
+                    title: "Short batches",
+                    steps: ["Delete ids 1 to 2,000", "Commit", "Delete ids 2,001 to 4,000", "Commit", "And so on"],
+                    outcome: "Each batch takes milliseconds. If the job dies at batch 80, batches 1 to 79 are already done.",
+                    tone: "fix",
+                },
+            ],
+        },
+        attempts: [
+            { label: "One DELETE for everything", code: "DELETE FROM links WHERE expires_at < now()", verdict: "fails", why: "One transaction. It runs past the statement timeout or the next deploy, and Postgres undoes every row." },
+            { label: "A bigger timeout", code: "SET statement_timeout = 0", verdict: "partly", why: "Lets it finish, once. Meanwhile every deleted row stays locked until the end, the log balloons, replicas fall behind and vacuum is held back. Tomorrow's table is bigger." },
+            { label: "Batches with LIMIT", code: "WHERE id IN (SELECT id … WHERE expires_at < now() LIMIT 2000)", verdict: "partly", why: "Progress sticks, but every batch rescans the dead index entries the earlier batches left, so it slows down as it goes. Fine for small tables." },
+            { label: "Check expiry when a link is opened", code: "if (link.expires_at < now()) return 404", verdict: "partly", why: "Expired links stop working at once, but their rows are still there and storage keeps growing. Pair it with a cleanup, not instead of one." },
+            { label: "Primary-key range batches", code: "DELETE … WHERE id >= $1 AND id < $2 AND expires_at < now()", verdict: "works", why: "Each batch is a short transaction, and walking the key never revisits a range. If the job is killed, it can resume." },
+            { label: "Partition by month, drop the old one", code: "DROP TABLE links_2026_09", verdict: "works", why: "The real answer at billions of rows. Dropping a whole month is instant, with no row-by-row delete and no bloat." },
+        ],
+        fix: {
+            paragraphs: [
+                "Walk the primary key in ranges of a couple of thousand ids and delete the expired rows in each range. Every range is its own transaction: a few milliseconds, then commit. In production add a short sleep between batches so replicas and vacuum can keep up.",
+                "Why ranges and not LIMIT? A LIMIT subquery has to skip the dead index entries earlier batches left behind, so each batch is slower than the last, and in our prototype it crept toward the timeout. Walking the primary key never revisits a range.",
+            ],
+            cost: "Cleanup now takes longer on the clock, and it is a loop with a position to resume from instead of one statement. At billions of rows even batches are slow, so partition the table by month and drop old partitions instead.",
+            alsoSay: {
+                title: "Interviewers also listen for: lazy expiry",
+                body: "Check expires_at when a link is opened and return 404, so an expired link stops working at once. The cleanup job then only reclaims space, which means it is allowed to be slow.",
+            },
+        },
+        checks: [
+            {
+                q: "The DELETE is correct SQL. Why did it delete nothing?",
+                a: "It is one transaction. It ran past the statement timeout, so Postgres cancelled it and rolled back every row, not just the unfinished part.",
+            },
+            {
+                q: "Does it block redirects while it runs?",
+                a: "No. Reads in Postgres do not wait on a DELETE. The cost is load, replicas falling behind, held-back vacuum, and a job that never catches up.",
+            },
+            {
+                q: "Why walk the primary key and not use LIMIT?",
+                a: "A LIMIT subquery rescans the dead index entries the previous batches left, so it gets slower as it goes. Key ranges never revisit a range.",
+            },
+        ],
+        code: [
+            { label: "The bug · one DELETE", filename: "cleanup.bug.ts", code: CLEAN_BUG, note: NOTE },
+            { label: "The fix · key-range batches", filename: "cleanup.fix.ts", code: CLEAN_FIX, note: NOTE },
+            { label: "At scale · partitions", filename: "partitions.sql", code: CLEAN_PARTITION, lang: "sql" },
+        ],
+        remember: "One statement is all or nothing. Delete in short batches, and say partitions when the table is huge.",
+        sourcePath: "systems/url-shortener/05-cleanup-at-scale",
+        updated: "2026-11-05",
+    },
+    {
+        slug: "rate-limiter-counter-race",
+        title: "The counter race",
+        question: "Your limiter allows 10 requests a minute. A script fires 50 at once. How many get through?",
+        system: "Rate Limiter",
+        rule: "Never GET-then-SET a counter. Increment and check in one atomic step, and set the key's expiry in that same step.",
+        summary: {
+            problem: "The limit is 10 and all 50 requests get through. Afterwards the counter says 1.",
+            cause: "The limiter reads the count, checks it, then writes count + 1. Every request that reads before the first write lands sees 0, passes, and writes 1.",
+            fix: "Increment first and check the number you get back. INCR is atomic, so every request gets a number of its own.",
+        },
+        why: [
+            "A limiter stands between a runaway script and your database, and this one fails exactly when it is needed: in a burst.",
+            "One request at a time it is perfect: 10 pass and the 11th gets a 429. That is why it survives QA. In our run, with a limit of 10, 50 of 50 concurrent requests got through and the counter said 1, because every write overwrote the others. The fix let exactly 10 through and counted all 50.",
+        ],
+        words: ["rate-limit", "race-condition", "read-modify-write", "atomic", "ttl"],
+        picture: {
+            intro: "The limit is 10 a minute. 50 requests arrive together and the counter is at 0.",
+            flows: [
+                {
+                    title: "One at a time (what QA does)",
+                    steps: ["Request 1 reads 0", "Writes 1", "Request 2 reads 1", "Writes 2"],
+                    outcome: "Requests 1 to 10 pass. The 11th reads 10 and gets a 429.",
+                    tone: "fix",
+                },
+                {
+                    title: "All at once (what a script does)",
+                    steps: ["All 50 read 0", "All 50 pass the check", "All 50 write 1"],
+                    outcome: "50 of 50 get through, and the counter says 1.",
+                    tone: "bug",
+                },
+            ],
+        },
+        attempts: [
+            { label: "GET, check, SET", code: "count = GET; if count >= limit …; SET count + 1", verdict: "fails", why: "Two round trips with a gap between them. Every request that reads inside the gap sees the same count." },
+            { label: "A lock around GET and SET", code: "await lock.acquire()", verdict: "partly", why: "Correct if every API server shares the lock, but every request now queues on it, and you have a lock to manage." },
+            { label: "WATCH, then retry", code: "WATCH key; MULTI … EXEC", verdict: "partly", why: "Works, but the retries pile up under exactly the burst you are trying to limit." },
+            { label: "MULTI / EXEC", code: "MULTI; INCR; EXPIRE; EXEC", verdict: "partly", why: "Applies commands together, but you cannot branch on a value you read inside it." },
+            { label: "INCR, then compare", code: "n = INCR key; if n > limit …", verdict: "works", why: "One atomic call, and the number you get back is yours alone. The default for a fixed-window counter." },
+            { label: "A Lua script", code: "EVAL check-and-spend", verdict: "works", why: "Check and spend in one atomic step. What Stripe does, and what you need once the limiter has more than one key or field." },
+        ],
+        fix: {
+            paragraphs: [
+                "Increment first, then check. Redis runs INCR one at a time, so each request gets its own number: 1 to 10 pass, 11 to 50 are rejected. There is no read-then-write gap to race through.",
+                "Set the expiry in the same atomic step. INCR followed by a separate EXPIRE is two calls again, and that gap is a trap of its own, later this week.",
+            ],
+            cost: "Rejected requests are counted too, so a user who keeps hammering keeps the counter high. For a token bucket, or anything with more than one field, move the whole check into a Lua script.",
+            alsoSay: {
+                title: "Interviewers also listen for: Stripe's version",
+                body: "Stripe describes running the check-and-spend as a Lua script inside Redis, so no other operation can run between reading the count and writing the new one.",
+            },
+        },
+        checks: [
+            {
+                q: "Why does it pass QA and fail under a script?",
+                a: "One request at a time, each read sees the previous write. A script sends them together, so many read the same count before any write lands.",
+            },
+            {
+                q: "Why does the counter say 1 after 50 requests?",
+                a: "Every request wrote count + 1 from the same starting count, so each write overwrote the others.",
+            },
+            {
+                q: "Why not INCR and then a separate EXPIRE?",
+                a: "That is two calls again. If the process dies between them, the key never expires, and the user stays blocked. Set the expiry in the same atomic step.",
+            },
+        ],
+        code: [
+            { label: "The bug · GET, check, SET", filename: "limiter.bug.ts", code: RL_BUG, note: NOTE },
+            { label: "The fix · increment first", filename: "limiter.fix.ts", code: RL_FIX, note: NOTE },
+        ],
+        remember: "If your code reads a counter and writes it back, requests can overlap in between. Let Redis increment it in one step.",
+        sourcePath: "systems/rate-limiter/01-counter-race",
+        updated: "2026-11-05",
     },
 ];
 

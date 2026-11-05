@@ -91,6 +91,35 @@ export async function createLink(db: Pool, longUrl: string): Promise<string> {
 }
 `;
 
+const RL_FIXED_WINDOW = `import type Redis from "ioredis";
+
+// Option A: fixed window. One counter per user per minute.
+export async function allow(redis: Redis, user: string, limit: number) {
+  const key = \`count:\${user}:\${Math.floor(Date.now() / 60_000)}\`;
+  const count = await redis.incr(key);
+  // These are two calls. That gap is a trap of its own (Day 5).
+  if (count === 1) await redis.expire(key, 60);
+  return count <= limit;
+}
+`;
+
+const RL_TOKEN_BUCKET = `-- Option B: token bucket, as a Lua script so check and spend are one step.
+-- KEYS[1] bucket key. ARGV: capacity, refill per second, now in seconds.
+local data   = redis.call("HMGET", KEYS[1], "tokens", "ts")
+local tokens = tonumber(data[1]) or tonumber(ARGV[1])
+local ts     = tonumber(data[2]) or tonumber(ARGV[3])
+
+-- Refill for the time that passed, never above capacity.
+tokens = math.min(tonumber(ARGV[1]), tokens + (tonumber(ARGV[3]) - ts) * tonumber(ARGV[2]))
+
+local allowed = tokens >= 1
+if allowed then tokens = tokens - 1 end
+
+redis.call("HSET", KEYS[1], "tokens", tokens, "ts", ARGV[3])
+redis.call("EXPIRE", KEYS[1], 120)
+return allowed and 1 or 0
+`;
+
 const DESIGNS: DesignPageContent[] = [
     {
         slug: "url-shortener-core-design",
@@ -174,6 +203,89 @@ const DESIGNS: DesignPageContent[] = [
         remember: "A hash can collide and a counter can't, but a counter has to be scaled. Say both halves out loud.",
         sourcePath: "systems/url-shortener/00-core-design",
         updated: "2026-10-29",
+    },
+    {
+        slug: "rate-limiter-core-design",
+        title: "Token bucket or counter",
+        question: "Every user gets 100 requests a minute. How does the API decide, request by request, whether to let one through?",
+        system: "Rate Limiter",
+        rule: "Use a token bucket per user in a shared store like Redis. Make check-and-spend one atomic step, give every key an expiry, and fail open when the limiter itself breaks.",
+        summary: {
+            problem: "The API must reject a user's requests once they pass their limit, without slowing down everyone else.",
+            options: [
+                { label: "Option A: fixed window", text: "Count requests per user per minute and reject past the limit. One key and one INCR, but a burst at the edge of two windows can pass twice the limit." },
+                { label: "Option B: token bucket", text: "A bucket refills at a steady rate and each request takes a token. It allows short bursts and holds the average, but check and spend must be one atomic step." },
+            ],
+            choice: "A token bucket in Redis, shared by every API server, with the check and spend as one atomic script.",
+        },
+        why: [
+            "Without a limit, one runaway script can use up capacity for everyone. Stripe says its request rate limiter is by far the most important of the four limiters it runs, and that it rejected millions of requests in a single month, often from scripts running in test mode.",
+            "The question behind the question is three choices: which algorithm decides, where the count lives (one server's memory or a shared store), and what happens when the limiter itself breaks. Each of the next traps is one of those choices going wrong.",
+        ],
+        words: ["rate-limit", "fixed-window", "sliding-window", "token-bucket", "atomic", "fail-open"],
+        picture: {
+            intro: "The limit is 10 requests a minute.",
+            flows: [
+                {
+                    title: "Option A: fixed window",
+                    steps: ["Count requests in this minute", "10 requests at 0:59 are allowed", "The window resets at 1:00", "10 more at 1:00 are allowed"],
+                    outcome: "20 requests in about one second, twice the limit. Simple, but the edges leak.",
+                    tone: "bug",
+                },
+                {
+                    title: "Option B: token bucket",
+                    steps: ["The bucket holds up to 10 tokens", "Each request takes one", "Tokens refill steadily", "An empty bucket means 429"],
+                    outcome: "Short bursts are fine and the average holds. This is what Stripe uses.",
+                    tone: "fix",
+                },
+            ],
+        },
+        options: [
+            {
+                label: "Option A: fixed window counter",
+                code: "INCR count:{user}:{minute}",
+                good: "One key and one INCR. Easy to build and easy to run.",
+                cost: "The count resets at the window edge, so a user can send the whole limit at the end of one window and again at the start of the next.",
+            },
+            {
+                label: "Option B: token bucket",
+                code: "tokens = min(max, tokens + elapsed × rate); take 1",
+                good: "Allows short bursts and holds the average rate. No edge to exploit.",
+                cost: "Check and spend must be one atomic step, or two requests can spend the same token. That is the next trap.",
+            },
+        ],
+        choice: {
+            paragraphs: [
+                "Use a token bucket per user. The bucket lives in Redis, so every API server sees the same count, and the check and spend run as a Lua script inside Redis. Stripe describes this design.",
+                "Other options worth naming: a sliding window log is exact but stores one entry per request; a sliding window counter blends this window and the last and is close to exact with two counters; a leaky bucket smooths the output but adds queueing delay.",
+            ],
+            cost: "More moving parts than one counter: a script to maintain, and Redis on the path of every request. That is why the limiter has to decide what to do when Redis is down.",
+            alsoSay: {
+                title: "Interviewers also listen for: what Stripe adds",
+                body: "Stripe runs four layers: the request rate limiter, a limiter on concurrent requests, and two load shedders that drop non-critical traffic when the fleet is busy. Its advice: fail open, return 429 for over-limit and 503 for shedding, dark-launch a limiter by logging what it would block, and keep a kill switch.",
+            },
+        },
+        checks: [
+            {
+                q: "Why can a fixed window let through twice the limit?",
+                a: "The count resets at the window edge. A user can use the whole limit at the end of one window and the whole limit again at the start of the next.",
+            },
+            {
+                q: "Why must the count live in Redis and not in each server's memory?",
+                a: "A user's requests are spread over every API server. With a count per server, four servers allow four times the limit.",
+            },
+            {
+                q: "If Redis is down, should the limiter block or allow?",
+                a: "Fail open and alert. A bug in the limiter should not take the whole API down.",
+            },
+        ],
+        code: [
+            { label: "Option A · fixed window", filename: "fixed-window.ts", code: RL_FIXED_WINDOW, note: "Example code. The tested versions land in the repo with each trap." },
+            { label: "Option B · token bucket", filename: "token-bucket.lua", code: RL_TOKEN_BUCKET, note: "Example code. The tested versions land in the repo with each trap." },
+        ],
+        remember: "A fixed window is easy and leaks at the edges. A token bucket holds the average, and its check and spend must be one atomic step.",
+        sourcePath: "systems/rate-limiter/00-core-design",
+        updated: "2026-11-05",
     },
 ];
 
