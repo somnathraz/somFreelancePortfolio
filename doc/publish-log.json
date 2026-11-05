@@ -122,6 +122,58 @@
           "note": "due 2026-11-04 via Import from site URL"
         }
       }
+    },
+    "prisma-accelerate-retirement-migration": {
+      "title": "Prisma Accelerate Retires December 1: A SaaS Migration Guide",
+      "created": "2026-11-05T10:07:37.941Z",
+      "platforms": {
+        "studio-site": {
+          "status": "success",
+          "updated": "2026-11-05T10:07:37.990Z",
+          "url": "https://somanathkhadanga.com/blog/prisma-accelerate-retirement-migration",
+          "note": "PR #27 merged 21300e0; HTTP 200, canonical and sitemap confirmed"
+        },
+        "devto": {
+          "status": "pending",
+          "updated": "2026-11-05T10:07:37.942Z"
+        },
+        "hashnode": {
+          "status": "pending",
+          "updated": "2026-11-05T10:07:37.942Z"
+        },
+        "medium": {
+          "status": "pending",
+          "updated": "2026-11-05T10:07:37.942Z"
+        },
+        "substack": {
+          "status": "pending",
+          "updated": "2026-11-05T10:07:37.942Z"
+        },
+        "hackernoon": {
+          "status": "pending",
+          "updated": "2026-11-05T10:07:37.942Z"
+        },
+        "peerlist": {
+          "status": "pending",
+          "updated": "2026-11-05T10:07:37.942Z"
+        },
+        "facebook": {
+          "status": "pending",
+          "updated": "2026-11-05T10:07:37.942Z"
+        },
+        "linkedin": {
+          "status": "pending",
+          "updated": "2026-11-05T10:07:37.942Z"
+        },
+        "instagram": {
+          "status": "manual",
+          "updated": "2026-11-05T10:07:37.942Z"
+        },
+        "youtube": {
+          "status": "manual",
+          "updated": "2026-11-05T10:07:37.942Z"
+        }
+      }
     }
   }
 }

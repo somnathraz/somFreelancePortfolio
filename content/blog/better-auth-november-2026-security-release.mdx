@@ -1,0 +1,96 @@
+---
+title: "Better Auth's November Security Release: What to Patch and Rotate Today"
+metaTitle: "Better Auth Security Release: Patch and Rotate Today"
+description: "Better Auth 1.7.16 fixes 12 advisories, including a critical Expo account takeover. See who is affected, what to rotate, and how to verify the fix."
+primaryKeyword: "Better Auth security release"
+date: "2026-11-04"
+updated: "2026-11-04"
+author: "Somanath Khadanga"
+readTime: "6 min read"
+category: "Security"
+tags:
+  - Better Auth
+  - SaaS authentication
+  - account takeover
+  - Application Security
+  - SaaS patch management
+shareImage: "/images/blog/better-auth-november-2026-security-release.png"
+relatedService: "/services/production-readiness-upgrade"
+---
+
+![Authentication gate with a rotating key and a patched shield protecting user accounts](/images/blog/better-auth-november-2026-security-release.png)
+
+Better Auth published a coordinated security release on November 3, 2026. It covers [12 advisories across core and its plugins](https://better-auth.com/blog/security-release-2026-11-03): one critical, two high, eight medium and one low.
+
+If your SaaS uses Better Auth, upgrade today. For some setups, upgrading is not enough. The critical and Electron fixes also need secret rotation, and the phone and Stripe fixes need a data check, because a patch does not undo what already happened.
+
+## What Happened
+
+The fixed versions are **1.7.16** and **1.8.0-beta.5**. Better Auth says to update `better-auth` and every `@better-auth/*` package together, because the plugin packages ship with the same versions.
+
+Three advisories deserve your attention first:
+
+| Advisory | Severity | You are affected if | What an attacker can do |
+| --- | --- | --- | --- |
+| [Expo authorization proxy](https://github.com/better-auth/better-auth/security/advisories/GHSA-4wq4-2ppv-q3hg) | Critical (CVSS 9.1) | Your server registers `expo()` | Sign in as a user knowing only their email address, without credentials and without any action from the user |
+| [Electron desktop sign-in](https://github.com/better-auth/better-auth/security/advisories/GHSA-9p5w-h4pr-fcrc) | High (CVSS 8.1) | Your server registers `electron()` | Any signed-in user can read the auth secret and social provider client secrets |
+| [Phone number claims](https://github.com/better-auth/better-auth/security/advisories/GHSA-q747-mqgr-4gh7) | High (CVSS 8.1) | You use the phone number plugin | Attach a victim's number to an attacker's account, so the victim lands in that account and enters data there |
+
+The critical issue needs a closer look. The `expo()` plugin added a public endpoint that signed a value from the request with the application secret. Better Auth uses the same secret for email verification links and, when enabled, the session cookie cache. That is why one helper endpoint could become an account takeover.
+
+As of this writing, neither the Better Auth post nor the advisories reviewed here report active exploitation. Treat that as unconfirmed, not as a reason to wait. The advisories are public, and the Expo flaw needs no authentication.
+
+## Who Is Affected
+
+Start with what your server code registers, not what your apps use. The Expo advisory applies when the server registers the plugin, and no other setting is needed. A team that added `expo()` for a mobile experiment and never shipped the app is still exposed.
+
+- **All Better Auth users:** several medium advisories sit in core, so upgrade even if you use no optional plugin. One example is revoked sessions that can stay valid with secondary storage or the cookie cache.
+- **Teams on the 1.6 line:** the advisories list `better-auth` below 1.7.16 as affected, and the release post names only 1.7.16 and 1.8.0-beta.5. Plan to move to 1.7.16 rather than assuming a 1.6 patch exists.
+- **Stripe plugin users:** a signed-in user could [replace their own Stripe customer ID](https://github.com/better-auth/better-auth/security/advisories/GHSA-x8j7-xh58-rv6x) with another customer's, then reach that customer's billing portal.
+- **Vercel deployments:** Vercel has added firewall rules for all hosted projects, but [its bulletin](https://vercel.com/kb/bulletin/better-auth-november-2026-security-release) warns against relying on them. Logic-level issues cannot be blocked at the firewall, and the rules cannot invalidate signatures forged before they were deployed. You still need to upgrade and rotate.
+
+## What to Do Today
+
+Work through these in order.
+
+1. **Inventory your config.** Search your auth setup for `expo(`, `electron(`, `phoneNumber(`, `stripe(`, `secondaryStorage` and `cookieCache`. Check every service that creates a Better Auth instance, including internal tools.
+2. **Upgrade every package together.** Move `better-auth` and all `@better-auth/*` packages to 1.7.16, then deploy. Use 1.8.0-beta.5 only if you are already on the beta line.
+3. **Use the workaround if you cannot deploy today.** If you do not use Expo social sign-in, remove the `expo()` server plugin. If you need it, the advisory describes a request filter for `/expo-authorization-proxy`, but that blocks only the signing problem. Remove `electron()` until you can upgrade.
+4. **Rotate secrets where the advisory says so.** If the Expo endpoint was reachable, rotate the application secret, because signatures issued before the fix stay valid until the secret changes. If `electron()` has been running, treat the auth secret and every social provider client secret as disclosed.
+5. **Clean up stored data.** On 1.7.16, clear phone numbers that were never verified, using the SQL in the phone advisory. If you use the Stripe plugin, look for customer IDs held by more than one user, using the query in that advisory, and compare them with the Stripe customer's `metadata.userId`.
+6. **Read the advisories for the plugins you run.** Some fixes need configuration changes. For example, the Expo advisory says SSO sign-in may need the identity provider's origin added to `trustedOrigins`.
+
+### A Warning on Secret Rotation
+
+Better Auth supports versioned secrets, and its docs say rotation need not invalidate sessions when the old key stays available. That convenience works against you here. The advisory's concern is that old signatures remain valid until the secret changes. It does not say whether an old key kept in a versioned list still verifies those signatures, so treat that as unconfirmed.
+
+The cautious path is to remove the old key once in-flight sign-ins have finished, rather than leaving it in place. Expect a short window where OAuth sign-ins that started before the change may fail, and schedule it accordingly.
+
+## How to Verify You Are Safe
+
+Run these checks after the deploy, not before.
+
+- **Installed versions:** run `npm ls better-auth` and check each `@better-auth/*` package in the deployed artifact. A lockfile can pin one plugin behind the others.
+- **Endpoint behaviour:** in a staging environment, confirm that `/expo-authorization-proxy` no longer signs a `state` value your app did not issue. If you removed the plugin, confirm the route no longer responds.
+- **Secret age:** confirm the running environment has the new secret, and that any retired value is gone from every service and preview deployment.
+- **Auth flows:** test password, social and mobile sign-in, email change, session revocation and billing portal access for at least two test accounts.
+- **Logs:** review requests to `/expo-authorization-proxy`, plus unexpected email address changes on accounts. Absence of a signal does not prove nothing happened, so keep the rotation in place regardless.
+
+This is also a good moment to confirm that your [authorization boundaries hold beyond the login](/blog/saas-tenant-isolation-authorization-blueprint). A strong sign-in layer does not protect tenant data on its own.
+
+## What to Watch Next
+
+- A CVE assignment for the critical advisory. The advisory had none at the time of this check.
+- Any report of active exploitation, or public proof-of-concept code.
+- Guidance from Better Auth for the 1.6 line, which the release post does not mention.
+- A stable 1.8.0 release. On the beta line, the phone fix also requires proof of account ownership before a pending number is verified.
+
+## Related Reading
+
+- [Your SaaS Login Is Not Tenant Isolation](/blog/saas-tenant-isolation-authorization-blueprint)
+- [Passkeys for SaaS: A Rollout Plan That Preserves Recovery](/blog/passkeys-saas-rollout-recovery)
+- [What to Audit in a Vibe-Coded MVP Before Real Users See It](/blog/what-to-audit-in-a-vibe-coded-mvp-before-real-users-see-it)
+
+## Next Step
+
+If you own a SaaS built on Better Auth, patch first, then decide whether you need help with the rest. A small team with one service can usually finish this list in-house. Outside help makes more sense when you run several services, cannot tell which plugins are live, or need a safe secret rotation across production and previews. Prepare your auth config, deployment list and current package versions, then look at the [production readiness upgrade](/services/production-readiness-upgrade) to scope the review.

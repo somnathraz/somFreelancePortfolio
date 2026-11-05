@@ -104,3 +104,28 @@ questions (rough one-line answers are enough):
 5. What is the most common serious problem you find, and how do you decide what gets fixed first?
 6. One real example you can share without naming the client (what you found, what changed). Leave blank if none.
 7. Your honest opinion: when is an audit NOT worth paying for?
+
+---
+
+### Five bugs in one URL shortener (traps: URL Shortener world rollup)
+status: draft (entry added by the Thursday run on 2026-11-05; no Thursday entry was ready)
+slot: Thursday (traps post, next possible Thursday 2026-11-12)
+framing: not set yet, author to confirm. Default until then: educational scenario. Traps are common developer mistakes, never "it happened to me". First person only for what I built and tested and for my opinions.
+what the repo already says (from interview-traps systems/url-shortener, author to confirm these are the numbers to quote):
+- A 7-day build (commits 2026-10-28 to 2026-11-03): one design lesson, five runnable traps, a rollup, and `npm run shortener:all`.
+- Scoreboard: "5/5 naive versions broke. 5/5 fixes held." 50 concurrent users each, real Postgres. Exact counts move between runs.
+- Rollup output: 42.7 ms slowest redirect with the click counter on the hot path vs 0.8 ms batched. One DELETE of 300,000 expired rows hit the statement timeout and rolled back; the batched version cleared them and left 30,000 live links untouched.
+- The cleanup demo scales the timeout to the laptop (production would be 30 s against billions of rows), so that number is a demo, not a benchmark.
+- Latest commit in the rollup: two of the five bugs share the check-then-act shape, not three.
+- Links: /labs/systems/url-shortener, https://github.com/somnathraz/interview-traps/tree/main/systems/url-shortener
+questions (rough one-line answers are enough):
+1. Why did you make this a week of one system instead of one-off traps? What did that change in how you built them?
+2. Which of the five traps took you longest to make reproducible, and what was wrong with the first attempt? (You can only count what really happened while building the demo.)
+3. The rollup was corrected from three check-then-act bugs to two. What made you recheck it, and which bug had been counted wrongly?
+4. Which single number from `npm run shortener:all` do you want the post to lead with, and why that one? Run it once and paste the output with the date and your machine.
+5. Scaling the statement timeout down for the cleanup trap: are you comfortable explaining that as a scaled demo, and is there anything you would change about it?
+6. How have the reels and trap pages done so far: one real number each (views, repo stars, page visits, with date)? Leave blank if you have not checked.
+7. Your honest opinion: which of the five would most candidates miss in an interview, and which is really a production problem and not an interview one?
+8. What would you do differently in the Rate Limiter week now that this one is finished?
+screenshots or files (paths):
+-
