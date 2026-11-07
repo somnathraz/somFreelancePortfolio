@@ -323,6 +323,81 @@ export async function allow(redis: Redis, user: string, limit = 10) {
 }
 `;
 
+const RL_WINDOW_BUG = `import type Redis from "ioredis";
+
+const INCR_WITH_EXPIRY = [
+  'local n = redis.call("INCR", KEYS[1])',
+  'if n == 1 then redis.call("EXPIRE", KEYS[1], ARGV[1]) end',
+  "return n",
+].join("\\n");
+
+export async function allow(redis: Redis, user: string, limit = 100) {
+  // A new counter every clock minute. Atomic, so no race...
+  const minute = Math.floor(Date.now() / 60_000);
+  const key = \`rate:\${user}:\${minute}\`;
+  const count = Number(await redis.eval(INCR_WITH_EXPIRY, 1, key, 60));
+  // ...but 100 at 0:59.9 and 100 at 1:00.1 land in two different counters.
+  if (count > limit) return "429 Too Many Requests";
+  return "200 OK";
+}
+`;
+
+const RL_WINDOW_FIX = `import type Redis from "ioredis";
+
+// Token bucket, refill and take in one atomic step (the shape of Stripe's script).
+const TAKE_TOKEN = \`
+local capacity = tonumber(ARGV[1])
+local rate     = tonumber(ARGV[2])        -- tokens per second
+local now      = tonumber(ARGV[3])        -- milliseconds
+local state    = redis.call("HMGET", KEYS[1], "tokens", "ts")
+local tokens   = tonumber(state[1]) or capacity
+local ts       = tonumber(state[2]) or now
+tokens = math.min(capacity, tokens + (now - ts) / 1000 * rate)
+local allowed = 0
+if tokens >= 1 then tokens = tokens - 1; allowed = 1 end
+redis.call("HSET", KEYS[1], "tokens", tokens, "ts", now)
+redis.call("EXPIRE", KEYS[1], math.ceil(capacity / rate * 2))
+return allowed\`;
+
+export async function allow(redis: Redis, user: string, limit = 100) {
+  // 100 tokens, refilling at 100 per minute. No clock edge to game.
+  const allowed = await redis.eval(TAKE_TOKEN, 1, \`bucket:\${user}\`, limit, limit / 60, Date.now());
+  return allowed === 1 ? "200 OK" : "429 Too Many Requests";
+}
+`;
+
+const RL_SERVER_BUG = `// Each API server process has its own copy of this Map.
+const counts = new Map<string, { n: number; resetAt: number }>();
+
+export function allow(user: string, limit = 100) {
+  const now = Date.now();
+  const entry = counts.get(user);
+  if (!entry || entry.resetAt <= now) {
+    counts.set(user, { n: 1, resetAt: now + 60_000 });
+    return "200 OK";
+  }
+  entry.n += 1;
+  // Correct for the requests THIS server saw. The load balancer sent the rest elsewhere.
+  return entry.n > limit ? "429 Too Many Requests" : "200 OK";
+}
+`;
+
+const RL_SERVER_FIX = `import type Redis from "ioredis";
+
+const INCR_WITH_EXPIRY = [
+  'local n = redis.call("INCR", KEYS[1])',
+  'if n == 1 then redis.call("EXPIRE", KEYS[1], ARGV[1]) end',
+  "return n",
+].join("\\n");
+
+// Same logic, one shared Redis: every server increments the same key.
+export async function allow(redis: Redis, user: string, limit = 100) {
+  const count = Number(await redis.eval(INCR_WITH_EXPIRY, 1, \`rate:\${user}\`, 60));
+  if (count > limit) return "429 Too Many Requests";
+  return "200 OK";
+}
+`;
+
 const LESSONS: TrapLessonContent[] = [
     {
         slug: "url-shortener-id-collision",
@@ -774,6 +849,158 @@ const LESSONS: TrapLessonContent[] = [
         remember: "If your code reads a counter and writes it back, requests can overlap in between. Let Redis increment it in one step.",
         sourcePath: "systems/rate-limiter/01-counter-race",
         updated: "2026-11-05",
+    },
+    {
+        slug: "rate-limiter-window-burst",
+        title: "The window boundary burst",
+        question: "Your limit is 100 requests a minute, counted per clock minute. A client sends 100 at 0:59.9 and 100 more at 1:00.1. How many get through?",
+        system: "Rate Limiter",
+        rule: "A fixed window limits each clock minute, not any 60 seconds. If a burst at the edge matters, use a token bucket or a sliding window, and say the trade-off.",
+        summary: {
+            problem: "The limit is 100 a minute and 200 requests get through in 0.2 seconds.",
+            cause: "The counter resets at the top of every minute. The first burst fills minute 0's counter, the second lands in a brand-new counter for minute 1.",
+            fix: "Use a token bucket. It refills continuously, so there is no clock edge to time requests around.",
+        },
+        why: [
+            "This one has no race. The count is atomic and every number is correct. The flaw is the window itself, so code review and load tests both pass.",
+            "In our run, with the clock pinned, a limit of 100 a minute let 200 requests through in 0.2 seconds: 100 at 0:59.9 and 100 at 1:00.1. The token bucket let the first 100 through and none of the second burst.",
+        ],
+        words: ["rate-limit", "fixed-window", "sliding-window", "token-bucket", "atomic"],
+        picture: {
+            intro: "The limit is 100 a minute. A client times two bursts of 100 either side of 1:00.",
+            flows: [
+                {
+                    title: "Fixed window",
+                    steps: ["0:59.9: 100 requests", "Minute 0's counter reaches 100", "1:00.1: a new counter starts at 0", "100 more are allowed"],
+                    outcome: "200 requests in 0.2 seconds, and each minute looks within its limit.",
+                    tone: "bug",
+                },
+                {
+                    title: "Token bucket",
+                    steps: ["0:59.9: 100 requests empty the bucket", "0.2s later about 0.3 tokens have dripped back", "1:00.1: the bucket is empty"],
+                    outcome: "100 get through. The second burst gets 429s.",
+                    tone: "fix",
+                },
+                {
+                    title: "A normal client",
+                    steps: ["100 requests spread evenly over the minute"],
+                    outcome: "Both versions allow all 100. The fix does not punish ordinary traffic.",
+                    tone: "info",
+                },
+            ],
+        },
+        attempts: [
+            { label: "Fixed window", code: "INCR rate:{user}:{minute}", verdict: "fails", why: "Bounds each clock minute, not any 60 seconds. A burst that straddles the edge gets twice the limit." },
+            { label: "Smaller windows", code: "100 per minute → 2 per second", verdict: "partly", why: "Shrinks the edge burst but blocks normal bursts too, like a page load that fires 20 requests at once." },
+            { label: "Sliding window counter", code: "weight last minute + this minute", verdict: "works", why: "Two counters and a weighted sum. Close to exact, and cheap." },
+            { label: "Sliding window log", code: "ZADD every timestamp, count the last 60s", verdict: "works", why: "Exact, but stores one entry per request." },
+            { label: "Token bucket", code: "EVAL take-token", verdict: "works", why: "Refills continuously, so no edge exists. Allows a burst up to the bucket size, then the steady rate. Stripe's choice." },
+        ],
+        fix: {
+            paragraphs: [
+                "A token bucket holds up to 100 tokens and refills at 100 a minute, a little at a time. Each request takes one. The first burst empties it; 0.2 seconds later only about a third of a token is back, so the second burst is rejected.",
+                "Refill and take happen in one Lua script, so concurrent requests can never spend the same token.",
+            ],
+            cost: "A token bucket still allows a burst up to its size at once. That is on purpose for real clients, but if you need a hard cap on every rolling 60 seconds, use a sliding window log and pay for it in memory.",
+            alsoSay: {
+                title: "Interviewers also listen for: why Stripe picked it",
+                body: "Stripe's post explains that real traffic is bursty, like a flash sale, and a token bucket lets those short bursts through while the average stays capped.",
+            },
+        },
+        checks: [
+            {
+                q: "Why does this pass code review?",
+                a: "Nothing is wrong with the counting. Every number is correct; the window resets at the edge exactly as written.",
+            },
+            {
+                q: "What is the worst case for a fixed window?",
+                a: "Twice the limit, sent as one burst just before the edge and one just after.",
+            },
+            {
+                q: "Does the token bucket block normal users?",
+                a: "No. A client spreading 100 requests over a minute gets all 100, because tokens refill as fast as it spends them.",
+            },
+        ],
+        code: [
+            { label: "The bug · fixed window", filename: "limiter.bug.ts", code: RL_WINDOW_BUG, note: NOTE },
+            { label: "The fix · token bucket", filename: "limiter.fix.ts", code: RL_WINDOW_FIX, note: NOTE },
+        ],
+        remember: "A fixed window counts clock minutes. Bursts can live on the edge between two of them.",
+        sourcePath: "systems/rate-limiter/02-window-burst",
+        updated: "2026-11-07",
+    },
+    {
+        slug: "rate-limiter-per-server",
+        title: "One limiter per server",
+        question: "Your limit is 100 requests a minute and it works perfectly in testing. Production has 4 API servers behind a load balancer. One user sends 400 requests. How many get through?",
+        system: "Rate Limiter",
+        rule: "A limit is only as global as the place its count lives. Keep the counter in one shared store, like Redis, or the limit multiplies by your server count.",
+        summary: {
+            problem: "The limit is 100 a minute and all 400 requests get through.",
+            cause: "Each server keeps the count in its own memory and only sees the requests sent to it. Round-robin gives each server 100, so no server ever crosses the limit.",
+            fix: "Keep the count in one shared Redis. The code stays the same; only the place the number lives changes.",
+        },
+        why: [
+            "It is correct on a laptop, where there is one server. In our run, one server with 150 requests allowed exactly 100.",
+            "Behind a load balancer with 4 servers, the same code let 400 of 400 through: 100 per server, each one sure it had enforced the limit. With the counter in shared Redis, exactly 100 of 400 got through. Add servers and the limit grows with them.",
+        ],
+        words: ["rate-limit", "load-balancer", "atomic", "ttl"],
+        picture: {
+            intro: "The limit is 100 a minute. One user sends 400 requests through a load balancer to 4 servers.",
+            flows: [
+                {
+                    title: "A counter in each server's memory",
+                    steps: ["The load balancer sends 100 requests to each server", "Each server counts to 100", "No server crosses the limit"],
+                    outcome: "400 of 400 get through: the limit, once per server.",
+                    tone: "bug",
+                },
+                {
+                    title: "One counter in shared Redis",
+                    steps: ["Every server increments the same key", "The 101st request sees 101, wherever it lands"],
+                    outcome: "100 of 400 get through. The rest get 429s.",
+                    tone: "fix",
+                },
+            ],
+        },
+        attempts: [
+            { label: "In-memory counter", code: "new Map() per process", verdict: "fails", why: "Each server sees only its share of the traffic. The limit multiplies by the number of servers." },
+            { label: "Divide the limit by server count", code: "limit / 4 per server", verdict: "partly", why: "Only works with a fixed server count and a perfectly even load balancer. Autoscaling breaks it." },
+            { label: "Sticky sessions", code: "pin each user to one server", verdict: "partly", why: "Breaks on deploys, scaling and failover, and a client can open new connections." },
+            { label: "Shared Redis counter", code: "INCR rate:{user} in one Redis", verdict: "works", why: "Every server reads and writes the same number. Where Stripe keeps its buckets." },
+            { label: "Limit at the edge", code: "API gateway or proxy", verdict: "works", why: "One component sees all traffic before it fans out to servers." },
+        ],
+        fix: {
+            paragraphs: [
+                "Move the count out of the server. Every API server increments the same key in one Redis, so it does not matter which server the load balancer picks.",
+                "The code is the same atomic increment as before. Only the place the number lives is different.",
+            ],
+            cost: "Redis is now on every request: one extra round trip, and a Redis outage is now the limiter's problem. That is the next trap: should the limiter block or allow when Redis is down?",
+            alsoSay: {
+                title: "Interviewers also listen for: local plus global",
+                body: "At very high volume, each server can take a small slice of the budget locally and sync with Redis in batches. Say it as an optimisation with approximate limits, not as the default.",
+            },
+        },
+        checks: [
+            {
+                q: "Why does it pass every test?",
+                a: "Tests run on one server, where the in-memory count sees every request.",
+            },
+            {
+                q: "What happens to the limit when you autoscale from 4 servers to 10?",
+                a: "With an in-memory counter it grows to 10 times the limit. With a shared counter it stays the same.",
+            },
+            {
+                q: "What new risk does the fix add?",
+                a: "Every request now depends on Redis being reachable, so decide what the limiter does when it is not.",
+            },
+        ],
+        code: [
+            { label: "The bug · a counter in each process", filename: "limiter.bug.ts", code: RL_SERVER_BUG, note: NOTE },
+            { label: "The fix · one shared Redis counter", filename: "limiter.fix.ts", code: RL_SERVER_FIX, note: NOTE },
+        ],
+        remember: "If the count lives in a server, the limit is per server. Put it where every server can see it.",
+        sourcePath: "systems/rate-limiter/03-limiter-per-server",
+        updated: "2026-11-07",
     },
 ];
 

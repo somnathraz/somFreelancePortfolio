@@ -37,6 +37,7 @@ const CONCEPTS = {
     "fail-open": { term: "Fail open", definition: "When the limiter itself breaks, let traffic through instead of blocking it, so a limiter outage does not become an API outage." },
     transaction: { term: "Transaction", definition: "A group of changes the database treats as one: all of them are saved, or none of them." },
     "statement-timeout": { term: "Statement timeout", definition: "A limit on how long one query may run. Past it, the database cancels the query and undoes what it did." },
+    "load-balancer": { term: "Load balancer", definition: "The component in front of several identical servers that hands each incoming request to one of them, so no single server takes all the traffic." },
     partition: { term: "Partition", definition: "A big table split into pieces, for example one per month. Dropping an old piece is instant, with no row-by-row delete." },
 } satisfies Record<string, Concept>;
 
