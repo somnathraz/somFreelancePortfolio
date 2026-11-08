@@ -398,6 +398,37 @@ export async function allow(redis: Redis, user: string, limit = 100) {
 }
 `;
 
+const RL_IMMORTAL_BUG = `import type Redis from "ioredis";
+
+export async function allow(redis: Redis, user: string, limit = 100) {
+  const key = \`rate:\${user}\`;
+  const count = await redis.incr(key);
+  if (count === 1) {
+    // Second call. If the process dies before this line runs,
+    // the key exists forever: no TTL, no reset.
+    await redis.expire(key, 60);
+  }
+  if (count > limit) return "429 Too Many Requests";
+  return "200 OK";
+}
+`;
+
+const RL_IMMORTAL_FIX = `import type Redis from "ioredis";
+
+// INCR and its expiry in one atomic step: both happen or neither does.
+const INCR_WITH_EXPIRY = [
+  'local n = redis.call("INCR", KEYS[1])',
+  'if n == 1 then redis.call("EXPIRE", KEYS[1], ARGV[1]) end',
+  "return n",
+].join("\\n");
+
+export async function allow(redis: Redis, user: string, limit = 100) {
+  const count = Number(await redis.eval(INCR_WITH_EXPIRY, 1, \`rate:\${user}\`, 60));
+  if (count > limit) return "429 Too Many Requests";
+  return "200 OK";
+}
+`;
+
 const LESSONS: TrapLessonContent[] = [
     {
         slug: "url-shortener-id-collision",
@@ -1001,6 +1032,79 @@ const LESSONS: TrapLessonContent[] = [
         remember: "If the count lives in a server, the limit is per server. Put it where every server can see it.",
         sourcePath: "systems/rate-limiter/03-limiter-per-server",
         updated: "2026-11-07",
+    },
+    {
+        slug: "rate-limiter-immortal-key",
+        title: "The key that never expires",
+        question: "Your limiter does INCR, then EXPIRE on the first request of each minute. During a sale, a deploy restarts a server right between those two calls. What happens to that user?",
+        system: "Rate Limiter",
+        rule: "Never create a counter and its expiry in two calls. Set the TTL in the same atomic step, and alert on limiter keys that have no TTL.",
+        summary: {
+            problem: "A user sending half the limit is blocked from the third minute on, and never unblocked.",
+            cause: "The request that created the key died before its EXPIRE ran. The key has no TTL, so it never resets and the count adds up across minutes.",
+            fix: "Create the key and its TTL in one atomic step, so no crash can land between them.",
+        },
+        why: [
+            "It works every day you test it. Run it for three minutes with no crash and all 150 requests pass, because the first request of each minute sets the expiry.",
+            "In our run, a 6-minute sale with 50 requests a minute against a limit of 100: a deploy killed one request between INCR and EXPIRE in minute 1. From minute 3 on, every request got a 429, and the counter climbed to 300 with no TTL. The atomic version allowed all 300 under the same deploy.",
+        ],
+        words: ["rate-limit", "fixed-window", "ttl", "atomic"],
+        picture: {
+            intro: "The limit is 100 a minute. A user sends 50 a minute during a sale. In minute 1, a deploy restarts a server.",
+            flows: [
+                {
+                    title: "INCR, then EXPIRE",
+                    steps: ["Minute 1: INCR creates the key (count 1)", "The process is killed before EXPIRE", "The key has no TTL", "Minute 2: count reaches 100", "Minute 3: 101, 102, …"],
+                    outcome: "Blocked from minute 3, forever, while sending half the limit.",
+                    tone: "bug",
+                },
+                {
+                    title: "INCR and TTL in one step",
+                    steps: ["Minute 1: the key is created with its TTL", "The same deploy happens", "The key expires after 60 seconds", "Every minute starts from 0"],
+                    outcome: "All 300 requests allowed.",
+                    tone: "fix",
+                },
+            ],
+        },
+        attempts: [
+            { label: "INCR, then EXPIRE", code: "INCR key; if n == 1: EXPIRE key 60", verdict: "fails", why: "Two calls. A crash, deploy or timeout between them leaves a key that never expires." },
+            { label: "EXPIRE on every request", code: "INCR key; EXPIRE key 60", verdict: "partly", why: "Heals a missing TTL, but keeps pushing the window back, so a busy user's window never resets." },
+            { label: "MULTI / EXEC", code: "MULTI; INCR; EXPIRE … NX; EXEC", verdict: "partly", why: "Atomic, but EXPIRE without NX resets the window on every request; EXPIRE NX needs Redis 7." },
+            { label: "SET NX EX, then INCR", code: "SET key 0 EX 60 NX; INCR key", verdict: "works", why: "The key is born with its TTL, and INCR keeps it. No moment without an expiry." },
+            { label: "A Lua script", code: "EVAL incr-with-expiry", verdict: "works", why: "INCR and EXPIRE in one atomic step: both happen or neither does." },
+        ],
+        fix: {
+            paragraphs: [
+                "Give the key its TTL in the same atomic step that creates it. A Lua script runs INCR and EXPIRE together, so there is no gap for a crash to land in.",
+                "Under the same deploy and the same traffic, every minute starts from zero and all 300 requests pass.",
+            ],
+            cost: "Nothing at request time: it is one round trip, same as before. Add a backstop anyway: a periodic scan for limiter keys with no TTL catches anything that slipped through.",
+            alsoSay: {
+                title: "Interviewers also listen for: why peak traffic makes it worse",
+                body: "Deploys, autoscaling and OOM kills cluster around traffic spikes, so this tends to hit during the sale, and the users it locks out are the most active ones.",
+            },
+        },
+        checks: [
+            {
+                q: "Why is the user blocked while sending only half the limit?",
+                a: "The key never resets, so the count is a lifetime total. Once it passes the limit, every request is rejected.",
+            },
+            {
+                q: "Why not just call EXPIRE on every request?",
+                a: "It fixes a missing TTL but keeps extending the window, so a busy user's counter never goes back to zero.",
+            },
+            {
+                q: "How would you find this in production?",
+                a: "Scan for limiter keys whose TTL is -1, and alert. Users stuck on 429 with low traffic are the symptom.",
+            },
+        ],
+        code: [
+            { label: "The bug · INCR, then EXPIRE", filename: "limiter.bug.ts", code: RL_IMMORTAL_BUG, note: NOTE },
+            { label: "The fix · one atomic step", filename: "limiter.fix.ts", code: RL_IMMORTAL_FIX, note: NOTE },
+        ],
+        remember: "A key that is created in one call and given a TTL in another can lose its TTL. Do both at once.",
+        sourcePath: "systems/rate-limiter/04-immortal-key",
+        updated: "2026-11-08",
     },
 ];
 
