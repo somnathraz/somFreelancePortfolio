@@ -1,0 +1,106 @@
+---
+title: "Cloudflare Workers AI Retires 24 Models on November 20: What to Change Now"
+metaTitle: "Workers AI Model Retirement Nov 20: What to Change"
+description: "Cloudflare retires 24 Workers AI models on Nov 20, 2026, and calls then fail with HTTP 410. Find affected calls, pick replacements and verify before the cutoff."
+primaryKeyword: "Workers AI model deprecation"
+date: "2026-11-08"
+updated: "2026-11-08"
+author: "Somanath Khadanga"
+readTime: "6 min read"
+category: "AI SaaS"
+tags:
+  - Cloudflare Workers AI
+  - AI model deprecation
+  - Durable Objects
+  - AI SaaS operations
+  - LLM migration
+shareImage: "/images/blog/cloudflare-workers-ai-model-retirement-november-2026.png"
+relatedService: "/services/ai-saas-development"
+---
+
+![Calendar page marked with a deadline beside a server rack and a swap arrow between two model cards](/images/blog/cloudflare-workers-ai-model-retirement-november-2026.png)
+
+Cloudflare has announced that [24 Workers AI models stop responding on November 20, 2026](https://developers.cloudflare.com/changelog/post/2026-11-05-planned-model-deprecations/). The list has 16 text-generation models and 8 others covering image generation, speech, transcription, vision and embeddings. After the cutoff, requests to those models fail with HTTP `410 Gone` and error code `5028`. Cloudflare does not say requests will be rerouted to a newer model.
+
+If a feature in your product calls one of these model IDs, it stops working on November 20 unless you change it. A second, smaller change follows at the end: Durable Objects now retry failed calls by default.
+
+## What Happened
+
+Cloudflare posted the deprecation notice in its changelog on November 5. The entry first gave November 15 as the date. It now says November 20 and notes that the earlier date was moved.
+
+The affected text-generation models are:
+
+- `@cf/deepseek-ai/deepseek-r1-distill-qwen-32b`, `@cf/deepseek-ai/deepseek-v4-pro-0813`, `@cf/deepseek-ai/deepseek-v4-flash-0731`
+- `@cf/nvidia/nemotron-3-120b-a12b`
+- `@cf/qwen/qwq-32b`, `@cf/qwen/qwen3-30b-a3b-fp8`
+- `@cf/moonshotai/kimi-k2.6`, `@cf/moonshotai/kimi-k2.7-code`
+- `@cf/zai-org/glm-5.2`, `@cf/zai-org/glm-5.3-flash`
+- `@cf/meta/llama-3.1-8b-instruct-fp8`, `@cf/meta/llama-3.2-1b-instruct`, `@cf/meta/llama-3.2-3b-instruct`
+- the LoRA bases `@cf/meta-llama/llama-2-7b-chat-hf-lora`, `@cf/google/gemma-2b-it-lora` and `@cf/google/gemma-7b-it-lora`
+
+For these, Cloudflare does not map each model to one replacement. It suggests `@cf/deepseek-ai/deepseek-v4.1-flash-1017` or `@cf/zai-org/glm-5.3` for frontier-class work, and `@cf/google/gemma-4-26b-a4b-it` or `@cf/qwen/qwen3.8-27b` for smaller models.
+
+The other eight have named replacements:
+
+| Retiring model | Cloudflare's replacement |
+| --- | --- |
+| `@cf/myshell-ai/melotts` | `@cf/deepgram/aura-2-en` |
+| `@cf/stabilityai/stable-diffusion-xl-base-1.0` | `@cf/black-forest-labs/flux-2-klein-9b` |
+| `@cf/runwayml/stable-diffusion-v1-5-inpainting` | `@cf/black-forest-labs/flux-2-klein-9b` |
+| `@cf/bytedance/stable-diffusion-xl-lightning` | `@cf/black-forest-labs/flux-2-klein-9b` |
+| `@cf/lykon/dreamshaper-8-lcm` | `@cf/black-forest-labs/flux-2-klein-9b` |
+| `@cf/openai/whisper-tiny-en` | `@cf/deepgram/nova-3` |
+| `@cf/llava-hf/llava-1.5-7b-hf` | `@cf/moondream/moondream3.1-9B-A2B` |
+| `@cf/google/embeddinggemma-300m` | `@cf/google/embeddinggemma-2` (not yet available) |
+
+The last row is the one to watch. At the time of writing, the changelog marks `embeddinggemma-2` as "available soon", twelve days before the old model stops working.
+
+## Who Is Affected
+
+You are affected if any code path, environment variable, config file or database row holds one of the model IDs above and sends it to Workers AI. That includes calls through the `env.AI` binding in a Worker, the REST API and AI Gateway routes that point at Workers AI.
+
+Three groups need more than a model ID change:
+
+- **Embedding users on `embeddinggemma-300m`.** Vectors from different embedding models are generally not comparable, so moving to a new model usually means re-embedding stored documents and rebuilding the index. That is my inference from how embedding models work, not a Cloudflare statement. With the replacement not yet published, this group has the least room.
+- **Teams with LoRA adapters on the three retiring bases.** An adapter is trained against a specific base model, so expect to retrain it on a supported base. Cloudflare's notice does not cover adapters directly, so treat the impact on existing adapters as unconfirmed.
+- **Image, speech and vision features.** The replacements come from different model families. Parameters and response shapes may differ, so test prompts and parsing code.
+
+## What to Do Today
+
+1. **Find every reference.** Search your repositories for the IDs, including `@cf/` strings in config files, seed data, feature flags and admin settings. Model IDs stored in a database table, for example per-tenant model choices, will not show up in a code search.
+2. **Check traffic, not just code.** If you use AI Gateway, filter its logs by model over the last 30 days to catch forgotten callers such as a cron job.
+3. **Pick replacements per feature.** Use the table above where Cloudflare names a replacement. For the text models, test the suggested options against your own prompts and expected outputs before choosing. The [Workers AI model catalog](https://developers.cloudflare.com/workers-ai/models/) lists current models and their input options.
+4. **Plan the embedding move now.** If you use `embeddinggemma-300m`, decide today whether to wait for `embeddinggemma-2` or switch to another available embedding model and re-index. Waiting is a bet on the release date.
+5. **Handle `410` explicitly.** Add a check for HTTP 410 and error code `5028`, documented with the other [Workers AI error codes](https://developers.cloudflare.com/workers-ai/platform/errors/), that logs the model ID and alerts you.
+6. **Consider a model alias for the future.** AI Gateway [added model aliases on November 4](https://developers.cloudflare.com/changelog/post/2026-11-04-model-aliases/): code calls one name, such as `custom/support-fast`, and the gateway tries a list of models in order, falling back if a request fails. The next retirement then becomes a config change.
+
+## How to Verify You Are Safe
+
+- A repository search for each retiring ID returns no live references, only comments or migration notes.
+- AI Gateway logs, or your own request logs, show no calls to the retiring IDs for several days before November 20.
+- Each changed feature passes a check on real inputs: sample prompts, reference images or audio, and retrieval tests on known queries for embeddings.
+- Your alerting fires on a test `410` response, so a missed caller shows up on the 20th instead of in a support ticket.
+
+## A Second Change: Durable Objects Now Retry Calls
+
+On November 5, Cloudflare also [turned on automatic retries for Durable Object calls](https://developers.cloudflare.com/changelog/post/2026-11-05-durable-objects-automatic-retries/). When a `fetch()` or RPC call to a Durable Object fails with a retryable error before reaching it, the runtime now retries up to four times, and no retry starts more than 10 seconds after the first attempt. Errors thrown by your own Durable Object code, and errors marked `.overloaded`, are not retried.
+
+If the runtime cannot tell whether the first attempt arrived, it still retries, but the Durable Object rejects the duplicate unless the method is marked with `retryable()`. Mark only idempotent methods, such as a setter rather than an increment.
+
+The action item: if your code already wraps Durable Object calls in its own retry loop, attempts now stack. Reduce your own retries, or pass `retry: { maxRetries: 0 }` on stubs where your code handles retries. The `retryable()` helper and the `retry` option need Wrangler 4.158.0 or later. For why retried side effects need idempotency, see the guide on [choosing between cron, queues and workflows](/blog/saas-background-jobs-queue-cron-workflow).
+
+## What to Watch Next
+
+- **The `embeddinggemma-2` release.** If it does not ship well before November 20, embedding users will have little or no overlap to re-index on Cloudflare.
+- **Further date changes.** The date has moved once already; re-check before cutover, but plan for November 20.
+- **Other providers' retirements.** Several AI APIs retire models in late November and December. Keep model IDs in config and test replacements on your own data; the [model routing guide](/blog/gpt-6-sol-luna-saas-model-routing) covers comparing models.
+
+## Related Reading
+
+- [Agent Builder Is Winding Down: Make Your AI SaaS Portable](/blog/openai-agent-builder-sunset-ai-saas-portability)
+- [GPT-6 Sol and Luna for SaaS: Route Workloads, Don't Replace Everything](/blog/gpt-6-sol-luna-saas-model-routing)
+- [Cron, Queue, or Workflow? A SaaS Background Jobs Guide](/blog/saas-background-jobs-queue-cron-workflow)
+
+## Next Step
+
+If you are not sure where every Workers AI model ID lives in your product, run the repository and gateway-log search today; embedding and LoRA cases need the most lead time. For help mapping model usage, testing replacements or moving model choice into config, see [AI SaaS development](/services/ai-saas-development). Bring a list of your AI features and where each is configured.

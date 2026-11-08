@@ -78,19 +78,22 @@
           "note": "refresh for Node 26 LTS; PR #24 merged (87cbc49), live HTTP 200 with new title"
         },
         "devto": {
-          "status": "manual",
-          "updated": "2026-11-03T06:45:38.765Z",
-          "note": "editor filled in in-app browser (title, body, tags node/nodejs/javascript/devops, canonical set), not published: Publish click blocked by permission check; no cover (file upload not possible)"
+          "status": "success",
+          "updated": "2026-11-07T06:48:56.871Z",
+          "note": "in-app browser; canonical verified; tags node (alias of nodejs), javascript, devops, saas; AI disclosure Some AI; no cover upload, hero image inline",
+          "url": "https://dev.to/somnath_khadanga_2e5c2364/nodejs-26-is-now-lts-a-saas-production-upgrade-plan-271l"
         },
         "hashnode": {
-          "status": "skipped",
-          "updated": "2026-11-03T06:45:38.788Z",
-          "note": "not attempted: external posting blocked at Dev.to step, waiting on Somnath"
+          "status": "success",
+          "updated": "2026-11-07T07:02:06.173Z",
+          "note": "BuildSaas; tags nodejs, javascript, devops; canonical verified in live HTML; published after your go-ahead (Code of Conduct notice)",
+          "url": "https://buildsaas.hashnode.dev/node-js-26-is-now-lts-a-saas-production-upgrade-plan"
         },
         "medium": {
-          "status": "skipped",
-          "updated": "2026-11-03T06:45:38.808Z",
-          "note": "due 2026-11-04 via Import, after site publish"
+          "status": "success",
+          "updated": "2026-11-07T06:30:51.187Z",
+          "note": "imported from site URL, canonical verified; import dropped the title so I added it in the editor (URL slug keeps old wording); topics Nodejs, JavaScript, DevOps",
+          "url": "https://medium.com/@somnathkhadanga810/updated-november-1-2026-node-js-20321066f29b"
         }
       }
     },
@@ -111,15 +114,16 @@
           "note": "in-app browser; canonical verified; tags githubactions, security (tag widget dropped devops); no cover upload, hero image inline; replaced unpublished Node 26 editor draft (regenerable from repo)"
         },
         "hashnode": {
-          "status": "manual",
-          "updated": "2026-11-03T06:55:04.825Z",
-          "url": "https://hashnode.com/draft/6ae984ad6ce7f48747503bf7",
-          "note": "BuildSaas draft complete (title, body 2,440 words, canonical set, tags github-actions-1/devops/security); Publish click blocked by permission check (Code of Conduct notice) - you press Publish in Draft settings"
+          "status": "success",
+          "updated": "2026-11-07T06:55:36.839Z",
+          "url": "https://buildsaas.hashnode.dev/github-actions-execution-policies-a-saas-ci-hardening-plan",
+          "note": "BuildSaas; canonical verified in live HTML; tags github-actions-1, devops, security; published after your go-ahead (Code of Conduct notice)"
         },
         "medium": {
-          "status": "skipped",
-          "updated": "2026-11-03T06:55:04.847Z",
-          "note": "due 2026-11-04 via Import from site URL"
+          "status": "success",
+          "updated": "2026-11-07T06:33:27.467Z",
+          "note": "imported from site URL, canonical verified; first publish took the first sentence as title, fixed in editor (URL slug keeps old wording); topics GitHub Actions, Security, DevOps",
+          "url": "https://medium.com/@somnathkhadanga810/a-secure-workflow-file-can-still-be-started-by-the-wrong-person-or-the-wrong-event-5d5ecfa65cdc"
         }
       }
     },
@@ -134,36 +138,49 @@
           "note": "PR #27 merged 21300e0; HTTP 200, canonical and sitemap confirmed"
         },
         "devto": {
-          "status": "pending",
-          "updated": "2026-11-05T10:07:37.942Z"
+          "status": "success",
+          "updated": "2026-11-07T03:31:22.880Z",
+          "url": "https://dev.to/somnath_khadanga_2e5c2364/prisma-accelerate-retires-december-1-a-saas-migration-guide-2ch6",
+          "note": "in-app browser; canonical verified; tags prisma postgres saas webdev; AI disclosure Some AI; no cover upload, hero image inline"
         },
         "hashnode": {
-          "status": "pending",
-          "updated": "2026-11-05T10:07:37.942Z"
+          "status": "success",
+          "updated": "2026-11-07T07:00:16.615Z",
+          "note": "BuildSaas; tags prisma, postgresql, saas; first publish saved the wrong canonical, fixed by editing and re-verified in live HTML; published after your go-ahead (Code of Conduct notice)",
+          "url": "https://buildsaas.hashnode.dev/prisma-accelerate-retires-december-1-a-saas-migration-guide"
         },
         "medium": {
-          "status": "pending",
-          "updated": "2026-11-05T10:07:37.942Z"
+          "status": "success",
+          "updated": "2026-11-07T03:36:38.992Z",
+          "url": "https://medium.com/@somnathkhadanga810/prisma-accelerate-migration-before-the-december-1-cutoff-7c161644e05c",
+          "note": "imported from site URL (canonical auto-verified); topics Postgresql, SaaS, Prisma"
         },
         "substack": {
-          "status": "pending",
-          "updated": "2026-11-05T10:07:37.942Z"
+          "status": "skipped",
+          "updated": "2026-11-07T03:41:50.668Z",
+          "note": "not done this run: needs rich-text paste in editor"
         },
         "hackernoon": {
-          "status": "pending",
-          "updated": "2026-11-05T10:07:37.942Z"
+          "status": "skipped",
+          "updated": "2026-11-07T03:41:50.691Z",
+          "note": "not a first-person piece; you press Submit if wanted"
         },
         "peerlist": {
-          "status": "pending",
-          "updated": "2026-11-05T10:07:37.942Z"
+          "status": "success",
+          "updated": "2026-11-07T03:38:28.376Z",
+          "url": "https://peerlist.io/somanath",
+          "note": "Scroll post via in-app browser, #show, link to the site post, intro differs from the article"
         },
         "facebook": {
-          "status": "pending",
-          "updated": "2026-11-05T10:07:37.942Z"
+          "status": "success",
+          "updated": "2026-11-07T03:41:50.642Z",
+          "url": "https://www.facebook.com/profile.php?id=61591734458459",
+          "note": "posted on Buildwithsom Page, public, link card with cover, no boost"
         },
         "linkedin": {
-          "status": "pending",
-          "updated": "2026-11-05T10:07:37.942Z"
+          "status": "skipped",
+          "updated": "2026-11-07T03:41:50.712Z",
+          "note": "not a Labs/traps build post"
         },
         "instagram": {
           "status": "manual",
