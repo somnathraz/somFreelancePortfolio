@@ -1,0 +1,97 @@
+---
+title: "SSHole (CVE-2026-123158): Check Every Alpine Server and Image That Runs sshd"
+metaTitle: "SSHole OpenSSH Bypass: Check Alpine sshd Today"
+description: "CISA lists SSHole, an OpenSSH password bypass on Alpine and other musl systems, as exploited. Find exposed sshd, patch to 10.6p2 and check logs for logins."
+primaryKeyword: "CVE-2026-123158"
+date: "2026-11-10"
+updated: "2026-11-10"
+author: "Somanath Khadanga"
+readTime: "6 min read"
+category: "Security"
+tags:
+  - OpenSSH
+  - Alpine Linux
+  - CVE-2026-123158
+  - Docker security
+  - SaaS infrastructure
+shareImage: "/images/blog/openssh-sshole-alpine-sshd-check.png"
+relatedService: "/services/production-readiness-upgrade"
+---
+
+![A padlocked server rack beside a terminal window, a box marked with a mountain outline and a key on an open notebook](/images/blog/openssh-sshole-alpine-sshd-check.png)
+
+On November 9, 2026, CISA [added CVE-2026-123158 to its Known Exploited Vulnerabilities catalog](https://www.cisa.gov/news-events/alerts/2026/11/09/cisa-adds-four-known-exploited-vulnerabilities-catalog). The bug, nicknamed "SSHole", lets an attacker log in over SSH with a long junk password on some Linux systems that use the musl C library without PAM. Alpine Linux is the main example, and Alpine is a common base for Node.js containers and small cloud servers.
+
+Most SaaS teams on managed platforms will not be affected. Teams that run their own Alpine hosts, bastions or containers with an SSH server inside should check today, because exploitation started within hours of disclosure.
+
+## What Happened
+
+OpenSSH [released portable OpenSSH 10.6p2 on November 5](https://www.openssh.org/txt/release-10.6p2) with what the project calls a critical security workaround. The release notes say sshd could be used to bypass password authentication on some Linux systems built and run with PAM disabled. The OpenSSH developers consider the root cause to lie outside sshd, but it is exploitable through sshd and is now blocked there. Alpine shipped patched packages the same day.
+
+Researchers' write-ups describe three choices that combine badly ([OX Security's analysis](https://www.ox.security/blog/openssh-authentication-bypass-cve-2026-123158/)):
+
+1. musl's `crypt()` rejects passwords longer than 256 bytes and returns `*`.
+2. Linux uses `*` in `/etc/shadow` to mean "this account has no valid password".
+3. Since 2016, sshd hashes a password attempt using another account's hash settings when the target account has no usable hash, to make user enumeration harder.
+
+On an affected system, a password between roughly 256 and 1,024 characters makes the comparison `*` against `*`, and the login succeeds. [Alpine's tracker](https://security.alpinelinux.org/vuln/CVE-2026-123158) describes the same window: any password in that range succeeds for some account configurations.
+
+[Help Net Security reported](https://www.helpnetsecurity.com/2026/11/06/openssh-sshole-cve-2026-123158-exploitation/) that the threat-intelligence firm Previdian saw a first attempt less than nine hours after the CVE was published, and that an Alpine honeypot gave the attacker root. The scale of exploitation beyond those reports is not public. The KEV listing confirms CISA has evidence of active exploitation.
+
+## Who Is Affected
+
+According to the write-ups linked above, every one of these conditions must hold:
+
+- sshd from OpenSSH **before 10.6p2** runs on a **musl-based Linux** system (Alpine, OpenWrt, Buildroot, Yocto and images built from them);
+- PAM is **not** used. Alpine's `openssh-server` package does not use PAM by default;
+- password authentication is **enabled**, which is the OpenSSH default;
+- at least one account has `*` in its password field (on Alpine, root has had `*` since about 3.16; key-only deploy users and LDAP users often do too);
+- at least one other account on the same system has a real password hash.
+
+The reports single out Alpine cloud images on AWS and Azure. Their default `alpine` user is passwordless and can run `doas` without a password, so a login there can become root. The images are reported to become exploitable once any real password hash exists, for example after someone sets a console password.
+
+Not affected, per the same sources: glibc distributions such as Debian, Ubuntu, Fedora and RHEL, systems where sshd uses PAM, Dropbear, OpenBSD, accounts locked with `!`, and any system with `PasswordAuthentication no`.
+
+For a typical SaaS stack, that means:
+
+- **Vercel, Cloudflare Workers and similar platforms:** you do not run sshd there, so there is nothing for you to patch (my inference; no provider has published a statement).
+- **Node.js containers on `node:*-alpine`:** the official images do not include an SSH server. You are exposed only if your Dockerfile adds `openssh-server` and starts it.
+- **Self-managed Alpine VMs, bastions and jump hosts:** the highest-risk group. Check these first.
+- **GitHub-hosted Actions runners:** these run Ubuntu, Windows or macOS, not musl.
+
+## What to Do Today
+
+1. **List hosts that accept SSH and run Alpine or another musl system.** Include bastions, small utility VMs and anything built from an Alpine cloud image. Search infrastructure code for Alpine image IDs too.
+2. **Search your Dockerfiles for an SSH server.** Run `grep -rniE "openssh|sshd" --include="Dockerfile*" .` across your repositories. For a built image, run `docker run --rm --entrypoint sh <image> -c "apk info -v openssh-server"`. No output means the package is not installed.
+3. **Patch hosts.** On Alpine, run `apk upgrade -U -a`, then `rc-service sshd restart`. Installing the package alone leaves the old sshd running until it restarts. Fixed builds by branch, from Alpine's tracker: edge `10.6_p2-r0`, 3.24 `10.3_p1-r2`, 3.23 `10.2_p1-r1`, 3.22 `10.0_p1-r11`, 3.21 `9.9_p2-r1`, 3.20 `9.7_p1-r6`.
+4. **Rebuild images, do not patch running containers.** Rebuild with `docker build --pull --no-cache`, push, and redeploy, so the new layer actually reaches production.
+5. **If you cannot patch now, turn off password logins.** First confirm key login works from a second session. Then add `PasswordAuthentication no` in a file under `/etc/ssh/sshd_config.d/` (or in `sshd_config`), and restart sshd. OpenSSH developer Damien Miller urged this step, per Help Net Security.
+6. **Close port 22 to the internet where you can.** Restrict it to a VPN or a short list of addresses. This is good practice whether or not you are affected.
+
+## How to Verify You Are Safe
+
+- `sshd -V` (or `apk info -v openssh-server`) shows a fixed version on every host.
+- `sshd -T | grep -Ei "usepam|passwordauthentication"`, run as root, shows `passwordauthentication no`, or the package version is fixed.
+- `awk -F: '$2=="*"{print $1}' /etc/shadow` tells you which accounts have `*`. Those are the accounts an attacker would target.
+- `grep "Accepted password for" /var/log/messages` returns no password logins for passwordless accounts such as `alpine`, `root` or deploy users. If you find one, treat the machine as compromised. Rebuild it and rotate any credentials it held.
+- Review recent `doas` use, new user accounts and changes to `authorized_keys` files on any host that was exposed before patching.
+
+Do not run proof-of-concept exploits from GitHub to test your servers. Help Net Security notes that these exploits are unverified and some may contain malware. The version and configuration checks above are enough.
+
+If your logs only live on the host, an attacker with root can wipe them. Shipping auth logs off the machine is part of [minimum viable observability](/blog/minimum-viable-observability-saas).
+
+## What to Watch Next
+
+- **Other musl-based images.** The researcher who found the bug suggested many Docker images pulled from registries are worth checking. Expect scanner rules and image rebuilds over the coming days.
+- **Vendor statements.** Appliances and embedded devices built on OpenWrt or Buildroot may ship SSH servers on a slower patch cycle. Watch for vendor advisories if you run any.
+- **Further OpenSSH or musl changes.** OpenSSH considers the root cause to lie outside sshd. A matching change in musl or in distribution packaging may follow; whether one is planned is unconfirmed.
+
+## Related Reading
+
+- [What the Vercel Security Incident Should Teach SaaS Teams About Production Readiness](/blog/vercel-security-incident-production-readiness)
+- [Minimum Viable Observability: What Your SaaS Needs Before It Scales](/blog/minimum-viable-observability-saas)
+- [Node.js 26 Is Now LTS: A SaaS Production Upgrade Plan](/blog/nodejs-26-saas-production-upgrade)
+
+## Next Step
+
+If you run any Alpine servers or containers and nobody can say today whether they run sshd with password logins, start with steps 1 and 2 above. They take minutes and tell you whether the rest applies. For a wider review of how your servers, images and access paths are patched and monitored, see the [production readiness upgrade](/services/production-readiness-upgrade). Bring a list of the hosts and images you deploy and how each one is reached.

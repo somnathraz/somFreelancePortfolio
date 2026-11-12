@@ -1,0 +1,87 @@
+---
+title: "Node.js's November 11 Security Release: Check HTTP/2, TLS and Your Version Today"
+metaTitle: "Node.js November 2026 Security Release: What to Patch"
+description: "Node.js shipped 22.23.5, 24.22.3 and 26.13.1 on November 11 with 16 CVEs, mostly HTTP/2 and TLS. See who is exposed and how to verify your servers."
+primaryKeyword: "Node.js security release November 2026"
+date: "2026-11-12"
+updated: "2026-11-12"
+author: "Somanath Khadanga"
+readTime: "6 min read"
+category: "Security"
+tags:
+  - Node.js
+  - Node.js security
+  - HTTP/2
+  - TLS
+  - SaaS security
+shareImage: "/images/blog/nodejs-november-2026-security-release-http2-tls.png"
+relatedService: "/services/production-readiness-upgrade"
+---
+
+![A server rack with a water pipe held shut by a green padlock, beside a clipboard checklist](/images/blog/nodejs-november-2026-security-release-http2-tls.png)
+
+The Node.js project shipped security releases for the 22, 24 and 26 lines on November 11, 2026. The [official advisory](https://nodejs.org/en/blog/vulnerability/november-2026-security-releases) lists 16 CVEs, and the largest group concerns HTTP/2 and TLS: process crashes, memory leaks, a use-after-free, and two certificate-validation gaps. The patched versions are 22.23.5, 24.22.3 and 26.13.1.
+
+This was pre-announced on November 4, so the date is no surprise, but the issue list is new. Whether you are exposed depends on how your Node.js process is used: a plain Express API behind a load balancer has far less exposure than a Node server that terminates TLS or HTTP/2 itself. This brief helps you tell which one you run, and what to do today.
+
+## What Happened
+
+The advisory splits the fixes by severity. Based on the list on the page (its own summary counts differ slightly, so treat the totals as approximate), at least seven are rated high:
+
+- **HTTP/2 crashes and memory problems** ([CVE-2026-123863](https://nodejs.org/en/blog/vulnerability/november-2026-security-releases), -123865, -123866, -123874): a remote client can abort the process, leave sessions and file descriptors leaking, or cause freed memory to be written to the socket. Several apply to 24 and 26 only.
+- **HTTPS parser re-entry** (CVE-2026-123864): a zero-length TLS write can cause a use-after-free and an out-of-bounds heap read. The advisory says leaked heap memory, including TLS keys and other users' data, could be echoed into a response, but only when your handler matches a specific pattern (it calls `res.flushHeaders()`, later `res.end()` with a non-empty chunk, and a route echoes request bodies). Cleartext `node:http` is not affected.
+- **TLS server crash** (CVE-2026-126051): with `SNICallback`, `OCSPRequest`, `newSession`, `resumeSession` or `server.addContext()`, a crafted handshake can crash the process. Applies to 24 and 26.
+- **Client-certificate bypass** (CVE-2026-123872): on TLS 1.2, a client authenticated for one host can renegotiate under another servername and reach a host with a stricter client-certificate policy.
+
+Medium and low items include CA-only SNI contexts that silently fall back to the default CA (CVE-2026-123867), `https.Agent` reusing a TLS session across different trust policies (CVE-2026-123877), proxy credentials appearing in error messages (CVE-2026-123871), and several permission-model leaks.
+
+Dependencies were updated too: llhttp, undici and SQLite, depending on the line. The [26.13.1 release notes](https://nodejs.org/en/blog/release/v26.13.1) also list a few more commits than the advisory page, including a fix for a low-severity heap-snapshot permission check. Which fix maps to which line is spelled out per CVE on the advisory.
+
+## Who Is Affected
+
+All three supported lines get fixes, and the advisory says end-of-life versions are always affected without a fix. Node.js 20 is not mentioned in the release; if you still run it, check the [release schedule](https://github.com/nodejs/release#release-schedule) and plan to move.
+
+You are more exposed if:
+
+- your Node.js process runs `node:http2`, or `https.createServer` / `tls.createServer`, directly rather than behind a proxy that terminates TLS;
+- you use `SNICallback`, `addContext()` or client-certificate authentication;
+- you use `respondWithFile()` or `respondWithFD()` on HTTP/2;
+- your outbound code uses `https.Agent` with custom `ca` settings, or proxies with credentials in the URL.
+
+You are less exposed if Node.js sits behind a CDN, load balancer or reverse proxy that handles TLS and speaks HTTP/1.1 to your app, which is common for Express, Fastify and `next start` setups. Less exposed is not safe: the runtime should still be updated, because some fixes (for example proxy credentials in errors) apply to the client side as well.
+
+Apps on managed platforms such as Vercel or Cloudflare Workers do not patch Node.js themselves. Whether and when those platforms roll out the new versions is unconfirmed; I found no statement while writing this.
+
+## What to Do Today
+
+1. **Find your versions.** Run `node -v` on each host and in each container, and check `engines` in `package.json`, `.nvmrc`, `.node-version` and every `FROM node:` line in your Dockerfiles.
+2. **Target the patched version for your line:** 22.23.5, 24.22.3 or 26.13.1, or anything newer on the same line. If you are on 20, schedule the move to 24 or 26 rather than waiting for a fix that will not come.
+3. **Rebuild images, do not just restart.** Run `docker build --pull` so the base layer is refreshed, and confirm the new tag exists on Docker Hub for your variant. Whether official images were published for these versions is unconfirmed at the time of writing.
+4. **Deploy with your normal pipeline**, starting with one instance or a canary. Watch error rate and memory for an hour, since some of the fixes change HTTP/2 and TLS behavior at the edges.
+5. **If you terminate TLS or HTTP/2 in Node and cannot patch today,** consider putting a reverse proxy in front for now. This is a mitigation, not a fix, and the advisory itself lists no workarounds.
+6. **If you use a custom `ca` with `https.Agent` or `addContext()`,** re-read your configuration after upgrading and check that every host you intended to protect still requires the right certificate authority.
+
+## How to Verify You Are Safe
+
+- `node -v` returns 22.23.5, 24.22.3, 26.13.1 or newer on every running instance. Check production, not just CI.
+- In containers, run `docker run --rm <your-image> node -v`.
+- Search your logs for repeated HTTP/2 session errors, unexpected process exits or steadily growing memory and file descriptor counts over the past weeks. These can be a symptom of the old behavior, though they can also come from other causes.
+- If you use client certificates, run a test that a certificate trusted for host A is rejected on host B.
+
+## What to Watch Next
+
+- **Exploitation reports.** None were found at the time of writing, and the advisory does not say any of these are exploited.
+- **Platform and image updates.** Watch your host and container registry for the patched versions.
+- **Follow-up fixes.** The advisory notes that two of the fixes complete earlier incomplete ones (CVE-2026-48937 and CVE-2026-48615), so further follow-ups are possible but unconfirmed.
+
+The previous runtime fixes are still relevant: the [October 21 release](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases) fixed the Brotli decoder bug that CISA lists as exploited, and the November versions include those changes.
+
+## Related Reading
+
+- [Node.js 26 Is Now LTS: A SaaS Production Upgrade Plan](/blog/nodejs-26-saas-production-upgrade)
+- [Mongoose's November Advisories: Check sanitizeFilter and Your Version Today](/blog/mongoose-sanitizefilter-security-advisories-november-2026)
+- [Better Auth's November Security Release: What to Patch and Rotate Today](/blog/better-auth-november-2026-security-release)
+
+## Next Step
+
+If your product runs Node.js in production, steps 1 and 2 take a few minutes and tell you whether any instance is still on an old patch. If the answer is "we are not sure which version each service runs" or "images are rebuilt only when someone remembers", that is a release-process gap rather than a one-off. A [production readiness upgrade](/services/production-readiness-upgrade) covers runtime inventory, image rebuild policy and rollback. Bring a list of services, their Node.js versions and which ones terminate TLS or HTTP/2.

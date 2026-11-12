@@ -1,0 +1,113 @@
+---
+title: "Mongoose's November Advisories: Check sanitizeFilter and Your Version Today"
+metaTitle: "Mongoose sanitizeFilter Vulnerability: What to Patch"
+description: "Five Mongoose advisories went public on November 10, one critical. See which versions fix them, who is exposed, and how to check node-forge at the same time."
+primaryKeyword: "Mongoose sanitizeFilter vulnerability"
+date: "2026-11-11"
+updated: "2026-11-11"
+author: "Somanath Khadanga"
+readTime: "6 min read"
+category: "Security"
+tags:
+  - Mongoose
+  - MongoDB
+  - npm security
+  - Node.js
+  - SaaS security
+shareImage: "/images/blog/mongoose-sanitizefilter-security-advisories-november-2026.png"
+relatedService: "/services/production-readiness-upgrade"
+---
+
+![A database cylinder behind a funnel-shaped filter with one drop slipping past it, next to a laptop and a checklist on a clipboard](/images/blog/mongoose-sanitizefilter-security-advisories-november-2026.png)
+
+On November 10, 2026, GitHub published five security advisories for Mongoose, the MongoDB library used by a large share of Node.js backends. One is rated critical and two are rated high. Two of them concern `sanitizeFilter`, the setting many teams turn on to stop login-bypass style query injection.
+
+The fixes shipped in August and October. What changed this week is that the details and proof-of-concept code are public, and `npm audit` and Dependabot now flag old versions. If your app uses Mongoose and has not been updated since late October, check it today. A smaller item is covered at the end: `node-forge` had a batch of advisories published the same day.
+
+## What Happened
+
+The five advisories, with the versions that fix them:
+
+| Advisory | Severity | What goes wrong | Fixed in |
+| --- | --- | --- | --- |
+| [CVE-2026-125120](https://github.com/advisories/GHSA-pcrw-h46h-c93h) | Critical (CVSS 9.8) | `sanitizeFilter` was not applied to `countDocuments()` | 9.9.2, 8.24.3, 7.8.12, 6.13.11 |
+| [CVE-2026-125119](https://github.com/advisories/GHSA-gg4r-jv3p-qx3c) | High (7.5) | `sanitizeFilter` set on a connection was never applied | 9.11.4, 8.24.7, 7.8.13, 6.13.12 |
+| [CVE-2026-125117](https://github.com/advisories/GHSA-8332-j7wj-wjw4) | High (8.2) | Crafted keys overwrite built-in functions and shared schema state | 9.11.4, 8.24.7, 7.8.13, 6.13.12 |
+| [CVE-2026-125118](https://github.com/advisories/GHSA-6972-9mcm-vhwj) | Medium (6.5) | Prototype pollution through `Schema.prototype.virtual()` | 9.11.4, 8.24.7, 7.8.13, 6.13.12 |
+| [CVE-2026-125116](https://github.com/advisories/GHSA-wr5m-5jph-8m96) | Medium (4.8) | Discriminator key values such as `constructor` bypass schema casting | 9.11.4, 8.24.7, 7.8.13, 6.13.12 |
+
+**Verified:** severities and fixed versions come from the linked advisories. The npm registry shows the first row's fixes were published on August 10, 2026, and the rest on October 23, 2026. npm reported about 8.9 million downloads of `mongoose` for the week of November 3–9.
+
+No advisory mentions exploitation in the wild, so whether these bugs are being used against real apps is unconfirmed.
+
+## Who Is Affected
+
+One upgrade target covers all five: **9.11.4, 8.24.7, 7.8.13 or 6.13.12, or anything newer on the same major line.** If you are below that, which advisory matters depends on how your code uses Mongoose.
+
+**You rely on `sanitizeFilter`.** This setting wraps operator objects in filter values so they match literally. Without it, a request body such as `{"password": {"$ne": null}}` can match any account. Two gaps existed:
+
+- `countDocuments()` skipped the setting on versions before the August fixes. If you count with a filter built from user input, the protection was not there.
+- Setting it per connection, as in `mongoose.connect(uri, { sanitizeFilter: true })`, did nothing on Mongoose 6.0.0 and later until the October fixes. The connection reported it as enabled, but queries ignored it. Per the advisory, apps that set it globally with `mongoose.set('sanitizeFilter', true)` or per query are not affected by this one.
+
+**You pass request data straight into models.** The high-severity "inherited properties" advisory does not need any special setting. Its examples include `new Model(req.body)` on a schema with a `Mixed` path, `findOneAndReplace()` with an untrusted replacement, and reading a stored document from a `strict: false` model. A single crafted request can overwrite `Object.prototype.toString.call`, after which every query in that Node.js process fails until it restarts.
+
+**You build schemas from user input.** The `virtual()` prototype pollution matters for form builders, CMS-style tools and other apps where field names come from users.
+
+**Not affected:** apps that do not use Mongoose, for example Postgres with Prisma. Apps that validate every request body against a strict schema before it reaches Mongoose are probably much less exposed, but that is my reading, not the maintainers', so upgrade anyway.
+
+**Mongoose 5 and older:** four of the five advisories list every version below the 6.x fix as affected and name no 5.x fix. Treat 5.x as unpatched.
+
+## What to Do Today
+
+1. **Find your version everywhere it runs.** Run `npm ls mongoose` (or `pnpm why mongoose`) in each service, worker and script repository. Check the lockfile, not `package.json`.
+2. **Upgrade within your major line.** For example `npm install mongoose@^8.24.7` or `mongoose@^9.11.4`. The fixes are patch releases on each line, so no major upgrade is needed.
+3. **Search for the connection-level setting.** Run `grep -rn "sanitizeFilter" .` outside `node_modules`. If it appears only inside `connect()` or `createConnection()` options, your queries were unprotected on 6.0.0 and later.
+4. **Search for risky patterns.** Look for `new SomeModel(req.body)`, `findOneAndReplace(`, `strict: false`, `Mixed` paths and any endpoint that passes a user-supplied path to `doc.set()`. Add input validation in front of them even after upgrading.
+5. **If you cannot upgrade today,** the critical advisory gives a workaround: a global plugin that applies the filter on `countDocuments`. Adapted from the advisory:
+
+```javascript
+mongoose.plugin(function (schema) {
+  schema.pre('countDocuments', function () {
+    mongoose.sanitizeFilter(this.getFilter());
+  });
+});
+```
+
+Register it before your models are compiled and test it first. It covers only the `countDocuments` gap; for the rest, the upgrade is the fix.
+
+6. **Deploy and restart every process.** Long-running workers and cron containers keep the old code in memory until they restart.
+
+## How to Verify You Are Safe
+
+- `npm ls mongoose` shows a fixed version in every service, with no second, older copy pulled in by another package.
+- `npm audit` no longer lists the five CVEs above.
+- A test that sends `{"password": {"$ne": null}}` (or the same shape on any filter field) to your login and lookup endpoints returns no match. Include an endpoint that uses `countDocuments()`.
+- Your logs show no burst of `TypeError: _toString.call is not a function` errors. That message is the symptom the high-severity advisory describes. If you see it in past logs, look at the request that came just before it.
+
+If errors like these would not reach anyone today, see [minimum viable observability](/blog/minimum-viable-observability-saas).
+
+## Also Check node-forge
+
+GitHub published nine advisories for `node-forge` on November 10: two high, four medium and three low. They follow eleven published on October 30. The high ones are an [RSA PKCS#1 v1.5 signature forgery](https://github.com/advisories/GHSA-6qrw-m8cv-hcxf) that applies to keys with a low public exponent (e=3), and a [denial of service in ASN.1 decoding](https://github.com/advisories/GHSA-rhr8-3pm8-cq29) from small crafted certificates or keys.
+
+Most teams get `node-forge` through other packages; npm reported about 54.5 million downloads for the week of November 3–9. Every November 10 advisory is fixed in 1.4.1 or 1.4.3, so 1.4.3 covers the set.
+
+- Run `npm ls node-forge` to see which packages bring it in and at what version.
+- Run `npm update node-forge`. If a parent package pins an old range, add an `overrides` entry (npm) or `pnpm.overrides` for `node-forge` at `^1.4.3` and run your tests.
+- Exposure is highest where your server uses forge to verify signatures or certificates that come from outside. If it only appears under build or dev tooling, the risk is lower, but update it anyway.
+
+## What to Watch Next
+
+- **Scanner alerts.** Expect a wave of Dependabot alerts and pull requests. Merge the Mongoose and node-forge ones first.
+- **Exploitation reports.** Proof-of-concept code is in the public advisories. No exploitation has been reported so far.
+- **Follow-up fixes.** The `virtual()` issue is a gap left by a 2022 fix, per its advisory. More follow-ups are possible but unconfirmed.
+
+## Related Reading
+
+- [Better Auth's November Security Release: What to Patch and Rotate Today](/blog/better-auth-november-2026-security-release)
+- [Dependabot's New 3-Day Cooldown: A Safer Update Policy for SaaS](/blog/github-dependabot-cooldown-saas-policy)
+- [The April 2026 npm Supply Chain Wave: A SaaS Founder's 48-Hour Checklist](/blog/npm-supply-chain-attacks-april-2026-saas-checklist)
+
+## Next Step
+
+If your product uses Mongoose, steps 1 to 3 take a few minutes and tell you whether you were relying on a protection that was not running. If step 4 turns up many places where request bodies reach the database unchecked, that is a wider input-validation gap. The [production readiness upgrade](/services/production-readiness-upgrade) covers that kind of review. Bring your `npm ls mongoose` output and a list of the endpoints that accept JSON bodies.

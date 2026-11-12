@@ -191,6 +191,167 @@
           "updated": "2026-11-05T10:07:37.942Z"
         }
       }
+    },
+    "better-auth-november-2026-security-release": {
+      "title": "Better Auth's November Security Release: What to Patch and Rotate Today",
+      "created": "2026-11-08T17:44:31.768Z",
+      "platforms": {
+        "studio-site": {
+          "status": "success",
+          "updated": "2026-11-08T17:44:31.795Z",
+          "url": "https://somanathkhadanga.com/blog/better-auth-november-2026-security-release",
+          "note": "live HTTP 200 (commit 9a94021)"
+        },
+        "devto": {
+          "status": "success",
+          "updated": "2026-11-08T17:44:31.822Z",
+          "url": "https://dev.to/somnath_khadanga_2e5c2364/better-auths-november-security-release-what-to-patch-and-rotate-today-2ahf",
+          "note": "in-app browser; canonical verified; tags security webdev javascript saas; AI disclosure Fully Autonomous; hero image inline"
+        },
+        "hashnode": {
+          "status": "success",
+          "updated": "2026-11-08T17:49:54.732Z",
+          "url": "https://buildsaas.hashnode.dev/better-auth-s-november-security-release-what-to-patch-and-rotate-today",
+          "note": "BuildSaas; tags security authentication saas javascript; canonical verified in live HTML; no cover (no file upload)"
+        },
+        "medium": {
+          "status": "success",
+          "updated": "2026-11-11T03:08:43.533Z",
+          "note": "2026-11-11: Import still broken in the in-app browser, so written in the editor (HTML paste, tables turned into lists, no hero image) with canonical set in story settings; canonical verified; topics Authentication, Information Security, SaaS",
+          "url": "https://medium.com/@somnathkhadanga810/better-auths-november-security-release-what-to-patch-and-rotate-today-8951f2729558"
+        },
+        "substack": {
+          "status": "pending",
+          "updated": "2026-11-08T17:44:31.768Z"
+        },
+        "hackernoon": {
+          "status": "pending",
+          "updated": "2026-11-08T17:44:31.768Z"
+        },
+        "peerlist": {
+          "status": "pending",
+          "updated": "2026-11-08T17:44:31.768Z"
+        },
+        "facebook": {
+          "status": "pending",
+          "updated": "2026-11-08T17:44:31.768Z"
+        },
+        "linkedin": {
+          "status": "pending",
+          "updated": "2026-11-08T17:44:31.768Z"
+        },
+        "instagram": {
+          "status": "manual",
+          "updated": "2026-11-08T17:44:31.768Z"
+        },
+        "youtube": {
+          "status": "manual",
+          "updated": "2026-11-08T17:44:31.768Z"
+        }
+      }
+    },
+    "cloudflare-workers-ai-model-retirement-november-2026": {
+      "title": "Cloudflare Workers AI Retires 24 Models on November 20: What to Change Now",
+      "created": "2026-11-08T17:53:12.814Z",
+      "platforms": {
+        "studio-site": {
+          "status": "success",
+          "updated": "2026-11-08T17:53:12.839Z",
+          "url": "https://somanathkhadanga.com/blog/cloudflare-workers-ai-model-retirement-november-2026",
+          "note": "live HTTP 200 (commit d2faf94)"
+        },
+        "devto": {
+          "status": "success",
+          "updated": "2026-11-08T17:53:12.864Z",
+          "url": "https://dev.to/somnath_khadanga_2e5c2364/cloudflare-workers-ai-retires-24-models-on-november-20-what-to-change-now-324",
+          "note": "in-app browser; canonical verified; tags ai webdev serverless devops (no cloudflare tag suggested, only cloudflarechallenge); AI disclosure Fully Autonomous; hero image inline"
+        },
+        "hashnode": {
+          "status": "success",
+          "updated": "2026-11-08T17:56:12.235Z",
+          "url": "https://buildsaas.hashnode.dev/cloudflare-workers-ai-retires-24-models-on-november-20-what-to-change-now",
+          "note": "BuildSaas; tags cloudflare ai serverless saas; canonical verified in live HTML; no cover (no file upload)"
+        },
+        "medium": {
+          "status": "success",
+          "updated": "2026-11-11T03:11:26.387Z",
+          "note": "2026-11-11: Import broken in the in-app browser, so written in the editor (HTML paste, tables turned into lists, no hero image) with canonical set in story settings; canonical verified; topics Cloudflare, Artificial Intelligence, Serverless",
+          "url": "https://medium.com/@somnathkhadanga810/cloudflare-workers-ai-retires-24-models-on-november-20-what-to-change-now-3b53349d2121"
+        },
+        "substack": {
+          "status": "pending",
+          "updated": "2026-11-08T17:53:12.814Z"
+        },
+        "hackernoon": {
+          "status": "pending",
+          "updated": "2026-11-08T17:53:12.814Z"
+        },
+        "peerlist": {
+          "status": "pending",
+          "updated": "2026-11-08T17:53:12.814Z"
+        },
+        "facebook": {
+          "status": "pending",
+          "updated": "2026-11-08T17:53:12.814Z"
+        },
+        "linkedin": {
+          "status": "pending",
+          "updated": "2026-11-08T17:53:12.814Z"
+        },
+        "instagram": {
+          "status": "manual",
+          "updated": "2026-11-08T17:53:12.814Z"
+        },
+        "youtube": {
+          "status": "manual",
+          "updated": "2026-11-08T17:53:12.814Z"
+        }
+      }
+    },
+    "url-shortener-five-bugs-system-design": {
+      "title": "",
+      "created": "2026-11-12T05:51:26.722Z",
+      "platforms": {
+        "studio-site": {
+          "status": "success",
+          "updated": "2026-11-12T05:51:26.726Z",
+          "url": "https://somanathkhadanga.com/blog/url-shortener-five-bugs-system-design",
+          "note": "HTTP 200 after deploy"
+        },
+        "devto": {
+          "status": "success",
+          "updated": "2026-11-12T05:54:56.010Z",
+          "url": "https://dev.to/somnath_khadanga_2e5c2364/five-bugs-hiding-in-a-url-shortener-and-the-fix-for-each-3852",
+          "note": "canonical set, AI disclosure: Some AI, no cover image (file picker)"
+        },
+        "hashnode": {
+          "status": "success",
+          "updated": "2026-11-12T05:58:26.911Z",
+          "url": "https://buildsaas.hashnode.dev/five-bugs-hiding-in-a-url-shortener-and-the-fix-for-each",
+          "note": "canonical verified in page HTML after fixing on edit; no cover (file picker)"
+        },
+        "peerlist": {
+          "status": "success",
+          "updated": "2026-11-12T06:00:54.714Z",
+          "url": "https://peerlist.io/scroll",
+          "note": "Scroll post, intro changed, #show"
+        },
+        "facebook": {
+          "status": "success",
+          "updated": "2026-11-12T06:03:03.155Z",
+          "note": "Buildwithsom Page and personal profile (Labs/traps post), both with link card"
+        },
+        "medium": {
+          "status": "skipped",
+          "updated": "2026-11-12T06:03:03.180Z",
+          "note": "due Fri 2026-11-13 (a day later); import broken, HTML-paste fallback"
+        },
+        "hackernoon": {
+          "status": "skipped",
+          "updated": "2026-11-12T06:03:03.203Z",
+          "note": "not an original first-person piece"
+        }
+      }
     }
   }
 }

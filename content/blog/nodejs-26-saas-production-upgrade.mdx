@@ -3,7 +3,7 @@ title: 'Node.js 26 Is Now LTS: A SaaS Production Upgrade Plan'
 metaTitle: 'Node.js 26 LTS Upgrade: A SaaS Production Plan'
 description: 'Node.js 26 became Active LTS on October 28, 2026. What changed, what can break, and a step-by-step SaaS upgrade, test and rollback plan.'
 date: '2026-07-27'
-updated: '2026-11-01'
+updated: '2026-11-12'
 author: Somanath Khadanga
 category: Production Readiness
 tags:
@@ -21,7 +21,7 @@ faq:
   - question: "Do I have to leave Node.js 24 right away?"
     answer: "No. Node.js 24 moved to Maintenance LTS on October 20, 2026 and is scheduled to receive critical fixes until April 30, 2028. Teams on Node.js 22 have less time: its end of life is April 30, 2027."
   - question: "Which Node.js 26 version should I deploy?"
-    answer: "Use the newest 26.x patch, and nothing older than 26.12.1, which contains the October 21, 2026 security fixes. Release 26.13.0 only changed LTS metadata compared with 26.12.1."
+    answer: "Use the newest 26.x patch, and nothing older than 26.13.1, which contains the November 11, 2026 security fixes on top of the October 21 ones."
 ---
 
 ![Two Node.js runtime paths passing through a production validation gateway](/images/blog/nodejs-26-saas-production-upgrade.png)
@@ -112,10 +112,12 @@ The 26.0.0 notes also list changes that rarely matter but are hard to debug when
 
 "Node.js 26" is not a complete security decision. The [October 21, 2026 security release](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases) fixed ten vulnerabilities across the 22, 24 and 26 lines, including four rated high. Among them are an out-of-bounds write in the bundled Brotli decoder and TLS identity checks that could accept unusual IP address spellings. The fixed versions are 26.12.1, 24.22.1 and 22.23.4.
 
+**Update, November 12:** a newer [security release on November 11](https://nodejs.org/en/blog/vulnerability/november-2026-security-releases) fixed 16 more CVEs, mostly in HTTP/2 and TLS. The current patched versions are 26.13.1, 24.22.3 and 22.23.5. See [the November 11 brief](/blog/nodejs-november-2026-security-release-http2-tls) for who is exposed. The Brotli out-of-bounds write from October (CVE-2026-111497) was added to CISA's Known Exploited Vulnerabilities catalog on October 27, so those fixes matter too.
+
 So:
 
-- deploy the newest 26.x patch, and never anything older than 26.12.1;
-- if you stay on 24 for now, make sure you run 24.22.1 or later;
+- deploy the newest 26.x patch, and never anything older than 26.13.1;
+- if you stay on 24 for now, make sure you run 24.22.3 or later;
 - pin the major version, not an early patch, so security updates keep arriving through your normal update process.
 
 ---
@@ -223,7 +225,7 @@ No. Node.js 24 moved to Maintenance LTS on October 20, 2026 and is scheduled to 
 
 ### Which Node.js 26 version should I deploy?
 
-Use the newest 26.x patch, and nothing older than 26.12.1, which contains the October 21, 2026 security fixes. Release 26.13.0 only changed LTS metadata compared with 26.12.1.
+Use the newest 26.x patch, and nothing older than 26.13.1, which contains the November 11, 2026 security fixes on top of the October 21 ones.
 
 ### Should I enable the Permission Model as part of this upgrade?
 
@@ -238,7 +240,7 @@ Not as a side effect. Node's [Permission Model](https://nodejs.org/api/permissio
 - [ ] CI runs on 24 and 26, including the production and container builds.
 - [ ] Native dependencies work on the production OS and architecture; `libatomic` is present if needed.
 - [ ] Deprecation warnings have owners and outcomes.
-- [ ] The deployed version is 26.12.1 or newer.
+- [ ] The deployed version is 26.13.1 or newer.
 - [ ] Baseline metrics are recorded and the running version is visible in diagnostics.
 - [ ] A canary, rollback thresholds and the last known-good artifact are ready.
 

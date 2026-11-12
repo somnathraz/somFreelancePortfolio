@@ -56,6 +56,36 @@ const EXTRAS: Record<string, TrapExtras> = {
             { platform: "youtube", url: "https://www.youtube.com/shorts/d38JjMlOKog", youtubeId: "d38JjMlOKog" },
         ],
     },
+    "rate-limiter-core-design": {
+        series: "Rate Limiter",
+        reels: [
+            { platform: "youtube", url: "https://www.youtube.com/shorts/KO7UE7HPALY", youtubeId: "KO7UE7HPALY" },
+        ],
+    },
+    "rate-limiter-counter-race": {
+        series: "Rate Limiter",
+        reels: [
+            { platform: "youtube", url: "https://www.youtube.com/shorts/tw9OroqGMZM", youtubeId: "tw9OroqGMZM" },
+        ],
+    },
+    "rate-limiter-window-burst": {
+        series: "Rate Limiter",
+        reels: [
+            { platform: "youtube", url: "https://www.youtube.com/shorts/oJp78df0Stc", youtubeId: "oJp78df0Stc" },
+        ],
+    },
+    "rate-limiter-per-server": {
+        series: "Rate Limiter",
+        reels: [
+            { platform: "youtube", url: "https://www.youtube.com/shorts/-RS3CI_aaqY", youtubeId: "-RS3CI_aaqY" },
+        ],
+    },
+    "rate-limiter-immortal-key": {
+        series: "Rate Limiter",
+        reels: [
+            { platform: "youtube", url: "https://www.youtube.com/shorts/_fU1WWnSQ4Q", youtubeId: "_fU1WWnSQ4Q" },
+        ],
+    },
     "booking-race-condition": {
         series: "Booking system",
         reels: [

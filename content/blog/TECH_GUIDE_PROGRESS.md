@@ -6,6 +6,7 @@ Weekly practical upgrade / migration / fix guide. Not a published post. `draft-r
 | --- | --- | --- | --- | --- | --- | --- |
 | 2026-11-01 | Node.js 26 is now LTS: SaaS production upgrade plan (**refresh**) | `nodejs-26-saas-production-upgrade` | Node.js 26 promoted to Active LTS on 2026-10-28 (26.13.0 "Lithium"); Oct 21 security release. Sources: [v26.13.0 notes](https://nodejs.org/en/blog/release/v26.13.0), [Release schedule](https://github.com/nodejs/Release), [v26.0.0 notes](https://nodejs.org/en/blog/release/v26.0.0), [Oct 2026 security releases](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases), [deprecations](https://nodejs.org/api/deprecations.html) | draft-ready | validate:blog passed (2,166 prose words, 5 internal links, metaTitle 46, description 136, 3 FAQ); lint: 0 issues in content/blog (776 pre-existing errors elsewhere in src, untouched); `npx next build` passed (postbuild IndexNow hook skipped), page prerendered | Refresh in place: URL and original date 2026-07-27 kept, `updated` 2026-11-01. Existing cover reused (no new cover generated, to keep the URL's image and avoid --force). See notes below. |
 | 2026-11-04 | Prisma Accelerate retires December 1: SaaS migration guide | `prisma-accelerate-retirement-migration` | Accelerate retirement on 2026-12-01; Prisma ORM 6 security patches end 2026-11-19; `prisma@latest` is the ORM 8 RC. Sources: [Prisma changelog 2026-10-02](https://www.prisma.io/changelog/2026-10-02), [Connect without Accelerate](https://www.prisma.io/docs/postgres/database/switch-from-accelerate), [Keep your existing database](https://www.prisma.io/docs/accelerate/keep-your-database), [Connection pooling](https://www.prisma.io/docs/postgres/database/connection-pooling), [Release status](https://www.prisma.io/docs/orm/release-status), npm dist-tags | draft-ready | validate:blog passed (1,975 prose words, 3 internal blog links, metaTitle 57, description 159, 3 FAQ); lint: 0 errors from this post (776 pre-existing errors elsewhere, untouched); `npx next build` passed (postbuild IndexNow hook skipped), page prerendered (build ran before three small wording edits; validate:blog re-run after them) | New post, diagram cover. Local and uncommitted. See notes below. |
+| 2026-11-11 | `ubuntu-latest` moves to Ubuntu 26.04 in GitHub Actions: migration guide | `github-actions-ubuntu-latest-26-04-migration` | `ubuntu-latest` label migrates from Ubuntu 24.04 to 26.04 between 2026-10-19 and 2026-11-19 (26.04 images GA 2026-09-17). Sources: [GitHub changelog 2026-09-17](https://github.blog/changelog/2026-09-17-ubuntu-26-generally-available-and-latest-migration/), [runner-images #14748](https://github.com/actions/runner-images/issues/14748), [#14747](https://github.com/actions/runner-images/issues/14747), [Ubuntu 24.04 software list](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md), [Ubuntu 26.04 software list](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2604-Readme.md), [Ubuntu 22.04 deprecation #14254](https://github.com/actions/runner-images/issues/14254), [runner-images README policy](https://github.com/actions/runner-images) | draft-ready | validate:blog passed (2,034 prose words, 3 internal blog links, metaTitle 55, description 158, 3 FAQ); lint: 776 errors, same pre-existing count, none from this post; `npx next build` passed (postbuild IndexNow hook skipped), page prerendered | New post, diagram cover. Local and uncommitted. See notes below. |
 
 ## 2026-11-01 notes
 
@@ -55,3 +56,35 @@ Prisma Accelerate retires on December 1, 2026, and only half of what it did has 
 3. Pin first. `npm install prisma` now gives the ORM 8 CLI, which does not read schema.prisma. Lock to `^7`, use `npx prisma@7` in CI, and keep the ORM upgrade as separate work.
 4. Sort every `cacheStrategy` query: drop it, fix the query, or cache it yourself. If you used `$accelerate.invalidate()`, your replacement cache needs invalidation too.
 5. Load test, because one-user previews will not show connection exhaustion. After Dec 1, instant rollback to a pre-migration build restores a dead connection, so cut a new known-good deployment. Full guide: <canonical URL>
+
+## 2026-11-11 notes
+
+**Topic choice.** GitHub Actions has not had a tech-guide slot yet (Node.js, then Prisma), and this is a platform default change, not a security advisory or a product retirement. No existing post covers runner images; the three GitHub Actions posts are about execution policies, lockfiles and token formats.
+
+**How the version table was made.** Both software lists were downloaded from the runner-images repository on 2026-11-11 (image versions 20261101.360 for 24.04 and 20261101.186 for 26.04) and compared line by line. Every version and every "no longer preinstalled" tool in the post comes from that comparison.
+
+**Rejected this week.**
+- Claude Sonnet 4.5 retirement on Nov 30 (Anthropic deprecations page): valid, but it would be the third retirement-type item in a row after Prisma Accelerate (Nov 4) and Cloudflare Workers AI (Nov 8). **Good pick for next week** if it is still unwritten; the deadline is close.
+- PostgreSQL 19: still not out. RC 1 was Oct 15, RC 2 is planned for Nov 12, GA for Nov 19. Refresh `postgresql-19-saas-upgrade-rehearsal` after GA.
+- Next.js Nov 3 security release (16.4.5 / 15.5.29) and the Node.js Nov 11 security release: security items, and the daily check already tracks both.
+- macOS 14 runner retirement (Nov 2): already past, and narrow for a web SaaS audience. Not mentioned in the post.
+
+**Recheck before publishing.**
+- Whether the rollout has finished. On Nov 11 the runner-images README still listed `ubuntu-latest` beside Ubuntu 24.04, and the post says so. After Nov 19, update that paragraph and the first FAQ answer.
+- The Java default. The announcement issues (#14747, #14748) say Java 17 is the default on both images; the 26.04 software list marks Java 25. The post reports both and tells readers to run `java -version`.
+- Patch versions in the table move with each weekly image.
+- `ImageOS` / `ImageVersion` are used in a snippet and in the cache-key advice. They are long-standing runner variables, but the exact 26.04 value was not confirmed from a live run. The snippets were not run.
+- The "what can break" list is inference from the version changes (labelled as such in the post), except the prebuilt-binaries item, which the announcement states.
+- The setup action majors in the example (setup-node v7, setup-python v7, setup-java v6) were the latest releases on Nov 11.
+- **Cover:** regenerated 2026-11-12 with `--force` after the first version showed Ubuntu-style logo marks. The current cover uses generic icons (gear, server, checklist, server with an up arrow), no brand marks, and all text is spelled correctly. Two API calls in total.
+- The 22.04 brownout dates in issue #14254 have no year; the post gives them next to the April 17, 2027 end date.
+
+**Draft dev.to / Hashnode intro (not posted).**
+GitHub Actions is moving `ubuntu-latest` from Ubuntu 24.04 to 26.04, with the rollout due to finish on November 19, 2026. The default Node.js, Python, Java, Docker Compose, Helm and PostgreSQL versions all change, and tools such as Miniconda, Pulumi and Java 8 are no longer preinstalled. This guide shows how to find the workflows that depend on those defaults, test on both images, pin versions, and roll back.
+
+**Draft X thread outline (not posted).**
+1. `ubuntu-latest` in GitHub Actions is moving from Ubuntu 24.04 to 26.04, gradually, between Oct 19 and Nov 19, 2026. Until it finishes, the same workflow can land on either image.
+2. Defaults that change on the runner: Node.js 22 to 24, npm 10 to 11, Python 3.12 to 3.14, Java 17 to 25, Helm 3 to 4, CMake 3 to 4, Docker Compose 2 to 5, PostgreSQL 16 to 18.
+3. No longer preinstalled: Java 8, Miniconda, Julia, Pulumi, Fastlane, Lerna, Parcel, Newman, Mercurial.
+4. The tool cache is the same on both images, so workflows that use setup-node, setup-python or setup-java get the same runtime. Only jobs that use whatever is on the PATH see a change.
+5. Fix: grep for `ubuntu-latest`, run a matrix of `ubuntu-24.04` and `ubuntu-26.04`, declare tool versions, add the image to cache keys. Rollback is `runs-on: ubuntu-24.04`. Full guide: <canonical URL>

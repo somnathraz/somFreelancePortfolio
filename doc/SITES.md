@@ -11,7 +11,7 @@ Legend: OK = signed in and ready. NO = not signed in. ? = could not verify. BLOC
 | somanathkhadanga.com | OK | commit + deploy (you approve) | canonical copy, always first |
 | Dev.to | OK | dev.to/new, fill title/tags/canonical, publish | canonical in Advanced Options |
 | Hashnode (BuildSaas) | OK | Write, markdown editor, then Article settings > Discovery > canonical | canonical box is far down the Discovery tab |
-| Medium | OK | medium.com/p/import with the site URL, add 3 topics, publish | import sets canonical automatically |
+| Medium | OK (import broken since 2026-11-08) | Import (medium.com/p/import) stopped sending any request from the in-app browser. Fallback that works: new story, click the body line, insert the article as HTML with a synthetic paste (tables converted to lists first, hero image dropped), type the title into the empty first line, then story settings > Advanced Settings > "originally published elsewhere" > canonical URL, then Publish with 3 topics (type + Enter adds the top suggestion; Down+Enter skips it) | set and verify the canonical by hand; import set it automatically |
 | Substack | OK | new post, paste rich text, uncheck email, publish | no canonical field; add "Originally published at" line |
 | Hackernoon | OK | Start Draft (Editor 3.0), insert HTML, settings, you press Submit | editors review; you tick consent and submit |
 | DZone | ? | Cloudflare check blocked the pane | verify manually |
