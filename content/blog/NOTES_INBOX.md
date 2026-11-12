@@ -108,7 +108,7 @@ questions (rough one-line answers are enough):
 ---
 
 ### Five bugs in one URL shortener (traps: URL Shortener world rollup)
-status: draft (entry added by the Thursday run on 2026-11-05; no Thursday entry was ready)
+status: used (auto-written 2026-11-12 as content/blog/url-shortener-five-bugs-system-design.mdx, awaiting approval; was: draft, entry added by the Thursday run on 2026-11-05)
 slot: Thursday (traps post, next possible Thursday 2026-11-12)
 framing: not set yet, author to confirm. Default until then: educational scenario. Traps are common developer mistakes, never "it happened to me". First person only for what I built and tested and for my opinions.
 what the repo already says (from interview-traps systems/url-shortener, author to confirm these are the numbers to quote):

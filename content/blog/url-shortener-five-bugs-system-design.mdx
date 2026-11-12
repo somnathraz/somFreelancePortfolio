@@ -1,0 +1,134 @@
+---
+title: "Five Bugs Hiding in a URL Shortener (and the Fix for Each)"
+metaTitle: "URL Shortener Design: 5 Bugs and Their Fixes"
+description: "A URL shortener looks like three boxes. Five bugs sit inside it: ID collisions, stale redirects, hot-path writes, alias races and cleanup. Fix for each."
+primaryKeyword: "URL shortener system design"
+date: "2026-11-12"
+updated: "2026-11-12"
+author: "Somanath Khadanga"
+readTime: "7 min read"
+category: "SaaS Architecture"
+tags:
+  - system design
+  - URL shortener
+  - PostgreSQL
+  - interview traps
+  - concurrency
+shareImage: "/images/blog/url-shortener-five-bugs-system-design.png"
+relatedService: "/services/production-readiness-upgrade"
+faq:
+  - question: "Should a URL shortener redirect with 301 or 302?"
+    answer: "Use 302 when the destination can be edited or clicks must be counted. A 301 is cached by browsers, so edits are not seen by repeat visitors and repeat clicks never reach your server."
+  - question: "Why not generate short codes with SELECT MAX(id) + 1?"
+    answer: "Two concurrent requests can read the same maximum and hand out the same code. A database sequence gives each request a unique value by construction, and a UNIQUE constraint on the code column is the safety net."
+---
+
+![Diagram of a URL shortener with five marked weak points: code generation, redirect cache, click counter, custom alias and expiry cleanup](/images/blog/url-shortener-five-bugs-system-design.png)
+
+"Design a URL shortener" is one of the most common system design questions. The usual answer draws three boxes: an API, a database and a cache. That answer is fine until real traffic touches it.
+
+I spent a week building the version that survives production, as a runnable system in the [interview-traps repo](https://github.com/somnathraz/interview-traps/tree/main/systems/url-shortener): one design lesson, five traps and a rollup. Each trap has the naive code, the fix and a test that proves both, against a real Postgres database with 50 concurrent users. You can read each lesson in the browser, starting with the [design lesson](https://somanathkhadanga.com/labs/traps/url-shortener-core-design).
+
+This post is the short version: what each bug is, why it ships, and the one-line rule that prevents it.
+
+## Start with the numbers
+
+Before drawing anything, the design lesson fixes the numbers every later decision depends on. These are the assumptions I used for the exercise, not measurements:
+
+- New links: about 100 million a month, roughly 40 writes a second.
+- Redirects: about 4,000 a second on average, ten times that at peak. That is 100 reads for every write.
+- Stored links: about 6 billion rows over five years.
+- Redirect budget: under 50 ms, because it sits in front of every click.
+
+The ratio matters most. A system with 100 reads per write should have its redirect optimised first, and everything below follows from that.
+
+## Bug 1: the ID collision
+
+A common first version creates the next short code with `SELECT MAX(id) + 1`. It works for a single user. Under concurrent creates, many requests read the same maximum and every one of them gets the same code.
+
+Nothing errors. All fifty users are told their link was created. In the trap run, one code was handed out repeatedly, and every user after the first owned a link that pointed at somebody else's destination.
+
+**Fix:** let the database hand out the value. A sequence (`nextval`) or an identity column is unique by construction, with no retry loop, and a `UNIQUE` constraint on the code column is the safety net.
+
+## Bug 2: the stale redirect
+
+The owner edits a link's destination. The code updates Postgres and stops there. The redirect path reads from Redis, so visitors keep going to the old page until the cache entry expires.
+
+In the trap, the database said the new destination while all 50 visitors after the edit still reached the old, dead page.
+
+**Fix:** delete the cache key in the same code path as the database write. And redirect with **302, not 301**, for any link that can be edited: browsers cache a 301, so repeat visitors never come back to your server to see the change.
+
+## Bug 3: analytics on the hot path
+
+The owner wants a click count, so the redirect runs `UPDATE links SET clicks = clicks + 1`. The count is right. The cost is that your fastest endpoint now writes to a database row on every click, and every click writes the same row.
+
+Postgres lets one transaction update a row at a time, so click number 50 waits for 49 commits ahead of it. Waiting clicks also hold pool connections, which can starve every other endpoint.
+
+In the rollup run, the slowest redirect with the counter on the hot path waited 42.7 ms. With the count moved off the hot path, it took 0.8 ms. Exact timings move between runs and machines, so read these as a demonstration of the shape, not a benchmark.
+
+**Fix:** count in memory (Redis `INCR`) and flush to the database in batches. The trade-off to say out loud: counts lag by a few seconds. If a lost batch matters, use a durable queue instead.
+
+## Bug 4: the vanity alias race
+
+Two users both want `/launch`. A common version checks whether the alias is free, then runs an upsert "so retries don't error". Everyone passes the check, the upsert silently overwrites the previous owner, and everyone is told the alias is theirs.
+
+In the trap run, 49 users were told `/launch` was theirs, and the other 48 were sharing a link that sent their clicks to one user's destination.
+
+**Fix:** make the database decide, in one statement: `INSERT ... ON CONFLICT DO NOTHING RETURNING`. Zero rows returned means the alias is taken. A retry from the same owner can be treated as success.
+
+## Bug 5: cleanup at scale
+
+A nightly job runs `DELETE FROM links WHERE expires_at < now()`. It is correct SQL, and on a staging table with a few thousand rows it works.
+
+At scale it is one transaction. If it runs past the statement timeout, or past the next deploy, Postgres rolls back all of it. Not half done: zero deleted. The table only grows, so tomorrow's run is longer, and the job fails every night while the table keeps filling.
+
+**Fix:** delete in short batches over the primary key, so each batch is its own tiny transaction and progress survives a crash. At real scale, partition by month and drop whole partitions.
+
+One caveat from the repo: the demo scales the statement timeout down to fit a laptop. Production would be something like a 30-second timeout against billions of rows. In the demo, 300,000 expired links stayed in place in the bug run, and the batched fix deleted all of them and left 30,000 live links untouched. Treat those as a demonstration, not a benchmark.
+
+## The pattern behind two of the five
+
+Bugs 1 and 4 share one shape: read, decide, write, with a gap in between. It is the same shape as the [double-booked seat](/blog/double-booked-seat-booking-race-condition), where two users book the same seat. Once you learn to look for the gap, you will see it in signup flows, coupon codes, inventory and invitations as well.
+
+The other three have their own rules:
+
+- A cache is a second copy of the truth, so every write path must invalidate it.
+- The hot path should do only what the user is waiting for.
+- Never delete millions of rows in one statement.
+
+## The scoreboard
+
+When I run all five traps with `npm run shortener:all`, the output ends with: "5/5 naive versions broke. 5/5 fixes held." Each trap uses 50 concurrent users on a real Postgres. Races are races, so exact counts move a little between runs; the verdicts do not.
+
+## What this does not cover
+
+The week left gaps on purpose: id generation across regions, abuse and malicious-link scanning, rate limiting link creation, a real click-event pipeline instead of a counter, and multi-region redirects. Each of those is its own topic. If an interviewer pushes past the five bugs, say so rather than bluffing.
+
+## When internal work is enough, and when to get help
+
+If your product has one Postgres database and one cache, you can check each of these five spots in an afternoon. Search for `MAX(` used to build ids, edits that skip cache invalidation, counters updated inside request handlers, check-then-upsert code and unbatched deletes.
+
+It gets harder when the same problems are spread across services, queues and third-party APIs. That is where a structured review, like the one in [what to audit in a vibe-coded MVP](/blog/what-to-audit-in-a-vibe-coded-mvp-before-real-users-see-it), saves time.
+
+## Frequently Asked Questions
+
+### Should a URL shortener redirect with 301 or 302?
+
+Use 302 when the destination can be edited or clicks must be counted. A 301 is cached by browsers, so edits are not seen by repeat visitors and repeat clicks never reach your server.
+
+### Why not generate short codes with SELECT MAX(id) + 1?
+
+Two concurrent requests can read the same maximum and hand out the same code. A database sequence gives each request a unique value by construction, and a UNIQUE constraint on the code column is the safety net.
+
+## Related Reading
+
+- [The Double-Booked Seat: Fixing a Booking Race Condition in Postgres](/blog/double-booked-seat-booking-race-condition)
+- [Why I Prefer Boring Architecture for SaaS](/blog/boring-architecture-for-saas)
+- [Reducing Latency Without Rewrites](/blog/reducing-latency-without-rewrites)
+- [Cron, Queue, or Workflow? A SaaS Background Jobs Guide](/blog/saas-background-jobs-queue-cron-workflow)
+
+## Next Step
+
+Run the traps yourself: clone the [interview-traps repo](https://github.com/somnathraz/interview-traps), then run `npm run shortener:bug -- id-collision` and the matching `shortener:fix`, or everything at once with `npm run shortener:all`. The individual lessons are on the [Labs traps page](/labs/traps).
+
+If you are running a SaaS with hot paths, caches, counters or nightly jobs and want these failure shapes checked before they show up in production, that is the focus of my [production readiness upgrade](/services/production-readiness-upgrade). Bring a description of your redirect or checkout path and your background jobs, and we can work out where the gaps are.

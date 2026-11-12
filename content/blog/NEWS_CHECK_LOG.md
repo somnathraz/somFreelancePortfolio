@@ -108,3 +108,29 @@ Week of 2026-11-02: still 2 posts. **The cap is reached, so nothing could be dra
 - **Next.js, React, pnpm, npm CLI, TypeScript, Prisma, GitHub, OpenAI, Anthropic, Stripe, Postgres: none.** No new Next.js advisory or stable release since Nov 3, and no React release since Oct 14. pnpm and npm CLI are unchanged since Nov 4–5. TypeScript 7.1 is still beta, and Prisma 8 reached rc.23. GitHub changelog Nov 5–6 has no Actions, npm or deprecation items. OpenAI and Anthropic November entries are additive. Stripe's newest API version is still `2026-10-28`. The Postgres news page has no core release and no date for a Nov update or 19 GA. The Nov 12 minor release is still only inferred from the usual cadence.
 - **Vercel: none, from search only.** The bulletins page and changelog could not be fetched today. Search shows no bulletin newer than Better Auth (Nov 3–4).
 - **Not verified today.** Chrome: `chromereleases.googleblog.com` returned no post body. Search shows Chrome 157 Stable on Nov 3, 158 Early Stable on Nov 4 and no November CVE flagged as exploited, but the post bodies remain unread, so this is still unknown. Exploited Chrome CVEs are not ruled out. Bedrock had no primary page checked. Cloudflare status was not checked.
+
+## 2026-11-08 notes
+
+First run under the 2026-11-07 rules (no weekly cap, at most one brief a day, qualifying `watch` items get drafted). **Brief drafted:** `cloudflare-workers-ai-model-retirement-november-2026`.
+
+- **Cloudflare Workers AI retires 24 models on Nov 20: post.** Re-checked on the [changelog entry](https://developers.cloudflare.com/changelog/post/2026-11-05-planned-model-deprecations/). The page now says outright that the date moved from Nov 15 to Nov 20, so the Nov 6/7 date discrepancy is resolved (the Nov 6 reading was correct at the time). After the cutoff, requests fail with HTTP 410 and error code 5028; no aliasing or redirect is mentioned. Same 16 LLMs and 8 other models. `embeddinggemma-2` is still "available soon". Passes all tests: forced migration with a deadline, primary source, no existing post, no brief yet today. It falls outside the 24–48h window but qualifies under the re-check rule for `watch` items. Unconfirmed points are marked in the post: re-indexing need (my inference) and the effect on existing LoRA adapters (not covered by Cloudflare).
+- **Durable Objects automatic retries: folded into the brief** as a short second section ([entry](https://developers.cloudflare.com/changelog/post/2026-11-05-durable-objects-automatic-retries/)). No compatibility date or flag is mentioned, so it applies to existing code.
+- **AI Gateway model aliases (Nov 4): used in the brief** as a mitigation step ([entry](https://developers.cloudflare.com/changelog/post/2026-11-04-model-aliases/)). Beta or GA is not stated.
+- **Node.js security releases, Nov 11: watch.** Notice unchanged: 26.x, 24.x, 22.x, highest severity HIGH, no issue list. *Postable if:* advisories publish and are SaaS-relevant (Wednesday's run).
+- **npm malware: none.** One new advisory since Nov 6 (`dsh-notify-focus`, Nov 7, 78 weekly downloads). Newest reviewed npm critical is still Nov 3 (`@enspirit/elo`, niche).
+- **Next.js, GitHub, Vercel: none.** Next.js blog newest is the Nov 3 security release. GitHub changelog Nov 5–6: no Actions, npm or deprecation items. Vercel bulletins newest is Better Auth (Nov 3).
+- **Chrome: none, from search only.** No November exploited CVE surfaced; release-blog bodies not read.
+- **Not checked today.** OpenAI, Anthropic, Stripe, Postgres, Prisma, pnpm, TypeScript, Bedrock, CISA KEV and Cloudflare status (one combined search was cut off). All were quiet on Nov 7.
+
+**Validation.** `validate:blog --allow-short-brief` passed (1,302 prose words by the validator's count, which includes the model-ID lists and the table; running text is under 1,300; 3 internal links; metaTitle 50; description 160). `npm run lint`: 776 errors, same pre-existing count; MDX not linted. `npx next build` passed with the postbuild hook skipped; the page prerendered with the 410 detail present. Cover generated once (matte, title overlay "Workers AI retires 24 models" / "What to change before November 20"), spelling checked by eye. Nothing committed.
+
+**Recheck before publishing:** whether `embeddinggemma-2` has shipped, and that the date is still Nov 20. Update the table row and the "What to Watch Next" bullet if so.
+
+**Draft dev.to / Hashnode intro (not posted).**
+Cloudflare retires 24 Workers AI models on November 20, 2026, and after that, requests to them fail with HTTP 410 instead of being rerouted. This brief lists the affected models and their replacements, flags the embedding and LoRA cases that need the most lead time, and covers a related change: Durable Objects now retry failed calls by default.
+
+**Draft X thread outline (not posted).**
+1. Cloudflare retires 24 Workers AI models on Nov 20 (moved from Nov 15). After that, calls fail with HTTP 410, error 5028. No automatic reroute is mentioned.
+2. The list includes 16 LLMs (kimi-k2.6, glm-5.2, llama-3.2-1b/3b and others) plus image, speech, vision and embedding models. Search code, config and DB rows for the IDs, and check AI Gateway logs for forgotten callers.
+3. Hardest case: `embeddinggemma-300m`. Its replacement is still "available soon", and a new embedding model usually means re-indexing. LoRA bases are retiring too.
+4. Also on Nov 5: Durable Objects now retry failed calls up to 4 times by default. If you already retry, set `maxRetries: 0` or reduce your own attempts. Full brief: <canonical URL>
