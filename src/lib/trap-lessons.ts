@@ -429,6 +429,61 @@ export async function allow(redis: Redis, user: string, limit = 100) {
 }
 `;
 
+const RL_DOWN_BUG = `import Redis from "ioredis";
+
+const redis = new Redis(process.env.REDIS_URL!);
+const LIMITS = { "GET /catalog": 20, "POST /otp/send": 3 }; // per user per minute
+
+// INCR + EXPIRE in one Lua script (day 5's fix).
+const incrWithExpiry = (key: string) =>
+  redis.eval('local n = redis.call("INCR", KEYS[1]) if n == 1 then redis.call("EXPIRE", KEYS[1], 60) end return n', 1, key).then(Number);
+
+// Express middleware. Atomic, TTL set: the counter itself is right.
+export async function rateLimit(req, res, next) {
+  const route = \`\${req.method} \${req.route.path}\`;
+  // If Redis is down this throws, the error handler returns 500,
+  // and every endpoint behind the limiter goes down with it.
+  const count = await incrWithExpiry(\`rate:\${route}:\${req.user.id}\`);
+  if (count > LIMITS[route]) return res.status(429).send("Too Many Requests");
+  next();
+}
+`;
+
+const RL_DOWN_FIX = `import Redis from "ioredis";
+
+// Fail fast: without a command timeout, an outage hangs instead of throwing.
+const redis = new Redis(process.env.REDIS_URL!, { commandTimeout: 50, maxRetriesPerRequest: 0 });
+const LIMITS = { "GET /catalog": 20, "POST /otp/send": 3 };
+const SERVERS = 2;
+
+// INCR + EXPIRE in one Lua script (day 5's fix).
+const incrWithExpiry = (key: string) =>
+  redis.eval('local n = redis.call("INCR", KEYS[1]) if n == 1 then redis.call("EXPIRE", KEYS[1], 60) end return n', 1, key).then(Number);
+
+// Decided ahead of time: what each endpoint does when the limiter can't answer.
+const IF_LIMITER_DOWN = { "GET /catalog": "local", "POST /otp/send": "reject" };
+const local = new Map<string, number>(); // this server only (reset every minute in real code)
+
+export async function rateLimit(req, res, next) {
+  const route = \`\${req.method} \${req.route.path}\`;
+  const key = \`rate:\${route}:\${req.user.id}\`;
+  let count: number;
+  let limit = LIMITS[route];
+  try {
+    count = await incrWithExpiry(key);
+  } catch {
+    if (IF_LIMITER_DOWN[route] === "reject") {
+      return res.status(503).set("Retry-After", "5").send("Limiter unavailable");
+    }
+    count = (local.get(key) ?? 0) + 1;
+    local.set(key, count);
+    limit = Math.floor(limit / SERVERS); // all servers together stay under the real limit
+  }
+  if (count > limit) return res.status(429).send("Too Many Requests");
+  next();
+}
+`;
+
 const LESSONS: TrapLessonContent[] = [
     {
         slug: "url-shortener-id-collision",
@@ -1105,6 +1160,80 @@ const LESSONS: TrapLessonContent[] = [
         remember: "A key that is created in one call and given a TTL in another can lose its TTL. Do both at once.",
         sourcePath: "systems/rate-limiter/04-immortal-key",
         updated: "2026-11-08",
+    },
+    {
+        slug: "rate-limiter-redis-down",
+        title: "Redis goes down, API goes down",
+        question: "Your rate limiter keeps its counters in Redis. Redis goes down for a minute. The database is fine, the servers are fine. What happens to your API?",
+        system: "Rate Limiter",
+        rule: "A rate limiter must never be the reason the API is down. Decide per endpoint what happens when it can't answer: cheap reads fail open to a local limit, costly actions fail closed with a 503, and the limiter call times out fast.",
+        summary: {
+            problem: "Redis goes down and every endpoint returns 500, including ones that only read from a healthy database.",
+            cause: "Every request asks the limiter first, and the limiter awaits Redis with no plan for Redis being gone. The error bubbles up as a 500.",
+            fix: "An explicit failure policy per endpoint: cheap reads fall back to a stricter per-server limit, costly actions return 503. Plus a short timeout on the Redis call.",
+        },
+        why: [
+            "The limiter itself is right: atomic, with a TTL. It passes every test, because in tests Redis is always up.",
+            "In our run, 50 shoppers each sent a catalog read and an OTP request on two servers. With Redis down, the naive limiter failed all 100 with 500. With the per-endpoint policy, all 50 catalog reads were served on a local limit and all 50 OTP sends got a 503, so no SMS went out without a real limit.",
+        ],
+        words: ["rate-limit", "fail-open", "cache", "load-balancer"],
+        picture: {
+            intro: "Two endpoints behind one limiter: a catalog read that only touches the database, and an OTP send that costs an SMS. Redis goes down.",
+            flows: [
+                {
+                    title: "Await Redis, no plan B",
+                    steps: ["GET /catalog → limiter", "Redis call throws", "Error handler returns 500", "POST /otp/send: same", "Database was healthy all along"],
+                    outcome: "100 of 100 requests fail. The limiter is now an off switch for the API.",
+                    tone: "bug",
+                },
+                {
+                    title: "Per-endpoint policy",
+                    steps: ["Redis call times out fast", "GET /catalog: count locally at limit ÷ servers", "Served, still rate-limited", "POST /otp/send: 503, retry later", "No SMS sent without a real limit"],
+                    outcome: "Catalog stays up, OTP stays safe, nothing 500s.",
+                    tone: "fix",
+                },
+            ],
+        },
+        attempts: [
+            { label: "No try/catch", code: "await redis.incr(key)", verdict: "fails", why: "Redis down means every request 500s, on every endpoint behind the limiter." },
+            { label: "Fail closed everywhere", code: "catch { return 429 }", verdict: "fails", why: "Same outage with a nicer status code. And 429 lies: the user didn't exceed anything." },
+            { label: "Fail open everywhere", code: "catch { next() }", verdict: "partly", why: "The API stays up, but with no limit at all. A script can burn your SMS budget on the OTP endpoint in a minute." },
+            { label: "Per-endpoint policy", code: "catalog → local limit; OTP → 503", verdict: "works", why: "Availability where it's cheap, safety where it's expensive." },
+            { label: "Circuit breaker on top", code: "after N failures, skip Redis for 10s", verdict: "works", why: "Stops every request paying the timeout while Redis is down. Goes straight to the fallback." },
+        ],
+        fix: {
+            paragraphs: [
+                "Write the policy down per endpoint before the outage. Cheap, safe reads fail open, but not to zero protection: they count in each server's memory, with the limit divided by the number of servers, so all servers together stay under the real limit. A scraper during the outage still hits a wall.",
+                "Costly or abusable actions fail closed: OTP, login, payments. They return 503, not 429, because the user did nothing wrong. Your limiter is unavailable, and 503 tells the client to retry later.",
+                "Give the Redis call a short timeout. Many clients have no command timeout by default, so an outage makes every request hang instead of throwing, and the policy never runs.",
+            ],
+            cost: "A few extra lines and a decision per endpoint. During an outage, cheap endpoints run on a stricter, per-server limit, so a heavy user may see 429 earlier than usual.",
+            alsoSay: {
+                title: "Interviewers also listen for: 429 vs 503",
+                body: "429 means you, the client, sent too much. 503 means we can't serve this right now. Mixing them up sends the wrong signal to every client's retry logic.",
+            },
+        },
+        checks: [
+            {
+                q: "Why does the catalog fail when only Redis is down?",
+                a: "The limiter runs before the handler and awaits Redis. Its error becomes a 500 before the catalog code ever runs.",
+            },
+            {
+                q: "Why not just fail open everywhere?",
+                a: "Some endpoints cost money or are abuse targets, like OTP sends. With no limit, one script can do real damage during the outage.",
+            },
+            {
+                q: "Why divide the limit by the number of servers in the fallback?",
+                a: "Each server only sees its own share of traffic. Dividing keeps the total across all servers under the real limit.",
+            },
+        ],
+        code: [
+            { label: "The bug · no plan B", filename: "limiter.bug.ts", code: RL_DOWN_BUG, note: NOTE },
+            { label: "The fix · per-endpoint policy", filename: "limiter.fix.ts", code: RL_DOWN_FIX, note: NOTE },
+        ],
+        remember: "Your limiter protects the API. Make sure it can't take the API down. Decide per endpoint: local limit or 503.",
+        sourcePath: "systems/rate-limiter/05-redis-down",
+        updated: "2026-11-12",
     },
 ];
 
