@@ -42,6 +42,14 @@ const TOPICS: PlannedTopic[] = [
         ["rate-limiter-immortal-key", "The key that never expires", "What if the process dies between INCR and EXPIRE?"],
         ["rate-limiter-redis-down", "Redis goes down, the API goes down", "Should a limiter block or allow when its own store is unreachable?"],
     ] },
+    { id: "payments", title: "Payments", group: "System design", description: "How Airbnb makes sure a customer is charged once, then the bugs hiding inside the version most people draw.", entries: [
+        ["payments-core-design", "Idempotency keys", "The request times out and the app retries. Is the customer charged once or twice?"],
+        ["payments-double-charge", "The double charge on retry", "What happens when a client retries a charge that already went through?"],
+        ["payments-idempotency-race", "The idempotency race", "Two retries arrive at the same moment. Can both start a charge?"],
+        ["payments-charge-in-transaction", "The charge inside the transaction", "What if the bank says yes and your commit fails?"],
+        ["payments-timeout-not-failure", "Timeout is not failure", "Does a timed-out charge mean the customer wasn't charged?"],
+        ["payments-replica-lag", "The replica that didn't know", "Why can reading the idempotency key from a replica charge twice?"],
+    ] },
     { id: "concurrency", title: "Concurrency", description: "When requests collide and shared state stops being safe.", entries: [
         ["booking-race-condition", "The double-booking race", "Can two requests book the same last seat?"],
         ["lost-update", "The lost update", "Why does a counter lose increments under load?"],

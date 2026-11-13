@@ -38,6 +38,9 @@ const CONCEPTS = {
     transaction: { term: "Transaction", definition: "A group of changes the database treats as one: all of them are saved, or none of them." },
     "statement-timeout": { term: "Statement timeout", definition: "A limit on how long one query may run. Past it, the database cancels the query and undoes what it did." },
     "load-balancer": { term: "Load balancer", definition: "The component in front of several identical servers that hands each incoming request to one of them, so no single server takes all the traffic." },
+    "idempotency-key": { term: "Idempotency key", definition: "A unique id the client creates once per payment and sends with every retry of it. The server uses it to recognise a retry and return the first result instead of charging again." },
+    timeout: { term: "Timeout", definition: "Giving up on waiting for a reply. It tells you the reply did not arrive in time, not whether the work was done." },
+    replica: { term: "Read replica", definition: "A copy of the database that follows the primary a moment behind. Fine for most reads, wrong for anything that must see the latest write." },
     partition: { term: "Partition", definition: "A big table split into pieces, for example one per month. Dropping an old piece is instant, with no row-by-row delete." },
 } satisfies Record<string, Concept>;
 

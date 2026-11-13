@@ -120,6 +120,45 @@ redis.call("EXPIRE", KEYS[1], 120)
 return allowed and 1 or 0
 `;
 
+const PAY_NAIVE = `import type { Pool } from "pg";
+
+// Option A: what most people draw. Client → server → bank.
+export async function pay(db: Pool, bank: Bank, orderId: string, amount: number) {
+  const charge = await bank.charge(orderId, amount); // times out? the app retries
+  await db.query(
+    "INSERT INTO payments (order_id, amount, charge_id) VALUES ($1, $2, $3)",
+    [orderId, amount, charge.id],
+  );
+  return charge;
+}
+`;
+
+const PAY_IDEMPOTENT = `import type { Pool } from "pg";
+
+// Option B: Airbnb's three phases, around an idempotency key the client sends.
+export async function pay(db: Pool, bank: Bank, key: string, orderId: string, amount: number) {
+  // Pre-RPC: claim the key in one statement. Only one request can win it.
+  const claimed = await db.query(
+    \`INSERT INTO payment_requests (key, order_id, amount, status)
+     VALUES ($1, $2, $3, 'pending')
+     ON CONFLICT (key) DO NOTHING RETURNING key\`,
+    [key, orderId, amount],
+  );
+  if (claimed.rowCount === 0) {
+    // A retry: hand back what the first attempt stored, never charge again.
+    const { rows } = await db.query("SELECT status, response FROM payment_requests WHERE key = $1", [key]);
+    return rows[0];
+  }
+
+  // RPC: the bank call, outside any transaction. Pass the key on, too.
+  const result = await bank.charge(orderId, amount, { idempotencyKey: key });
+
+  // Post-RPC: store the outcome so every later retry gets the same answer.
+  await db.query("UPDATE payment_requests SET status = $2, response = $3 WHERE key = $1", [key, result.status, result]);
+  return result;
+}
+`;
+
 const DESIGNS: DesignPageContent[] = [
     {
         slug: "url-shortener-core-design",
@@ -286,6 +325,89 @@ const DESIGNS: DesignPageContent[] = [
         remember: "A fixed window is easy and leaks at the edges. A token bucket holds the average, and its check and spend must be one atomic step.",
         sourcePath: "systems/rate-limiter/00-core-design",
         updated: "2026-11-05",
+    },
+    {
+        slug: "payments-core-design",
+        title: "Idempotency keys",
+        question: "The customer taps Pay, the request times out, and the app retries. Is the customer charged once or twice?",
+        system: "Payments",
+        rule: "Every payment carries an idempotency key the client creates once and reuses on retry. Claim the key in the database before calling the bank, keep the bank call outside any transaction, store the result after, treat a timeout as unknown, and read keys from the primary.",
+        summary: {
+            problem: "A timeout looks the same whether the bank never got the request, charged and lost the reply, or is just slow. A plain retry can charge the customer twice.",
+            options: [
+                { label: "Option A: retry the call", text: "Call the bank again on a timeout. Simple, and it charges twice whenever the first call actually went through." },
+                { label: "Option B: idempotency key, three phases", text: "Record the key before the call, store the result after, and answer a retry with the stored result. This is what Airbnb runs." },
+            ],
+            choice: "An idempotency key on every payment, with Airbnb's three phases: record, call, record the result.",
+        },
+        why: [
+            "A charge is the one write you cannot cheaply take back. The network between your server and the bank can drop the request, drop the reply, or be slow, and from your side all three are the same timeout.",
+            "Airbnb built a library called Orpheus for exactly this, used across its payment services, and reports five nines of consistency while its payment volume doubled. Each of this week's traps is one of its rules being skipped.",
+        ],
+        words: ["idempotent", "idempotency-key", "timeout", "transaction", "unique-index", "replica"],
+        picture: {
+            intro: "The customer pays ₹2,000. The bank charges the card, but the reply is lost and the app times out.",
+            flows: [
+                {
+                    title: "Option A: just retry",
+                    steps: ["Pay → bank charges ₹2,000", "The reply is lost: timeout", "The app retries", "Bank charges ₹2,000 again"],
+                    outcome: "₹4,000 taken for one order. The classic \"paise kat gaye\" support ticket.",
+                    tone: "bug",
+                },
+                {
+                    title: "Option B: idempotency key",
+                    steps: ["Pay with key k1 → key recorded", "Bank charges ₹2,000, reply lost", "The app retries with the same k1", "Server sees k1, returns the stored result"],
+                    outcome: "Charged once. The retry is safe and cheap.",
+                    tone: "fix",
+                },
+            ],
+        },
+        options: [
+            {
+                label: "Option A: call the bank, retry on timeout",
+                code: "charge(); on timeout → charge() again",
+                good: "Nothing to build. Works whenever the first call really failed.",
+                cost: "When the first call went through and only the reply was lost, the customer pays twice. Not retrying doesn't help: they tap Pay again.",
+            },
+            {
+                label: "Option B: idempotency key with three phases",
+                code: "claim key → call bank → store result",
+                good: "A retry with the same key gets the first result back. The customer is charged once however many times the request arrives.",
+                cost: "Every rule has to hold: claim the key atomically, no bank call inside a transaction, timeouts treated as unknown, keys read from the primary. Skipping any one is a trap this week.",
+            },
+        ],
+        choice: {
+            paragraphs: [
+                "The client generates an idempotency key once per payment, saves it before calling, and sends the same key with every retry. The server runs Airbnb's three phases: record the request and key (no network calls), call the bank (no database work), record the result (no network calls).",
+                "Airbnb's rules make it hold: keys live on the primary database, never a replica; each request holds an expiring lease on its key, longer than the bank call's timeout; 5XX and infrastructure errors are retryable, 4XX validation errors are not; and the client never changes the payload between retries.",
+            ],
+            cost: "One more table, a write before and after every charge, and a pruning job for old keys. Airbnb notes the three-phase split also makes the code harder to read.",
+            alsoSay: {
+                title: "Interviewers also listen for: what the key is",
+                body: "A random UUID for one request, reused only by its retries. A deterministic key like payment-1234-refund for things that must happen once per entity, so two different clicks on Refund still refund once.",
+            },
+        },
+        checks: [
+            {
+                q: "Why is a timeout dangerous on a payment?",
+                a: "It doesn't tell you whether the bank charged the card. The request may have failed, or only the reply was lost.",
+            },
+            {
+                q: "Why must the key be claimed before the bank call, not after?",
+                a: "If two retries arrive together and both check first, both see nothing and both charge. Claiming the key in one statement lets only one through.",
+            },
+            {
+                q: "Why does Airbnb read idempotency keys from the primary only?",
+                a: "A replica can lag behind. A retry that reads it may not see the stored result and charge again.",
+            },
+        ],
+        code: [
+            { label: "Option A · retry the call", filename: "pay.naive.ts", code: PAY_NAIVE, note: "Example code. The tested versions land in the repo with each trap." },
+            { label: "Option B · idempotency key", filename: "pay.idempotent.ts", code: PAY_IDEMPOTENT, note: "Example code. The tested versions land in the repo with each trap." },
+        ],
+        remember: "A timeout means unknown, not failed. Give every payment a key, claim it before the bank call, and answer retries from what you stored.",
+        sourcePath: "systems/payments/00-core-design",
+        updated: "2026-11-13",
     },
 ];
 

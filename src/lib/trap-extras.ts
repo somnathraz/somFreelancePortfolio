@@ -86,6 +86,9 @@ const EXTRAS: Record<string, TrapExtras> = {
             { platform: "youtube", url: "https://www.youtube.com/shorts/_fU1WWnSQ4Q", youtubeId: "_fU1WWnSQ4Q" },
         ],
     },
+    "payments-core-design": {
+        series: "Payments",
+    },
     "booking-race-condition": {
         series: "Booking system",
         reels: [
