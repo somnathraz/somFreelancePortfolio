@@ -92,6 +92,9 @@ const EXTRAS: Record<string, TrapExtras> = {
     "payments-double-charge": {
         series: "Payments",
     },
+    "payments-idempotency-race": {
+        series: "Payments",
+    },
     "booking-race-condition": {
         series: "Booking system",
         reels: [

@@ -532,6 +532,60 @@ export async function pay(db: Pool, bank: Bank, req: PayRequest) {
 }
 `;
 
+const PAY_RACE_BUG = `import type { Pool } from "pg";
+
+// The idempotency key the way most people add it.
+export async function pay(db: Pool, bank: Bank, req: PayRequest) {
+  const seen = await db.query(
+    "SELECT charge_id FROM payments WHERE idempotency_key = $1",
+    [req.idempotencyKey],
+  );
+  if (seen.rows.length > 0) return { status: "PAID", chargeId: seen.rows[0].charge_id };
+
+  // A retry that arrives while we wait here also found nothing above.
+  const charge = await bank.charge(req.orderId, req.amount);
+
+  await db.query(
+    \`INSERT INTO payments (idempotency_key, order_id, amount, status, charge_id)
+     VALUES ($1, $2, $3, 'succeeded', $4)
+     ON CONFLICT (idempotency_key) DO NOTHING\`, // hides the second charge
+    [req.idempotencyKey, req.orderId, req.amount, charge.id],
+  );
+  return { status: "PAID", chargeId: charge.id };
+}
+`;
+
+const PAY_RACE_FIX = `import type { Pool } from "pg";
+
+// Claim the key before the charge. Exactly one request can insert the row.
+export async function pay(db: Pool, bank: Bank, req: PayRequest) {
+  const claimed = await db.query(
+    \`INSERT INTO payments (idempotency_key, order_id, amount, status)
+     VALUES ($1, $2, $3, 'pending')
+     ON CONFLICT (idempotency_key) DO NOTHING RETURNING id\`,
+    [req.idempotencyKey, req.orderId, req.amount],
+  );
+
+  if (claimed.rowCount === 0) {
+    const { rows } = await db.query(
+      "SELECT status, charge_id FROM payments WHERE idempotency_key = $1",
+      [req.idempotencyKey],
+    );
+    // Still at the bank? The app shows "in progress" and polls. It never charges.
+    return rows[0].status === "succeeded"
+      ? { status: "PAID", chargeId: rows[0].charge_id }
+      : { status: "PROCESSING" };
+  }
+
+  const charge = await bank.charge(req.orderId, req.amount, { idempotencyKey: req.idempotencyKey });
+  await db.query(
+    "UPDATE payments SET status = 'succeeded', charge_id = $2 WHERE idempotency_key = $1",
+    [req.idempotencyKey, charge.id],
+  );
+  return { status: "PAID", chargeId: charge.id };
+}
+`;
+
 const LESSONS: TrapLessonContent[] = [
     {
         slug: "url-shortener-id-collision",
@@ -1355,6 +1409,80 @@ const LESSONS: TrapLessonContent[] = [
         ],
         remember: "A lost response looks like a failed payment. Give every payment a key, claim it before the charge, answer retries from what you stored.",
         sourcePath: "systems/payments/01-double-charge",
+        updated: "2026-11-15",
+    },
+    {
+        slug: "payments-idempotency-race",
+        title: "The idempotency race",
+        question: "Your payment API checks the idempotency key and returns the stored result for a retry. The app retries while the first request is still at the bank. How many times is the customer charged?",
+        system: "Payments",
+        rule: "Don't check the idempotency key, claim it. One INSERT … ON CONFLICT DO NOTHING before the charge: whoever inserts the row charges, everyone else reads it. A retry that finds it pending gets PROCESSING, not a second charge.",
+        summary: {
+            problem: "Customers are charged twice even though the API has idempotency keys, and the database shows one payment.",
+            cause: "The key is checked with a SELECT and saved after the charge. A retry that arrives while the first request is at the bank finds nothing too, so both charge.",
+            fix: "Claim the key with INSERT … ON CONFLICT DO NOTHING before calling the bank. Only the request that inserts the row charges.",
+        },
+        why: [
+            "This version passes review and every sequential test: retry after the first request finished, and the SELECT finds the row. Our proof does it 50 times and the bank sees 50 charges.",
+            "In our run, 50 customers paid during a slow sale and every 2nd app retried while its first request was still at the bank. All 25 retries passed the key check: 25 customers charged twice, ₹50,000 extra, and every request answered PAID. With the claim moved first, each key reached the bank once and the retries got PROCESSING.",
+        ],
+        words: ["idempotency-key", "race-condition", "unique-index", "atomic"],
+        picture: {
+            intro: "Priya taps Pay. The bank is slow, so her app retries with the same key while the first request is still waiting.",
+            flows: [
+                {
+                    title: "SELECT the key, charge, then save",
+                    steps: ["Request 1: SELECT key → nothing", "Request 1 waits at the bank", "Retry: SELECT key → still nothing", "Both charge; second INSERT does nothing"],
+                    outcome: "Charged twice, both told PAID, one row in the table.",
+                    tone: "bug",
+                },
+                {
+                    title: "Claim the key first",
+                    steps: ["Request 1: INSERT key, pending → wins", "Request 1 waits at the bank", "Retry: INSERT key → 0 rows, reads pending", "Retry answers PROCESSING"],
+                    outcome: "Charged once. The app polls instead of paying again.",
+                    tone: "fix",
+                },
+            ],
+        },
+        attempts: [
+            { label: "SELECT, then charge, then INSERT", code: "if (!exists(key)) charge(); insert()", verdict: "fails", why: "A retry mid-charge passes the same check. The bank call sits right inside the gap." },
+            { label: "Add ON CONFLICT DO NOTHING to the save", code: "INSERT … ON CONFLICT DO NOTHING (after charge)", verdict: "fails", why: "Stops the error, hides the evidence. Two charges, one row." },
+            { label: "Wrap it in a transaction", code: "BEGIN; SELECT; charge; INSERT; COMMIT", verdict: "fails", why: "At the default isolation level both transactions still see no row. And the bank call doesn't belong in a transaction." },
+            { label: "SELECT … FOR UPDATE", code: "SELECT … WHERE key = $1 FOR UPDATE", verdict: "partly", why: "Locks a row that exists. A brand-new key has no row to lock yet." },
+            { label: "Claim the key first", code: "INSERT … 'pending' ON CONFLICT DO NOTHING RETURNING id", verdict: "works", why: "The unique index lets exactly one request insert the row, and only that request calls the bank." },
+        ],
+        fix: {
+            paragraphs: [
+                "Same ON CONFLICT DO NOTHING, opposite position. Moved before the charge, it stops being a way to swallow errors and becomes the lock: whoever inserts the row owns the payment.",
+                "A request that gets zero rows back reads the row instead. Succeeded means return the stored result. Pending means the first request is still at the bank, so answer PROCESSING and let the app poll. Never charge from that branch.",
+                "This is Airbnb's pre-RPC phase in Orpheus: record the request and its key before the network call.",
+            ],
+            cost: "A pending state the app has to handle, and a plan for payments stuck in pending if the first request dies mid-charge. That is a later trap this week.",
+            alsoSay: {
+                title: "Interviewers also listen for: why the check looked fine",
+                body: "Check-then-act is safe only when nothing else can act in between. Here the slowest step, the bank call, sits between the check and the write, so the window is as long as the bank is slow.",
+            },
+        },
+        checks: [
+            {
+                q: "Why does the SELECT check work in tests but not in production?",
+                a: "Tests retry after the first request finishes. In production a retry can arrive while the first is still at the bank, before anything was saved.",
+            },
+            {
+                q: "Why does the table show only one payment?",
+                a: "The second INSERT hits the unique key and ON CONFLICT DO NOTHING quietly drops it. The second charge exists only at the bank.",
+            },
+            {
+                q: "What should a retry get while the first request is still in progress?",
+                a: "PROCESSING. The app shows payment in progress and checks again later. It must not start a second charge.",
+            },
+        ],
+        code: [
+            { label: "The bug · check the key", filename: "pay.bug.ts", code: PAY_RACE_BUG, note: NOTE },
+            { label: "The fix · claim the key", filename: "pay.fix.ts", code: PAY_RACE_FIX, note: NOTE },
+        ],
+        remember: "Don't check the key, claim it. INSERT before the charge, and a pending row means PROCESSING, never a second charge.",
+        sourcePath: "systems/payments/02-idempotency-race",
         updated: "2026-11-15",
     },
 ];
