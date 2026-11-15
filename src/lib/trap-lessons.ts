@@ -484,6 +484,54 @@ export async function rateLimit(req, res, next) {
 }
 `;
 
+const PAY_DOUBLE_BUG = `import type { Pool } from "pg";
+
+// POST /pay. Charge, save, respond. Every step is right.
+export async function pay(db: Pool, bank: Bank, req: PayRequest) {
+  const charge = await bank.charge(req.orderId, req.amount);
+  await db.query(
+    "INSERT INTO payments (order_id, amount, status, charge_id) VALUES ($1, $2, 'succeeded', $3)",
+    [req.orderId, req.amount, charge.id],
+  );
+  // If this response is lost on the way to the phone, the app retries,
+  // and the retry runs every line above again: a second charge.
+  return { status: "PAID", chargeId: charge.id };
+}
+`;
+
+const PAY_DOUBLE_FIX = `import type { Pool } from "pg";
+
+// The app makes req.idempotencyKey once per payment and reuses it on every retry.
+export async function pay(db: Pool, bank: Bank, req: PayRequest) {
+  // Claim the key in one statement. The unique index lets only one request win.
+  const claimed = await db.query(
+    \`INSERT INTO payments (idempotency_key, order_id, amount, status)
+     VALUES ($1, $2, $3, 'pending')
+     ON CONFLICT (idempotency_key) DO NOTHING RETURNING id\`,
+    [req.idempotencyKey, req.orderId, req.amount],
+  );
+
+  if (claimed.rowCount === 0) {
+    // A retry: answer from what's stored. Never charge again.
+    const { rows } = await db.query(
+      "SELECT status, charge_id FROM payments WHERE idempotency_key = $1",
+      [req.idempotencyKey],
+    );
+    return rows[0].status === "succeeded"
+      ? { status: "PAID", chargeId: rows[0].charge_id }
+      : { status: "PROCESSING" };
+  }
+
+  // Pass the key to the processor too (Stripe's Idempotency-Key header).
+  const charge = await bank.charge(req.orderId, req.amount, { idempotencyKey: req.idempotencyKey });
+  await db.query(
+    "UPDATE payments SET status = 'succeeded', charge_id = $2 WHERE idempotency_key = $1",
+    [req.idempotencyKey, charge.id],
+  );
+  return { status: "PAID", chargeId: charge.id };
+}
+`;
+
 const LESSONS: TrapLessonContent[] = [
     {
         slug: "url-shortener-id-collision",
@@ -1234,6 +1282,80 @@ const LESSONS: TrapLessonContent[] = [
         remember: "Your limiter protects the API. Make sure it can't take the API down. Decide per endpoint: local limit or 503.",
         sourcePath: "systems/rate-limiter/05-redis-down",
         updated: "2026-11-12",
+    },
+    {
+        slug: "payments-double-charge",
+        title: "The double charge on retry",
+        question: "A customer pays ₹2,000. The charge goes through, but the response never reaches their phone, so the app retries. How much did they pay?",
+        system: "Payments",
+        rule: "A lost response looks exactly like a failed payment, so retries will happen. Give every payment an idempotency key the client reuses on retry, claim it in one INSERT before calling the bank, and answer a retry from what you stored.",
+        summary: {
+            problem: "Customers get charged twice for one order, and nothing in the logs looks wrong.",
+            cause: "The response is lost on the way to the phone, the app retries, and the server can't tell a retry from a new payment. It charges again.",
+            fix: "An idempotency key per payment, claimed with INSERT … ON CONFLICT DO NOTHING before the charge. A retry gets the stored result back.",
+        },
+        why: [
+            "Every step of the naive version is right: charge, save, respond. It passes every test, because in tests the response always arrives.",
+            "In our run, 50 customers paid ₹2,000 at once and a flaky network dropped every 5th response. The 10 apps that retried got their customers charged twice: ₹20,000 taken that nobody owed. With an idempotency key, the same 10 retries got the stored PAID back, and every customer paid exactly once.",
+        ],
+        words: ["idempotent", "idempotency-key", "timeout", "unique-index"],
+        picture: {
+            intro: "Priya pays ₹2,000. The bank charges her card, but the response is lost on the mobile network.",
+            flows: [
+                {
+                    title: "Charge, save, respond",
+                    steps: ["POST /pay → bank charges ₹2,000", "Response lost on the way to the phone", "App sees an error, retries", "Server charges ₹2,000 again"],
+                    outcome: "₹4,000 taken for one order. \"Failed dikha, paise do baar kate.\"",
+                    tone: "bug",
+                },
+                {
+                    title: "Idempotency key, claimed first",
+                    steps: ["POST /pay with key k1 → key claimed", "Bank charges ₹2,000, response lost", "App retries with the same k1", "Key already claimed → stored PAID returned"],
+                    outcome: "Charged once. The retry is free and safe.",
+                    tone: "fix",
+                },
+            ],
+        },
+        attempts: [
+            { label: "No key", code: "charge(); insert(); respond()", verdict: "fails", why: "A retry after a lost response is a second charge." },
+            { label: "Don't retry in the app", code: "retries: 0", verdict: "fails", why: "The customer taps Pay again. Same double charge, now from a human." },
+            { label: "One payment per order", code: "UNIQUE (order_id)", verdict: "partly", why: "Stops this case, but breaks part payments and a real retry after a declined card." },
+            { label: "SELECT the key, then charge", code: "if (!exists(key)) charge()", verdict: "partly", why: "Works one request at a time. Two retries arriving together both find nothing. That's the next trap." },
+            { label: "Claim the key first", code: "INSERT … ON CONFLICT DO NOTHING", verdict: "works", why: "The unique index makes the claim atomic. A retry finds the key and gets the stored answer." },
+        ],
+        fix: {
+            paragraphs: [
+                "The app generates a key once per payment, a UUID, saves it before sending, and reuses it on every retry. A new key means a new payment.",
+                "The server claims the key with one INSERT … ON CONFLICT DO NOTHING before calling the bank. Zero rows back means it's a retry: read the stored row and return the same answer. Then pass the same key to the processor, so even a retry that slips past your database can't charge twice where the money moves.",
+                "This is the core of Airbnb's Orpheus: record the request and its key before the network call, record the result after.",
+            ],
+            cost: "One unique column, one extra write per payment, and a cleanup job for old keys. The app has to keep the key until it gets an answer.",
+            alsoSay: {
+                title: "Interviewers also listen for: who makes the key",
+                body: "The client, once per payment, before the first attempt. If the server made it, a retry would arrive without it and look new.",
+            },
+        },
+        checks: [
+            {
+                q: "Why can't the server just notice the retry?",
+                a: "Without a key, a retry is byte-for-byte a new payment request. Same order, same amount, nothing to tell them apart.",
+            },
+            {
+                q: "Why claim the key before calling the bank, not after?",
+                a: "If you save the key after the charge, a retry that arrives in between finds nothing and charges again.",
+            },
+            {
+                q: "Why also send the key to the payment processor?",
+                a: "Defence in depth. If anything slips past your database, the processor still returns the first charge instead of making a new one.",
+            },
+        ],
+        code: [
+            { label: "The bug · charge, save, respond", filename: "pay.bug.ts", code: PAY_DOUBLE_BUG, note: NOTE },
+            { label: "The fix · idempotency key", filename: "pay.fix.ts", code: PAY_DOUBLE_FIX, note: NOTE },
+        ],
+        remember: "A lost response looks like a failed payment. Give every payment a key, claim it before the charge, answer retries from what you stored.",
+        sourcePath: "systems/payments/01-double-charge",
+        updated: "2026-11-15",
     },
 ];
 
