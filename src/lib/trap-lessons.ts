@@ -586,6 +586,69 @@ export async function pay(db: Pool, bank: Bank, req: PayRequest) {
 }
 `;
 
+const PAY_TX_BUG = `import type { Pool } from "pg";
+
+// "Make it atomic": one transaction around the whole payment.
+export async function pay(db: Pool, bank: Bank, req: PayRequest) {
+  const client = await db.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query(
+      \`INSERT INTO payments (idempotency_key, order_id, amount, status)
+       VALUES ($1, $2, $3, 'pending')\`,
+      [req.idempotencyKey, req.orderId, req.amount],
+    );
+    // The transaction stays open while we wait on the bank.
+    // If it dies here (timeout, failover, dropped connection), the ROLLBACK
+    // erases both writes. The bank's charge is not a database write: it stays.
+    const charge = await bank.charge(req.orderId, req.amount, { idempotencyKey: req.idempotencyKey });
+    await client.query("UPDATE payments SET status = 'succeeded', charge_id = $2 WHERE idempotency_key = $1", [req.idempotencyKey, charge.id]);
+    await client.query("UPDATE orders SET status = 'paid' WHERE id = $1", [req.orderId]);
+    await client.query("COMMIT");
+    return { status: "PAID", chargeId: charge.id };
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err; // the app shows "Payment failed, try again"
+  } finally {
+    client.release();
+  }
+}
+`;
+
+const PAY_TX_FIX = `import type { Pool } from "pg";
+
+// Airbnb's three phases: no network call inside a transaction.
+export async function pay(db: Pool, bank: Bank, req: PayRequest) {
+  // 1. Claim the key. One statement, committed at once:
+  //    from here on there's a record that a charge was attempted.
+  const claimed = await db.query(
+    \`INSERT INTO payments (idempotency_key, order_id, amount, status)
+     VALUES ($1, $2, $3, 'pending')
+     ON CONFLICT (idempotency_key) DO NOTHING RETURNING id\`,
+    [req.idempotencyKey, req.orderId, req.amount],
+  );
+  if (claimed.rowCount === 0) return { status: "PROCESSING" };
+
+  // 2. Call the bank with nothing open.
+  const charge = await bank.charge(req.orderId, req.amount, { idempotencyKey: req.idempotencyKey });
+
+  // 3. Record the result in a short transaction: database writes only.
+  const client = await db.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query("UPDATE payments SET status = 'succeeded', charge_id = $2 WHERE idempotency_key = $1", [req.idempotencyKey, charge.id]);
+    await client.query("UPDATE orders SET status = 'paid' WHERE id = $1", [req.orderId]);
+    await client.query("COMMIT");
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err; // the pending row still says a charge was attempted: reconcile it
+  } finally {
+    client.release();
+  }
+  return { status: "PAID", chargeId: charge.id };
+}
+`;
+
 const LESSONS: TrapLessonContent[] = [
     {
         slug: "url-shortener-id-collision",
@@ -1484,6 +1547,80 @@ const LESSONS: TrapLessonContent[] = [
         remember: "Don't check the key, claim it. INSERT before the charge, and a pending row means PROCESSING, never a second charge.",
         sourcePath: "systems/payments/02-idempotency-race",
         updated: "2026-11-15",
+    },
+    {
+        slug: "payments-charge-in-transaction",
+        title: "The charge inside the transaction",
+        question: "To make payment atomic, you wrap it in one database transaction: save the payment, charge the card, mark the order paid. The bank is slow and the transaction dies while waiting. What's left?",
+        system: "Payments",
+        rule: "Never call the network inside a database transaction. A rollback can't take back a charge. Commit a pending record, call the bank with nothing open, then record the result in a short transaction.",
+        summary: {
+            problem: "Customers are charged and your database has no record of it. Then they pay again.",
+            cause: "The bank call sits inside the transaction. When the transaction dies mid-wait, the rollback erases the payment row and the order, but the bank's charge isn't a database write, so it stays.",
+            fix: "Airbnb's three phases: commit a pending row, call the bank with no transaction open, then record the result in a short transaction.",
+        },
+        why: [
+            "Wrapping it all in a transaction is a good instinct, and it works whenever the bank answers fast. Our proof runs 50 payments against a fast bank and every one commits.",
+            "In our run, every 5th charge took 400ms during a sale, and Postgres's idle_in_transaction_session_timeout killed transactions idle longer than 150ms. Those 10 transactions rolled back after the bank had charged: 10 charges with no record. The customers saw \"Payment failed\", tried again, and paid twice: ₹20,000 extra. With the three phases, the same slow charges left every payment recorded once.",
+        ],
+        words: ["transaction", "timeout", "idempotency-key", "atomic"],
+        picture: {
+            intro: "Priya pays ₹2,000 during a sale. The bank takes 400ms to answer.",
+            flows: [
+                {
+                    title: "One transaction around the bank call",
+                    steps: ["BEGIN, insert payment", "Call the bank, transaction idle", "Postgres kills the idle transaction", "ROLLBACK: payment row gone, order unpaid", "Bank already charged ₹2,000"],
+                    outcome: "Money taken, no record. Priya taps \"try again\" and pays twice.",
+                    tone: "bug",
+                },
+                {
+                    title: "Claim, charge, record",
+                    steps: ["Insert pending row, committed", "Call the bank, nothing open", "Short transaction: payment succeeded, order paid"],
+                    outcome: "Charged once, recorded once. A slow bank is just slow.",
+                    tone: "fix",
+                },
+            ],
+        },
+        attempts: [
+            { label: "One big transaction", code: "BEGIN; insert; charge(); update; COMMIT", verdict: "fails", why: "A rollback undoes database writes only. The charge survives it with no record." },
+            { label: "Raise the timeout", code: "idle_in_transaction_session_timeout = 0", verdict: "fails", why: "A failover or dropped connection still kills it. And long open transactions hold locks and connections under load." },
+            { label: "Refund in the catch block", code: "catch { bank.refund() }", verdict: "partly", why: "Only if the process survives to run it. The one that died usually doesn't." },
+            { label: "Claim, charge, record", code: "commit pending → charge → short transaction", verdict: "works", why: "There's always a record that a charge was attempted, and nothing waits on the network with a transaction open." },
+            { label: "Transactional outbox", code: "insert 'charge requested' + worker", verdict: "works", why: "Good when the charge can happen in the background. The worker retries with the same key." },
+        ],
+        fix: {
+            paragraphs: [
+                "A transaction promises all-or-nothing for the database. The bank isn't in the database, so wrapping the call doesn't make it part of the promise. It just keeps a connection and its locks idle while you wait.",
+                "Split it the way Airbnb's Orpheus does: no network calls in the pre-RPC and post-RPC phases, no database work in the RPC phase. Commit a pending row first, call the bank with nothing open, then mark the payment succeeded and the order paid in one short transaction.",
+                "If something dies between the charge and the final write, the pending row is still there saying a charge was attempted, which is exactly what you need to reconcile it.",
+            ],
+            cost: "Payments can sit in pending, so you need a way to resolve them: ask the processor for the charge's status and finish the record. That's the next trap.",
+            alsoSay: {
+                title: "Interviewers also listen for: what atomic covers",
+                body: "Atomic means all-or-nothing inside one system. Across your database and a bank, there is no shared transaction, so you design for the gap: record intent first, then reconcile.",
+            },
+        },
+        checks: [
+            {
+                q: "Why doesn't the rollback undo the charge?",
+                a: "A rollback undoes database writes. The charge happened at the bank over the network, which the transaction knows nothing about.",
+            },
+            {
+                q: "Why is the pending row committed before calling the bank?",
+                a: "So that whatever happens during the call, there's a record that a charge was attempted, and a retry with the same key can find it.",
+            },
+            {
+                q: "Why does the customer end up paying twice?",
+                a: "They see \"Payment failed\" and start a new payment. A new attempt has a new key, so nothing stops the second charge.",
+            },
+        ],
+        code: [
+            { label: "The bug · charge inside the transaction", filename: "pay.bug.ts", code: PAY_TX_BUG, note: NOTE },
+            { label: "The fix · claim, charge, record", filename: "pay.fix.ts", code: PAY_TX_FIX, note: NOTE },
+        ],
+        remember: "A rollback can't take back a charge. Commit a pending record, call the bank with nothing open, record the result after.",
+        sourcePath: "systems/payments/03-charge-in-transaction",
+        updated: "2026-11-16",
     },
 ];
 
