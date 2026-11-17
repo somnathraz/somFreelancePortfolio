@@ -7,7 +7,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { MvpCostCalculator } from "@/components/tools/MvpCostCalculator";
 import { breadcrumbJsonLd, faqPageJsonLd, webPageJsonLd } from "@/lib/seo";
 
-const TITLE = "SaaS MVP Cost Calculator | Free Estimate Tool";
+const TITLE = "MVP Cost Calculator: SaaS Cost and Timeline Estimator";
 const DESCRIPTION =
   "Estimate your SaaS MVP cost and timeline in under a minute. Adjust scope, roles, billing, AI and launch quality to see a directional price range.";
 
