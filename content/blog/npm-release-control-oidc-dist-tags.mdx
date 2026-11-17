@@ -1,7 +1,7 @@
 ---
 title: "npm Release Controls: Stage, Approve, and Promote Without Tokens"
-metaTitle: "npm Release Controls With OIDC and Dist-Tags"
-description: "Design a safer npm release path with OIDC, staged publishing, human approval, and narrowly scoped dist-tag promotion—without long-lived tokens."
+metaTitle: "npm Dist-Tags and OIDC: Safer Release Promotion"
+description: "Use npm dist-tags, OIDC trusted publishing and a staged approval step to promote releases safely, without long-lived npm tokens in CI."
 date: "2026-10-02"
 updated: "2026-10-02"
 author: "Somanath Khadanga"
@@ -224,5 +224,13 @@ The broad npm changes in [the earlier supply-chain security guide](/blog/recent-
 A good release pipeline makes authority visible. One workflow produces a candidate. A maintainer approves the exact artifact with proof of presence. Another narrowly scoped workflow changes the consumer-facing channel. Every transition leaves evidence, and none requires a long-lived token in the normal path.
 
 That is more than npm configuration. It is a small, defensible production system with explicit identities, reversible pointers, and a human decision at the point where an artifact becomes public.
+
+## Related Reading
+
+- [Recent npm Security Changes: What SaaS Teams Should Fix Right Now](/blog/recent-npm-security-changes-what-saas-teams-should-fix-right-now)
+- [GitHub Actions Workflow Lockfiles: A Safe Rollout Guide for SaaS](/blog/github-actions-workflow-lockfiles-saas)
+- [TanStack Was Compromised: What SaaS Teams Need to Do](/blog/tanstack-npm-compromise-2026)
+
+## Next Step
 
 If your package release path is only one part of a larger chain from pull request to production, a focused [production-readiness review](/services/production-readiness-upgrade) can map the same authority, evidence, and rollback questions across the rest of the system.
