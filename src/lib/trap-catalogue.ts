@@ -52,6 +52,7 @@ const TOPICS: PlannedTopic[] = [
     ] },
     { id: "concurrency", title: "Concurrency", description: "When requests collide and shared state stops being safe.", entries: [
         ["booking-race-condition", "The double-booking race", "Can two requests book the same last seat?"],
+        ["coupon-race", "The coupon the AI wrote", "A 10-use coupon, 50 users in the same second. How many get the discount?"],
         ["lost-update", "The lost update", "Why does a counter lose increments under load?"],
         ["check-then-act", "Check, then act", "What changes between checking a condition and writing?"],
         ["deadlock", "The deadlock", "What happens when two transactions wait on each other?"],

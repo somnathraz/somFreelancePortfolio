@@ -649,6 +649,50 @@ export async function pay(db: Pool, bank: Bank, req: PayRequest) {
 }
 `;
 
+const COUPON_BUG = `import type { Pool } from "pg";
+
+// Prompt: "Write an Express + Postgres endpoint to apply a coupon code.
+// Each coupon has max_uses. Reject it when it's used up."
+// The answer AI assistants typically give:
+export async function applyCoupon(db: Pool, code: string, userId: string) {
+  const { rows } = await db.query(
+    "SELECT discount, max_uses, used FROM coupons WHERE code = $1",
+    [code],
+  );
+  const coupon = rows[0];
+  if (!coupon) return { status: 404, error: "Invalid coupon" };
+  if (coupon.used >= coupon.max_uses) return { status: 410, error: "Coupon expired" };
+
+  // 50 requests at once all got here with used = 0.
+  await db.query("UPDATE coupons SET used = used + 1 WHERE code = $1", [code]);
+  await db.query("INSERT INTO redemptions (code, user_id) VALUES ($1, $2)", [code, userId]);
+  return { status: 200, discount: coupon.discount };
+}
+`;
+
+const COUPON_FIX = `import type { Pool } from "pg";
+
+// The check moves inside the write: one statement, one row lock per request.
+export async function applyCoupon(db: Pool, code: string, userId: string) {
+  const { rows } = await db.query(
+    \`UPDATE coupons SET used = used + 1
+     WHERE code = $1 AND used < max_uses
+     RETURNING discount\`,
+    [code],
+  );
+
+  if (rows.length === 0) {
+    const exists = await db.query("SELECT 1 FROM coupons WHERE code = $1", [code]);
+    return exists.rows.length
+      ? { status: 410, error: "Coupon expired" }
+      : { status: 404, error: "Invalid coupon" };
+  }
+
+  await db.query("INSERT INTO redemptions (code, user_id) VALUES ($1, $2)", [code, userId]);
+  return { status: 200, discount: rows[0].discount };
+}
+`;
+
 const LESSONS: TrapLessonContent[] = [
     {
         slug: "url-shortener-id-collision",
@@ -1621,6 +1665,79 @@ const LESSONS: TrapLessonContent[] = [
         remember: "A rollback can't take back a charge. Commit a pending record, call the bank with nothing open, record the result after.",
         sourcePath: "systems/payments/03-charge-in-transaction",
         updated: "2026-11-16",
+    },
+    {
+        slug: "coupon-race",
+        title: "The coupon the AI wrote",
+        question: "You ask an AI for a coupon API: WELCOME500, ₹500 off, valid for the first 10 uses. It works in every test. Then the sale starts and 50 people apply it in the same second. How many get ₹500 off?",
+        system: "AI-written code",
+        rule: "A limit check and the write that uses it must be one statement. UPDATE … SET used = used + 1 WHERE used < max_uses RETURNING …: zero rows back means the coupon is gone.",
+        summary: {
+            problem: "A coupon limited to 10 uses gets used 50 times during a sale.",
+            cause: "The AI-written endpoint reads the usage count, checks it, then increments in a second statement. Concurrent requests all read the same old count, so they all pass.",
+            fix: "One conditional UPDATE that checks and increments together. Zero rows back means expired.",
+        },
+        why: [
+            "The code is clean and the test the AI writes with it passes: apply the coupon 11 times in a row and the 11th is rejected.",
+            "In our run, 50 users applied WELCOME500 at the same moment against real Postgres. All 50 got ₹500 off: ₹20,000 of discount nobody meant to give, the same result on every run. With the conditional UPDATE, exactly 10 got it and 40 were told it expired.",
+        ],
+        words: ["race-condition", "read-modify-write", "atomic", "row-lock"],
+        picture: {
+            intro: "WELCOME500 has 10 uses. The sale starts and 50 people tap Apply together.",
+            flows: [
+                {
+                    title: "The AI's version: read, check, write",
+                    steps: ["All 50 run SELECT → used = 0", "All 50 pass used < 10", "All 50 run UPDATE used = used + 1", "Counter ends at 50"],
+                    outcome: "50 discounts for a 10-use coupon, and no error anywhere.",
+                    tone: "bug",
+                },
+                {
+                    title: "One conditional UPDATE",
+                    steps: ["Each request: UPDATE … WHERE used < max_uses", "Row lock makes them take turns", "Requests 1–10 match and increment", "Request 11 sees used = 10, matches nothing"],
+                    outcome: "Exactly 10 discounts. 40 people told it expired.",
+                    tone: "fix",
+                },
+            ],
+        },
+        attempts: [
+            { label: "The AI's version", code: "SELECT used; if (used < max) UPDATE", verdict: "fails", why: "Every concurrent request reads the same count before anyone writes." },
+            { label: "Ask the AI to \"make it safe\"", code: "wrap it in a transaction", verdict: "fails", why: "At the default isolation level, both transactions still read used = 0. A transaction alone doesn't lock what you SELECT." },
+            { label: "SELECT … FOR UPDATE", code: "BEGIN; SELECT … FOR UPDATE; UPDATE; COMMIT", verdict: "works", why: "Locks the row while you decide. More code and a longer lock than you need here." },
+            { label: "CHECK (used <= max_uses)", code: "ALTER TABLE coupons ADD CHECK …", verdict: "partly", why: "A good backstop: the extra increment errors. You still need to handle that error cleanly." },
+            { label: "Conditional UPDATE", code: "UPDATE … WHERE used < max_uses RETURNING", verdict: "works", why: "The check is part of the write. One statement, and Postgres serialises it on the row." },
+        ],
+        fix: {
+            paragraphs: [
+                "Move the check into the write. UPDATE coupons SET used = used + 1 WHERE code = $1 AND used < max_uses RETURNING discount. Postgres takes a row lock for each UPDATE, so concurrent requests queue: the 11th one re-checks used = 10, the WHERE fails, and it gets zero rows back.",
+                "It's the same check-then-act race as a double-booked seat, just written by an AI. Nothing in the prompt says concurrent, and nothing in a one-user test shows the gap, so the generated code looks finished.",
+            ],
+            cost: "Nothing extra. One statement instead of two, and a second lookup only on the rejection path to tell expired from invalid.",
+            alsoSay: {
+                title: "Interviewers also listen for: how to review AI code",
+                body: "For any endpoint that spends something limited (stock, seats, coupons, quota), ask what happens if 50 of these arrive at once. If the answer depends on a value read earlier, it's a race.",
+            },
+        },
+        checks: [
+            {
+                q: "Why does the counter end at exactly 50 if the code is broken?",
+                a: "used = used + 1 is atomic, so no increment is lost. The bug is the check before it, which every request passed with a stale count.",
+            },
+            {
+                q: "Why doesn't the AI's own test catch it?",
+                a: "It applies the coupon one request at a time. The race needs requests that overlap.",
+            },
+            {
+                q: "What does zero rows from the conditional UPDATE mean?",
+                a: "Either the coupon is used up or the code doesn't exist. A quick lookup tells which one to report.",
+            },
+        ],
+        code: [
+            { label: "The bug · what the AI wrote", filename: "coupon.bug.ts", code: COUPON_BUG, note: NOTE },
+            { label: "The fix · one conditional UPDATE", filename: "coupon.fix.ts", code: COUPON_FIX, note: NOTE },
+        ],
+        remember: "If AI code reads a count, decides, then writes, ask what 50 requests at once would do. Put the check inside the write.",
+        sourcePath: "05-coupon-race",
+        updated: "2026-11-17",
     },
 ];
 
