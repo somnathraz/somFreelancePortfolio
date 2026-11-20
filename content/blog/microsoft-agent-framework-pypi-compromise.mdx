@@ -1,0 +1,100 @@
+---
+title: "Microsoft's agent-framework Package Was Hijacked on PyPI: What AI SaaS Teams Should Check"
+metaTitle: "agent-framework PyPI Compromise: What to Check Today"
+description: "Versions 1.26.1 and 1.26.2 of Microsoft's agent-framework on PyPI stole cloud and CI credentials. Who is exposed, how to clean up, and what to rotate."
+primaryKeyword: "agent-framework PyPI compromise"
+date: "2026-11-20"
+updated: "2026-11-20"
+author: "Somanath Khadanga"
+readTime: "6 min read"
+category: "Security"
+tags:
+  - supply chain security
+  - PyPI
+  - AI agents
+  - GitHub Actions OIDC
+  - AI SaaS security
+shareImage: "/images/blog/microsoft-agent-framework-pypi-compromise.png"
+relatedService: "/services/production-readiness-upgrade"
+---
+
+![A Python package box on a conveyor belt with a small hook attached, beside a cloud key, a CI pipeline and a checklist on a clipboard](/images/blog/microsoft-agent-framework-pypi-compromise.png)
+
+On the evening of November 17, 2026 (UTC), two releases of Microsoft's official `agent-framework` package appeared on PyPI that did not come from the project's repository. Versions 1.26.1 and 1.26.2 carried a credential stealer that runs every time Python starts. Both are gone from PyPI, but anything that installed or cached them is still exposed.
+
+If you have a Python service that builds AI agents, or CI that installs Python dependencies without pins, this is a short check. Most teams were never on those versions. Those that were should rotate credentials today: the stealer targeted cloud identities, CI tokens and model provider keys.
+
+## What Happened
+
+The [GitHub advisory GHSA-764m-3ppc-5m73](https://github.com/advisories/GHSA-764m-3ppc-5m73) lists the facts most sources agree on:
+
+- **Affected package:** only the `agent-framework` meta-package on PyPI. Both bad versions pin `agent-framework-core[all]==1.26.0`, and [Endor Labs](https://www.endorlabs.com/learn/agent-framework-compromised-software-supply-chain-attack) checked 22 sibling `agent-framework-*` packages and found no new releases after November 12.
+- **Malicious versions:** 1.26.1 (uploaded about 20:35 UTC) and 1.26.2 (about 21:08 UTC), both wheel-only.
+- **Last clean version:** 1.26.0, published November 12. The advisory lists no newer patched release, and says 1.26.0 and earlier are not affected.
+- **Removal:** both versions were removed from PyPI on the same evening. Sources disagree slightly on when 1.26.2 came down. [Wiz](https://www.wiz.io/blog/malicious-version-of-microsofts-agent-framework-published-to-pypi) says both were gone by 21:30 UTC.
+
+Note the second upload: 1.26.2 went up after 1.26.1 was pulled, so the publisher still had access then. Wiz says the attacker appears to have used a compromised client certificate for Microsoft's internal release pipeline, obtained in an unknown way. That root cause is Wiz's research. A project maintainer has reportedly confirmed the removal and an investigation, but Microsoft had published no advisory as of November 20.
+
+No npm or NuGet package was reported as compromised. The stealer *collects* npm and NuGet credentials; it did not spread there.
+
+## How the Stealer Works
+
+The payload is a `.pth` file in `site-packages`. Python runs these at startup, so the stealer fires whenever any Python process starts there, `pip` included, without importing `agent_framework`.
+
+- **1.26.1** added `agent_framework_meta.pth`, which loads `agent_framework_meta/_telemetry.py`.
+- **1.26.2** added `af_runtime_diag.pth` and a top-level `af_runtime_diag.py`, and restored the original `__init__.py` to make the change harder to spot.
+
+Per the advisory, Wiz and Endor Labs, it collects:
+
+- environment variables whose names contain strings such as `TOKEN`, `SECRET`, `KEY`, `AZURE`, `AWS`, `GITHUB`, `OPENAI`, `HF_`, `NPM` and `CI_`, plus the environments of up to 300 other processes;
+- credential files such as `~/.azure`, `.npmrc`, `.netrc`, `.git-credentials`, `.docker/config.json`, `pip.conf`, Hugging Face tokens, and `.env` or JSON files under `/app` and `/workspace`;
+- Azure managed-identity tokens for a dozen services, requested from the instance metadata endpoint;
+- Azure DevOps pipeline tokens, and in 1.26.2, **GitHub Actions OIDC tokens** for jobs that have `id-token: write`.
+
+Everything was sent in one HTTP POST to a `webhook.site` URL. The published indicators include the user agents `af-runtime-diagnostics/1` and `runtime-diagnostics/1`.
+
+## Who Is Affected
+
+- **You installed `agent-framework` 1.26.1 or 1.26.2 anywhere:** a laptop, a CI run, a container build or a server. Treat that environment as compromised.
+- **You run unpinned installs** (`pip install agent-framework` or `agent-framework>=1.x`) and any build ran between about 20:35 and 21:30 UTC on November 17. Check whether it resolved a bad version.
+- **You use an internal package proxy or mirror** (Artifactory, Nexus, a pip cache). It may have cached the bad wheels after PyPI removed them.
+- **You pin `agent-framework==1.26.0` or earlier with a lockfile,** or you only use `agent-framework-core` or the .NET packages: not affected by this incident.
+- **You do not use Microsoft Agent Framework at all:** not affected.
+
+## What to Do Today
+
+1. **Search for the versions.** Grep lockfiles (`uv.lock`, `poetry.lock`, `requirements*.txt`) and CI logs for `agent-framework==1.26.1`, `1.26.2`, or `agent_framework-1.26.1` / `1.26.2` wheel names. Include container images built since November 17.
+2. **Look for the files without running Python.** In each suspect environment, list `site-packages` with `find` or `ls` for `agent_framework_meta.pth`, `af_runtime_diag.pth` and `af_runtime_diag.py`. Endor Labs warns that running `python` or `pip` in an affected environment re-runs the stealer, so do not "just pip uninstall" first.
+3. **Rebuild, do not clean.** Throw away affected virtualenvs and images and rebuild from a clean base with `agent-framework==1.26.0` pinned, ideally with hashes (`pip install --require-hashes`, or `uv`/Poetry lockfiles).
+4. **Block the bad versions upstream.** Add 1.26.1 and 1.26.2 to your package proxy's deny list so a cache cannot hand them out again.
+5. **Rotate what the environment could read.** Model provider keys (OpenAI, Azure OpenAI, Anthropic and others), cloud credentials, GitHub and npm tokens, PyPI tokens, Docker registry logins, Hugging Face tokens and database URLs in `.env` files. On a developer laptop, that includes the Azure CLI session and any saved git credentials.
+6. **Remember that rotation does not revoke issued tokens.** Managed-identity and OIDC tokens that were already stolen stay valid until they expire. Review what the identity could do while they lasted (Wiz notes up to 24 hours for the Azure tokens).
+
+## How to Check Whether Anything Was Used
+
+- **Network logs:** look for outbound requests to `webhook.site` from build agents or servers, and the user agents above.
+- **Cloud sign-ins:** in Entra ID, review sign-ins and token use for managed identities and service principals after November 17, and check for new federated credentials or role assignments.
+- **GitHub:** for workflows that installed 1.26.2 with `id-token: write`, check the cloud side of that trust (the AWS, Azure or GCP role it federates into) for actions you did not run. Review new deploy keys, personal access tokens and Actions secrets.
+- **Model providers:** check usage dashboards for spend, models or API keys you do not recognise.
+
+Wiz reported that few of the requests it could observe at the exfiltration endpoint held real victim data. That is one team's view, not a reason to skip rotation.
+
+## What This Says About Your Pipeline
+
+This came through the official package name and ran at install time. Three habits contain it: pin Python dependencies with hashes and let new releases age a few days; grant `id-token: write` only to deploy jobs, not install-and-test jobs (the [GitHub Actions execution policies guide](/blog/github-actions-execution-policies-saas) covers scoping); and keep production secrets out of build environments.
+
+## What to Watch Next
+
+- **A Microsoft statement.** Root cause and the state of the publishing credential stay unconfirmed until Microsoft says so. No other Microsoft package has been reported for this incident.
+- **The next `agent-framework` release.** Before upgrading past 1.26.0, check it matches a tagged release in the repository.
+- **Copycats.** [Help Net Security](https://www.helpnetsecurity.com/2026/11/19/microsoft-agent-framework-package-pypi-compromised/) places this among other 2026 attacks on AI tooling packages, which hold model and cloud credentials.
+
+## Related Reading
+
+- [Shai-Hulud 2.0: The npm Worm Spreading Through SAP and Intercom Packages This Week](/blog/shai-hulud-2-npm-worm-saas-defense)
+- [Your AI Agent Needs Its Own Identity: A SaaS Access Blueprint](/blog/ai-agent-identity-saas-access-blueprint)
+- [LiteLLM's Guardrail Sandbox Escape Is Now Actively Exploited: What to Check Today](/blog/litellm-cve-2026-40217-exploited-guardrail-rce)
+
+## Next Step
+
+If steps 1 and 2 come back clean, only the pipeline hygiene above remains. If they find a bad version, or you cannot tell which secrets your build agents read, that is a production readiness question. The [production readiness upgrade](/services/production-readiness-upgrade) covers dependency pinning, CI identity scoping and secret placement. Bring your lockfiles, your CI workflow files and a list of where your provider keys live.
