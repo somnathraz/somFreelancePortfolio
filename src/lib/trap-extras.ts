@@ -86,6 +86,12 @@ const EXTRAS: Record<string, TrapExtras> = {
             { platform: "youtube", url: "https://www.youtube.com/shorts/_fU1WWnSQ4Q", youtubeId: "_fU1WWnSQ4Q" },
         ],
     },
+    "rate-limiter-redis-down": {
+        series: "Rate Limiter",
+        reels: [
+            { platform: "youtube", url: "https://www.youtube.com/shorts/wiEij1MHzxc", youtubeId: "wiEij1MHzxc" },
+        ],
+    },
     "payments-core-design": {
         series: "Payments",
     },
@@ -94,9 +100,17 @@ const EXTRAS: Record<string, TrapExtras> = {
     },
     "payments-idempotency-race": {
         series: "Payments",
+        reels: [
+            { platform: "youtube", url: "https://www.youtube.com/shorts/tEzYw_DWhbA", youtubeId: "tEzYw_DWhbA" },
+        ],
     },
     "payments-charge-in-transaction": {
         series: "Payments",
+    },
+    "coupon-race": {
+        reels: [
+            { platform: "youtube", url: "https://www.youtube.com/shorts/wpUaW_0VY8s", youtubeId: "wpUaW_0VY8s" },
+        ],
     },
     "booking-race-condition": {
         series: "Booking system",

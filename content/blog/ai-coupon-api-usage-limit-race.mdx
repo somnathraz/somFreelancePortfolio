@@ -1,0 +1,163 @@
+---
+title: "The Coupon the AI Wrote: Why Usage Limits Break Under Load"
+metaTitle: "AI-Written Coupon API: Fixing the Usage Limit Race"
+description: "A coupon valid 10 times was applied 50 times. Why AI-written limit checks pass every test and fail in a sale, and the one-statement fix in Postgres."
+primaryKeyword: "coupon usage limit race condition"
+date: "2026-11-20"
+updated: "2026-11-20"
+author: "Somanath Khadanga"
+readTime: "6 min read"
+category: "SaaS Architecture"
+tags:
+  - race condition
+  - PostgreSQL
+  - AI-generated code
+  - interview traps
+  - concurrency
+shareImage: "/images/blog/ai-coupon-api-usage-limit-race.png"
+relatedService: "/services/production-readiness-upgrade"
+faq:
+  - question: "Does wrapping the coupon code in a transaction fix the race?"
+    answer: "Not by itself. Under Postgres's default Read Committed level, two transactions can still both read used = 0 before either writes. The fix is to put the limit into the write: UPDATE ... WHERE used < max_uses RETURNING, or to lock the row with SELECT ... FOR UPDATE first."
+  - question: "Is a CHECK constraint on the used column enough?"
+    answer: "It is a good backstop, because the increment past the limit fails instead of passing silently. Pair it with the conditional UPDATE so the normal path returns a clean \"coupon expired\" answer rather than a database error."
+---
+
+![Diagram of fifty requests applying one coupon at the same moment, with the limit check and the write merged into one statement](/images/blog/ai-coupon-api-usage-limit-race.png)
+
+Here is a scenario many teams will recognise. You ask an AI coding assistant for a coupon endpoint: `WELCOME500`, ₹500 off, valid for the first 10 uses. The code is clean, it reads well, and the test that comes with it passes. Then the sale starts and 50 people apply the coupon in the same second.
+
+How many get ₹500 off?
+
+In the version I built and ran for the [interview-traps repo](https://github.com/somnathraz/interview-traps/tree/main/05-coupon-race), the answer is all 50. That is ₹20,000 of discount nobody meant to give, and nothing in the logs says anything went wrong.
+
+This post walks through why that happens, why the usual tests cannot catch it, and the one-statement fix. You can scrub through a recorded run of it on the [coupon race trap page](https://somanathkhadanga.com/labs/traps/coupon-race).
+
+## The code an assistant usually writes
+
+The prompt in the repo is short:
+
+```text
+Write an Express + Postgres endpoint to apply a coupon code.
+Each coupon has max_uses. Reject it when it's used up.
+```
+
+The answer tends to take this shape, because it is the shape most code on the internet has. Here is the core of the buggy version from the repo:
+
+```ts
+const { rows } = await db.query(
+  "SELECT discount, max_uses, used FROM coupons WHERE code = $1", [code]);
+const coupon = rows[0];
+if (!coupon) return "404 Invalid coupon";
+if (coupon.used >= coupon.max_uses) return "410 Coupon expired";
+
+await db.query("UPDATE coupons SET used = used + 1 WHERE code = $1", [code]);
+await db.query("INSERT INTO redemptions (code, user_id) VALUES ($1, $2)", [code, userId]);
+return `200 ₹${coupon.discount} off applied`;
+```
+
+Read it line by line and it is correct. Read the count, check it against the limit, then write. A reviewer skimming a pull request would approve it.
+
+The problem is not any single line. It is the gap between the read and the write.
+
+## Why every request passes the check
+
+When 50 requests arrive together, they all run the `SELECT` before any of them reaches the `UPDATE`. All 50 see `used = 0`. All 50 pass the check. All 50 increment.
+
+The strange part is that the counter ends up exactly right. `used = used + 1` is atomic in Postgres, so no increment is lost. The coupon table says the coupon was used 50 times, and it was. The limit was 10. Nothing errors, nothing crashes, and the only signal is a discount report a week later.
+
+This is a well-known class of bug. MITRE lists it as [CWE-367, time-of-check time-of-use (TOCTOU) race condition](https://cwe.mitre.org/data/definitions/367.html): the state you checked changes before you use it. It is the same check-then-act shape as the [double-booked seat](/blog/double-booked-seat-booking-race-condition), wearing a different shirt. A seat is a limit of one. A coupon is a limit of ten. The bug does not care which number it is.
+
+## Why the AI's own test passes
+
+The test that usually comes with this kind of code applies the coupon 11 times in a row and checks that the 11th is rejected. The repo's proof test does exactly that, and the buggy version passes it: one user at a time, exactly 10 get the discount.
+
+"In a row" is the catch. Nothing in the prompt says "concurrent", and nothing in a one-at-a-time test can show a race. The assistant is not being careless. It answered the question it was asked, and the question left out the part that breaks.
+
+That is the general lesson about reviewing AI-written backend code. The assistant writes for the happy path described in the prompt. Load, retries and parallel requests are only handled when someone asks about them.
+
+A practical habit follows from this. When you prompt for any endpoint that changes a count, a balance or a status, add one sentence to the prompt: "This endpoint will receive many concurrent requests for the same row; make the limit check safe under concurrency." Then check the answer rather than trusting it. A correct answer puts the condition in the `WHERE` clause of the write, locks the row first, or relies on a database constraint. An answer that only adds a transaction around the same read-then-write code has not fixed anything.
+
+The same applies when you review code a teammate wrote by hand. Developers often write exactly this shape too, because it mirrors how we describe the rule in words: look up the coupon, see if it has uses left, then use it. The words are sequential. The traffic is not.
+
+## The fix: one statement
+
+The fix moves the check into the write:
+
+```ts
+const { rows } = await db.query(
+  "UPDATE coupons SET used = used + 1 WHERE code = $1 AND used < max_uses RETURNING discount",
+  [code],
+);
+if (rows.length === 0) return "410 Coupon expired"; // or 404 if the code does not exist
+```
+
+Why does this work when the first version did not? Postgres locks the row for each `UPDATE`. The [PostgreSQL documentation on Read Committed](https://www.postgresql.org/docs/current/transaction-iso.html) explains that when a second updater finds a row that another transaction is changing, it waits for that transaction to finish, then re-checks the `WHERE` clause against the new version of the row.
+
+So the requests take turns. The 11th request re-reads `used = 10`, the `WHERE used < max_uses` condition fails, and zero rows come back. That empty result is the "coupon expired" answer.
+
+When I run both versions with 50 concurrent users against a real Postgres, the output is:
+
+```text
+❌ A coupon valid 10 times was applied 50 times by 50 users: ₹20,000 of discount you never meant to give.
+✅ 50 users, 10 got ₹500 off, 40 told "Coupon expired". Exactly the limit.
+```
+
+The README notes this is the same on every run, with a warm connection pool. That detail matters: a race test with a cold pool can make requests arrive one by one and hide the bug. The proof test itself is a little looser than the output. For the bug it asserts that more than 20 users got the discount and that the counter matches the applied count. For the fix it asserts exactly 10 applied, 10 redemption rows and 40 "expired" responses.
+
+## How to write a test that catches it
+
+A race test has to make the requests actually overlap, or it proves nothing. The repo's proof test does three things worth copying.
+
+First, it fires all 50 requests with `Promise.all` instead of a loop, so they are in flight together. Second, it warms the connection pool before the run. With a cold pool, the first requests wait for new connections and end up arriving one by one, which hides the bug. Third, it checks the final state of the database, not only the HTTP responses: the coupon's `used` column, the number of redemption rows and the count of "expired" answers.
+
+It also keeps the sequential test next to the concurrent one. The sequential test passing while the concurrent one fails is the whole lesson in two assertions. When you add a test like this to your own codebase, run it against a real database, not a mock, because the behaviour you are testing lives in the database.
+
+## Other answers that work
+
+The conditional `UPDATE` is the default. It is not the only correct answer:
+
+- **`SELECT … FOR UPDATE` inside a transaction.** Fine when you need to read more than one row before deciding. It holds a lock for the whole transaction, so keep that transaction short.
+- **A `CHECK (used <= max_uses)` constraint.** A good backstop: the increment past the limit errors instead of passing. Pair it with the conditional update. See the [PostgreSQL constraints documentation](https://www.postgresql.org/docs/current/ddl-constraints.html).
+- **Redis `DECR` on a stock counter.** For high-traffic flash sales, then reconcile with the database.
+- **`UNIQUE (code, user_id)` on redemptions.** Use it whenever "one per customer" is a rule. It fixes a different bug from this one, so it does not replace the limit check.
+
+One answer that does not work on its own is "wrap it in a transaction". Under the default Read Committed level, two transactions can still both read `used = 0` before either writes. A transaction only helps if it also locks the row or puts the condition in the write.
+
+## The rule
+
+The repo's interview rule for this trap:
+
+> A limit check and the write that uses it must be one statement. If your code reads a count, decides, then writes, two requests can both decide yes.
+
+Coupons are only one place this shows up. The same shape sits behind free-trial limits, seat counts on a team plan, invite quotas, stock counts and AI credit balances. If your code reads a number, compares it to a limit and writes back later, it has this gap.
+
+My recommendation for any AI-written endpoint that enforces a limit: ask one question in review. What happens if 50 of these arrive at once? If the answer depends on a value read in an earlier statement, fix it before launch.
+
+## When this is enough, and when to get help
+
+For a single Postgres database, you can check this yourself in an afternoon. Search the codebase for limit checks: `>= max`, `used <`, `remaining`, `credits`, `quota`. For each one, see whether the check and the write are the same statement. If they are separate, move the condition into the `UPDATE`, add a `CHECK` constraint, and write one concurrent test that fires 50 requests at once with a warm pool.
+
+It gets harder when limits live across services, caches and payment providers, or when a lot of the code was generated quickly. That is where a structured review helps. The list in [what to audit in a vibe-coded MVP](/blog/what-to-audit-in-a-vibe-coded-mvp-before-real-users-see-it) is a good starting point.
+
+## Frequently Asked Questions
+
+### Does wrapping the coupon code in a transaction fix the race?
+
+Not by itself. Under Postgres's default Read Committed level, two transactions can still both read used = 0 before either writes. The fix is to put the limit into the write: UPDATE ... WHERE used < max_uses RETURNING, or to lock the row with SELECT ... FOR UPDATE first.
+
+### Is a CHECK constraint on the used column enough?
+
+It is a good backstop, because the increment past the limit fails instead of passing silently. Pair it with the conditional UPDATE so the normal path returns a clean "coupon expired" answer rather than a database error.
+
+## Related Reading
+
+- [The Double-Booked Seat: Fixing a Booking Race Condition in Postgres](/blog/double-booked-seat-booking-race-condition)
+- [Five Bugs Hiding in a URL Shortener (and the Fix for Each)](/blog/url-shortener-five-bugs-system-design)
+- [AI SaaS Fraud Controls: Protect Trials, Payments, and Model Spend](/blog/ai-saas-fraud-abuse-controls)
+
+## Next Step
+
+Run it yourself: clone the [interview-traps repo](https://github.com/somnathraz/interview-traps), start Postgres with `npm run db:up`, then run `npm run 05:bug` and `npm run 05:fix`. The recorded replay is on the [coupon race trap page](https://somanathkhadanga.com/labs/traps/coupon-race), next to the other traps in [Labs](/labs/traps).
+
+If your SaaS enforces limits on coupons, trials, seats or credits and much of that code was written fast or by an assistant, that is exactly what my [production readiness upgrade](/services/production-readiness-upgrade) checks. Bring a list of the limits your product enforces and where each one is written, and we can find the gaps before a sale does.
